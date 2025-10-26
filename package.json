@@ -1,0 +1,19 @@
+{
+  "name": "sizematic",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.15.9",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10"
+  },
+  "scripts": {
+    "dev": "pnpm web:dev",
+    "build": "pnpm web:build",
+    "web:dev": "pnpm --filter web dev",
+    "web:build": "pnpm --filter web build",
+    "web:start": "pnpm --filter web start",
+    "edge:dev": "pnpm --filter edge dev",
+    "edge:build": "pnpm --filter edge build",
+    "test:e2e": "pnpm --filter @sizematic/tests test"
+  }
+}

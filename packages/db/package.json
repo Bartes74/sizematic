@@ -1,0 +1,21 @@
+{
+  "name": "@sizematic/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "generate": "node ./scripts/generate-types.mjs"
+  },
+  "dependencies": {
+    "@supabase/postgrest-js": "^1.16.2"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}
