@@ -3,14 +3,30 @@
 import { useFormState, useFormStatus } from "react-dom";
 import { createMeasurementAction } from "@/app/actions";
 import { useLocale } from "@/providers/locale-provider";
+import type { Category } from "@/lib/types";
 
 const initialState = {
   error: undefined as string | undefined
 };
 
 type MeasurementFormProps = {
-  categories: string[];
+  categories: Category[];
 };
+
+// EN 13402 measurement fields
+const MEASUREMENT_FIELDS = [
+  { value: "chest", label: "Klatka piersiowa / Chest" },
+  { value: "waist", label: "Talia / Waist" },
+  { value: "hips", label: "Biodra / Hips" },
+  { value: "inseam", label: "Długość nogawki / Inseam" },
+  { value: "height", label: "Wzrost / Height" },
+  { value: "neck", label: "Obwód szyi / Neck" },
+  { value: "shoulder", label: "Szerokość ramion / Shoulder" },
+  { value: "sleeve", label: "Długość rękawa / Sleeve" },
+  { value: "foot_length", label: "Długość stopy / Foot length" },
+  { value: "head", label: "Obwód głowy / Head" },
+  { value: "hand", label: "Obwód dłoni / Hand" },
+];
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -63,14 +79,20 @@ export function MeasurementForm({ categories }: MeasurementFormProps) {
 
         <label className="space-y-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t('form.label')}
+            Pole pomiaru / Measurement field
           </span>
-          <input
-            name="label"
-            placeholder={t('form.labelPlaceholder')}
+          <select
+            name="measurementField"
             required
-            className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-          />
+            className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-all focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+            defaultValue={MEASUREMENT_FIELDS[0].value}
+          >
+            {MEASUREMENT_FIELDS.map((field) => (
+              <option key={field.value} value={field.value}>
+                {field.label}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="space-y-2">

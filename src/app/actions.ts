@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { addMeasurement } from "@/server/measurements";
+import type { Category, MeasurementValues } from "@/lib/types";
 
 type MeasurementFormState = {
   error?: string;
@@ -9,21 +10,31 @@ type MeasurementFormState = {
 
 const METRIC_VALUE_REGEX = /^[0-9]+(\.[0-9]{1,2})?$/;
 
+const VALID_CATEGORIES: Category[] = [
+  "tops",
+  "bottoms",
+  "footwear",
+  "headwear",
+  "accessories",
+  "outerwear",
+  "kids",
+];
+
 export async function createMeasurementAction(
   prevState: MeasurementFormState,
   formData: FormData
 ): Promise<MeasurementFormState> {
   const category = String(formData.get("category") ?? "").trim();
-  const label = String(formData.get("label") ?? "").trim();
+  const measurementField = String(formData.get("measurementField") ?? "").trim();
   const value = String(formData.get("value") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim() || null;
 
-  if (!category) {
-    return { error: "Wybierz kategorię pomiaru." };
+  if (!category || !VALID_CATEGORIES.includes(category as Category)) {
+    return { error: "Wybierz poprawną kategorię pomiaru." };
   }
 
-  if (!label) {
-    return { error: "Podaj nazwę pomiaru." };
+  if (!measurementField) {
+    return { error: "Podaj nazwę pomiaru (np. chest, waist, hips)." };
   }
 
   if (!value || !METRIC_VALUE_REGEX.test(value)) {
@@ -32,12 +43,16 @@ export async function createMeasurementAction(
 
   const valueCm = Number(value);
 
+  // Build the values object with the measurement
+  const values: MeasurementValues = {
+    [measurementField]: valueCm,
+  };
+
   try {
     await addMeasurement({
-      category,
-      label,
-      value_cm: valueCm,
-      notes
+      category: category as Category,
+      values,
+      notes,
     });
 
     revalidatePath("/");

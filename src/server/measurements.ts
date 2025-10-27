@@ -1,14 +1,20 @@
 import "server-only";
 
-import type { Measurement, MeasurementSummary } from "@/lib/types";
+import type {
+  Measurement,
+  MeasurementSummary,
+  Category,
+  MeasurementValues,
+  SizeSource,
+} from "@/lib/types";
 import { createSupabaseAdminClient } from "@/lib/supabase";
 
 type MeasurementInsert = {
   profile_id: string;
-  category: string;
-  label: string;
-  value_cm: number;
+  category: Category;
+  values: MeasurementValues;
   notes?: string | null;
+  source?: SizeSource;
 };
 
 const DEMO_PROFILE_OWNER = "00000000-0000-0000-0000-000000000000";
@@ -80,6 +86,7 @@ export async function addMeasurement(payload: Omit<MeasurementInsert, "profile_i
 
   const { error } = await supabase.from("measurements").insert({
     profile_id: profileId,
+    source: "measurement" as SizeSource,
     ...payload
   });
 

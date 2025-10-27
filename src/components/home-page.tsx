@@ -5,29 +5,22 @@ import { useLocale } from "@/providers/locale-provider";
 import { MeasurementForm } from "@/components/measurement-form";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
-
-type Measurement = {
-  id: string;
-  profile_id: string;
-  label: string;
-  value_cm: number;
-  category: string;
-  notes: string | null;
-  recorded_at: string;
-};
-
-type Summary = {
-  average_value_cm: number | null;
-  sample_size: number;
-  computed_at: string;
-} | null;
+import type { Measurement, MeasurementSummary, Category } from "@/lib/types";
 
 type HomePageProps = {
   measurements: Measurement[];
-  summary: Summary;
+  summary: MeasurementSummary | null;
 };
 
-const CATEGORY_OPTIONS = ["tops", "bottoms", "footwear", "accessories"];
+const CATEGORY_OPTIONS: Category[] = [
+  "tops",
+  "bottoms",
+  "footwear",
+  "headwear",
+  "accessories",
+  "outerwear",
+  "kids",
+];
 
 function formatValue(value: number) {
   return `${value.toFixed(1)} cm`;
@@ -35,6 +28,14 @@ function formatValue(value: number) {
 
 function formatTimestamp(timestamp: string) {
   return format(new Date(timestamp), "dd.MM.yyyy HH:mm");
+}
+
+// Helper to format the values object for display
+function formatMeasurementValues(values: Record<string, number | undefined>): string {
+  return Object.entries(values)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${key}: ${formatValue(value as number)}`)
+    .join(", ");
 }
 
 export function HomePage({ measurements, summary }: HomePageProps) {
@@ -97,17 +98,14 @@ export function HomePage({ measurements, summary }: HomePageProps) {
                         style={{ animationDelay: `${idx * 0.1}s` }}
                       >
                         <div className="flex items-start justify-between">
-                          <div>
+                          <div className="flex-1">
                             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                               {item.category}
                             </p>
                             <p className="mt-1 font-semibold text-card-foreground">
-                              {item.label}
+                              {formatMeasurementValues(item.values)}
                             </p>
                           </div>
-                          <p className="text-lg font-bold text-primary">
-                            {formatValue(item.value_cm)}
-                          </p>
                         </div>
                         {item.notes && (
                           <p className="mt-2 text-sm text-muted-foreground">
@@ -131,9 +129,6 @@ export function HomePage({ measurements, summary }: HomePageProps) {
                       {t('measurements.category')}
                     </th>
                     <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t('measurements.label')}
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       {t('measurements.value')}
                     </th>
                     <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -147,7 +142,7 @@ export function HomePage({ measurements, summary }: HomePageProps) {
                 <tbody className="divide-y divide-border/50">
                   {measurements.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center">
+                      <td colSpan={4} className="px-6 py-12 text-center">
                         <p className="text-sm text-muted-foreground">
                           {t('measurements.addFirst')}
                         </p>
@@ -163,11 +158,8 @@ export function HomePage({ measurements, summary }: HomePageProps) {
                         <td className="px-6 py-4 font-semibold capitalize text-card-foreground">
                           {item.category}
                         </td>
-                        <td className="px-6 py-4 text-card-foreground">
-                          {item.label}
-                        </td>
                         <td className="px-6 py-4 font-bold text-primary">
-                          {formatValue(item.value_cm)}
+                          {formatMeasurementValues(item.values)}
                         </td>
                         <td className="px-6 py-4 text-muted-foreground">
                           {item.notes ?? "—"}

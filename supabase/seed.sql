@@ -21,9 +21,9 @@ values
   ('00000000-0000-0000-0000-000000000000', 'Demo Profile', 'metric')
 on conflict do nothing;
 
--- Add demo measurements
-insert into public.measurements (profile_id, category, label, value_cm, notes)
-select id, 'tops', 'Chest', 92.0, 'Baseline value'
+-- Add demo measurements using new JSONB values format and category enum
+insert into public.measurements (profile_id, category, values, notes, source)
+select id, 'tops'::public.category, '{"chest": 92, "waist": 76, "hips": 88}'::jsonb, 'Baseline value', 'measurement'::public.size_source
 from public.profiles
 where owner_id = '00000000-0000-0000-0000-000000000000'
 on conflict do nothing;
