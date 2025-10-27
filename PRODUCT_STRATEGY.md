@@ -1,4 +1,4 @@
-# SizeSync: Product Strategy & Design System
+# SizeHub: Product Strategy & Design System
 ## Comprehensive Build Plan
 
 **Version**: 1.0
@@ -9,7 +9,7 @@
 
 ## 🎯 Executive Summary
 
-SizeSync to premium, offline-first PWA dla zarządzania garderobą z filozofią **"Concierge Intelligence"** - aplikacja która nigdy nie pyta dwukrotnie, obserwuje wzorce, przewiduje potrzeby i działa jak osobisty asystent premium.
+SizeHub to premium, offline-first PWA dla zarządzania garderobą z filozofią **"Concierge Intelligence"** - aplikacja która nigdy nie pyta dwukrotnie, obserwuje wzorce, przewiduje potrzeby i działa jak osobisty asystent premium.
 
 ---
 
@@ -268,7 +268,7 @@ export default createMiddleware({
 // messages/pl.json
 {
   "onboarding": {
-    "welcome": "Witaj w SizeSync",
+    "welcome": "Witaj w SizeHub",
     "subtitle": "Twój osobisty asystent rozmiarów",
     "cta": "Zacznij za darmo"
   },
@@ -578,7 +578,7 @@ const authConfig = {
    ↓
 4. User clicks link → Email confirmed
    ↓
-5. Email #2: "Witamy w SizeSync!" (welcome email)
+5. Email #2: "Witamy w SizeHub!" (welcome email)
    ↓
 6. Account ACTIVE - can use app
 ```

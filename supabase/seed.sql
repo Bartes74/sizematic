@@ -3,7 +3,7 @@ insert into auth.users (id, email, encrypted_password, email_confirmed_at, creat
 values
   (
     '00000000-0000-0000-0000-000000000000',
-    'demo@sizesync.local',
+    'demo@sizehub.local',
     crypt('demo123', gen_salt('bf')),
     now(),
     now(),

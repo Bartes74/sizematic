@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SizeSync - Your Personal Size Assistant",
+  title: "SizeHub - Your Personal Size Assistant",
   description: "Premium wardrobe management with intelligent size tracking",
 };
 

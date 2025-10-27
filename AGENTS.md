@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-SizeSync targets an offline-first wardrobe intelligence tool; align every change with the shared plans while the codebase matures from the current planning documents.
+SizeHub targets an offline-first wardrobe intelligence tool; align every change with the shared plans while the codebase matures from the current planning documents.
 
 ## Project Structure & Module Organization
 The monorepo spans `apps/web` (Next.js PWA), `apps/edge` (Supabase Edge Functions), `packages/db` (PostgreSQL DDL, seeds, RLS policies), and `packages/tests` (Playwright). Extend the nearest package when adding features, and move shared contracts to `packages/db` or the planned `packages/shared` workspace so web and edge stay aligned.

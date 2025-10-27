@@ -3,7 +3,7 @@
 Uzupełniaj kolejne pola i odhaczaj zadania, gdy tylko uzyskamy potrzebne dane. Po każdej sekcji znajdziesz instrukcję krok po kroku, jak zdobyć konkretne informacje. Zacznij od sekcji 1; pozostałe uzupełnimy po Twoim potwierdzeniu.
 
 - [x] **1. Identyfikator projektu (`project_ref`) i region**
-  - Otwórz [https://supabase.com/dashboard/projects](https://supabase.com/dashboard/projects) i zaloguj się na konto organizacji SizeSync.
+  - Otwórz [https://supabase.com/dashboard/projects](https://supabase.com/dashboard/projects) i zaloguj się na konto organizacji SizeHub.
   - Wybierz projekt, który ma obsłużyć środowiska aplikacji (jeśli jeszcze go nie masz, kliknij „New project” i przejdź przez kreator – wybierz nazwę, region oraz plan cenowy; po utworzeniu wróć do pulpitu).
   - Po wejściu do projektu spójrz na adres URL w przeglądarce – będzie w formacie `https://supabase.com/dashboard/project/<project_ref>`. Skopiuj fragment `<project_ref>` (ciąg liter/cyfr).
   - Region znajdziesz na karcie „Settings → General → Infrastructure”. Zanotuj nazwę regionu (np. `eu-central-1`).

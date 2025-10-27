@@ -13,7 +13,7 @@ const supabase = createClient(url, serviceRole, {
   }
 });
 
-const DEMO_EMAIL = 'demo@sizesync.dev';
+const DEMO_EMAIL = 'demo@sizehub.dev';
 const DEMO_PASSWORD = 'DemoPass123!';
 
 const { data: existingUsers, error: listError } = await supabase.auth.admin.listUsers({

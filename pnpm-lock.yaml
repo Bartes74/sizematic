@@ -61,87 +61,6 @@ importers:
         specifier: ^5
         version: 5.9.3
 
-  apps/edge:
-    dependencies:
-      '@supabase/supabase-js':
-        specifier: ^2.47.10
-        version: 2.76.1
-    devDependencies:
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-
-  apps/web:
-    dependencies:
-      '@supabase/ssr':
-        specifier: ^0.7.0
-        version: 0.7.0(@supabase/supabase-js@2.76.1)
-      '@supabase/supabase-js':
-        specifier: ^2.47.10
-        version: 2.76.1
-      date-fns:
-        specifier: ^4.1.0
-        version: 4.1.0
-      next:
-        specifier: 15.5.6
-        version: 15.5.6(@playwright/test@1.56.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      next-intl:
-        specifier: ^4.4.0
-        version: 4.4.0(next@15.5.6(@playwright/test@1.56.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
-      next-themes:
-        specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react:
-        specifier: 19.1.0
-        version: 19.1.0
-      react-dom:
-        specifier: 19.1.0
-        version: 19.1.0(react@19.1.0)
-    devDependencies:
-      '@eslint/eslintrc':
-        specifier: ^3
-        version: 3.3.1
-      '@tailwindcss/postcss':
-        specifier: ^4
-        version: 4.1.15
-      '@types/node':
-        specifier: ^20
-        version: 20.19.23
-      '@types/react':
-        specifier: ^19
-        version: 19.2.2
-      '@types/react-dom':
-        specifier: ^19
-        version: 19.2.2(@types/react@19.2.2)
-      eslint:
-        specifier: ^9
-        version: 9.38.0(jiti@2.6.1)
-      eslint-config-next:
-        specifier: 15.5.6
-        version: 15.5.6(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
-      tailwindcss:
-        specifier: ^4
-        version: 4.1.15
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-
-  packages/db:
-    dependencies:
-      '@supabase/postgrest-js':
-        specifier: ^1.16.2
-        version: 1.21.4
-    devDependencies:
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-
-  packages/tests:
-    devDependencies:
-      '@playwright/test':
-        specifier: ^1.50.0
-        version: 1.56.1
-
 packages:
 
   '@alloc/quick-lru@5.2.0':
@@ -467,9 +386,6 @@ packages:
   '@supabase/node-fetch@2.6.15':
     resolution: {integrity: sha512-1ibVeYUacxWYi9i0cf5efil6adJ9WRyZBLivgjs+AUpewx1F3xPi7gLgaASI2SmIQxPoCEjAsLAzKPgMJVgOUQ==}
     engines: {node: 4.x || >=6.0.0}
-
-  '@supabase/postgrest-js@1.21.4':
-    resolution: {integrity: sha512-TxZCIjxk6/dP9abAi89VQbWWMBbybpGWyvmIzTd79OeravM13OjR/YEYeyUOPcM1C3QyvXkvPZhUfItvmhY1IQ==}
 
   '@supabase/postgrest-js@2.76.1':
     resolution: {integrity: sha512-QJ1Cwim6L9gzWKP8U4Lgw9x/4lMWkZSVMDRYFCH+vVGitVbtfU885swTiioOjjUe4EYGZm+Xktg90twzSVv6IA==}
@@ -2266,6 +2182,7 @@ snapshots:
   '@playwright/test@1.56.1':
     dependencies:
       playwright: 1.56.1
+    optional: true
 
   '@rtsao/scc@1.1.0': {}
 
@@ -2286,10 +2203,6 @@ snapshots:
   '@supabase/node-fetch@2.6.15':
     dependencies:
       whatwg-url: 5.0.0
-
-  '@supabase/postgrest-js@1.21.4':
-    dependencies:
-      '@supabase/node-fetch': 2.6.15
 
   '@supabase/postgrest-js@2.76.1':
     dependencies:
@@ -3652,13 +3565,15 @@ snapshots:
 
   picomatch@4.0.3: {}
 
-  playwright-core@1.56.1: {}
+  playwright-core@1.56.1:
+    optional: true
 
   playwright@1.56.1:
     dependencies:
       playwright-core: 1.56.1
     optionalDependencies:
       fsevents: 2.3.2
+    optional: true
 
   possible-typed-array-names@1.1.0: {}
 

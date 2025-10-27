@@ -1,8 +1,8 @@
-# BUILD_PLAN.md — SizeSync (MVP, bez UI)
+# BUILD_PLAN.md — SizeHub (MVP, bez UI)
 
 ## 0. Cel dokumentu
 
-Dostarczamy kompletny, techniczny plan budowy **MVP SizeSync** (PWA z trybem offline-first) z modułami: **ZPR (measurement-first, EN 13402), auto‑konwersje marek, Zaufany Krąg, reguły udostępnień (per kategoria), Secret Giver (token), Prezentowy link, mikro‑misje, powiadomienia kontekstowe, kalendarz okazji, wishlista, monetyzacja (Stripe) i RLS**. W tym dokumencie **pomijamy UI**, skupiamy się na backendzie, kontraktach, danych, bezpieczeństwie, testach i harmonogramie.
+Dostarczamy kompletny, techniczny plan budowy **MVP SizeHub** (PWA z trybem offline-first) z modułami: **ZPR (measurement-first, EN 13402), auto‑konwersje marek, Zaufany Krąg, reguły udostępnień (per kategoria), Secret Giver (token), Prezentowy link, mikro‑misje, powiadomienia kontekstowe, kalendarz okazji, wishlista, monetyzacja (Stripe) i RLS**. W tym dokumencie **pomijamy UI**, skupiamy się na backendzie, kontraktach, danych, bezpieczeństwie, testach i harmonogramie.
 
 ---
 
@@ -257,10 +257,10 @@ Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_
 ```yaml
 openapi: 3.1.0
 info:
-  title: SizeSync API (MVP)
+  title: SizeHub API (MVP)
   version: 0.1.0
 servers:
-  - url: https://api.sizesync.local
+  - url: https://api.sizehub.local
 security:
   - bearerAuth: []
 components:

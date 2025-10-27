@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "SizeSync",
+    "appName": "SizeHub",
     "loading": "Ładowanie...",
     "error": "Wystąpił błąd",
     "save": "Zapisz",
@@ -21,7 +21,7 @@
     "settings": "Ustawienia"
   },
   "home": {
-    "welcome": "Witaj w SizeSync",
+    "welcome": "Witaj w SizeHub",
     "subtitle": "Twój osobisty asystent rozmiarów",
     "cta": "Rozpocznij",
     "demo": {

@@ -10,7 +10,7 @@
 ### Strona 1
 
 
-SizeSync — Projekt interfejsu użytkownika (MVP)
+SizeHub — Projekt interfejsu użytkownika (MVP)
 Kompletny projekt UI dla aplikacji PWA (Next.js + React + Tailwind), zgodny z architekturą
 measurement‑first  (ZPR),  funkcjami  udostępniania  (Zaufany  Krąg,  Secret  Giver),
 Prezentowym linkiem, mikro‑misjami oraz powiadomieniami kontekstowymi. Dokument

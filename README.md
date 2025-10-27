@@ -1,6 +1,6 @@
-# SizeSync Prototype
+# SizeHub Prototype
 
-This repository contains the first working vertical slice for SizeSync: a Next.js PWA backed by Supabase and ready to deploy on Vercel. The goal is to prove the measurement-first flows described in `BUILD_PLAN.md` with a real database, server actions, and edge automation hooks.
+This repository contains the first working vertical slice for SizeHub: a Next.js PWA backed by Supabase and ready to deploy on Vercel. The goal is to prove the measurement-first flows described in `BUILD_PLAN.md` with a real database, server actions, and edge automation hooks.
 
 ## Prerequisites
 - Node.js 20+

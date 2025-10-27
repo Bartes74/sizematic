@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SizeSync is an offline-first PWA for wardrobe size management built with Next.js and Supabase. The project implements a measurement-first approach using the EN 13402 standard, with automatic brand size conversions, trust circles for sharing, Secret Giver (paid temporary access), and gift links.
+SizeHub is an offline-first PWA for wardrobe size management built with Next.js and Supabase. The project implements a measurement-first approach using the EN 13402 standard, with automatic brand size conversions, trust circles for sharing, Secret Giver (paid temporary access), and gift links.
 
 **Current Status**: Early vertical slice implementation. The backend schema, RLS policies, and basic measurement flows are in place. Most features described in BUILD_PLAN.md are planned but not yet implemented.
 
@@ -197,7 +197,7 @@ When implementing, place in `apps/edge/src/` with service role client for privil
 
 - Never commit Stripe, Supabase, or email provider keys
 - Use `.env.example` as template
-- Regenerate types after schema changes: `pnpm --filter @sizematic/db generate` (when implemented)
+- Regenerate types after schema changes (when type generation is implemented)
 - Test RLS policies after every schema migration
 - Gift links and Secret Giver endpoints need rate limiting (see BUILD_PLAN.md §9)
 - Public link access MUST go through Edge Functions, never direct SELECT grants
