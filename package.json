@@ -3,17 +3,31 @@
   "private": true,
   "version": "0.1.0",
   "packageManager": "pnpm@9.15.9",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.47.10"
-  },
   "scripts": {
-    "dev": "pnpm web:dev",
-    "build": "pnpm web:build",
-    "web:dev": "pnpm --filter web dev",
-    "web:build": "pnpm --filter web build",
-    "web:start": "pnpm --filter web start",
-    "edge:dev": "pnpm --filter edge dev",
-    "edge:build": "pnpm --filter edge build",
-    "test:e2e": "pnpm --filter @sizematic/tests test"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.47.10",
+    "date-fns": "^4.1.0",
+    "next": "15.5.6",
+    "next-intl": "^4.4.0",
+    "next-themes": "^0.4.6",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

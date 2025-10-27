@@ -17,7 +17,7 @@ type Measurement = {
 };
 
 type Summary = {
-  average_value_cm: number;
+  average_value_cm: number | null;
   sample_size: number;
   computed_at: string;
 } | null;
