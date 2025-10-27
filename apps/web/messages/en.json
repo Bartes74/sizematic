@@ -39,5 +39,17 @@
     "value": "Value",
     "notes": "Notes",
     "recordedAt": "Recorded at"
+  },
+  "form": {
+    "title": "Add New Measurement",
+    "subtitle": "Values are stored in centimeters; this powers automatic brand conversions.",
+    "category": "Category",
+    "label": "Measurement Name",
+    "labelPlaceholder": "e.g. Chest",
+    "value": "Value (cm)",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional: posture, cycle phase",
+    "addMeasurement": "Add Measurement",
+    "saving": "Saving..."
   }
 }

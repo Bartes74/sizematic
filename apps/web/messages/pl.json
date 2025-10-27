@@ -39,5 +39,17 @@
     "value": "Wartość",
     "notes": "Notatki",
     "recordedAt": "Zapisano"
+  },
+  "form": {
+    "title": "Dodaj nowy pomiar",
+    "subtitle": "Wartości zapisujemy w centymetrach; zasili to automatyczne konwersje marek.",
+    "category": "Kategoria",
+    "label": "Nazwa pomiaru",
+    "labelPlaceholder": "np. Klata",
+    "value": "Wartość (cm)",
+    "notes": "Notatka",
+    "notesPlaceholder": "Opcjonalnie: posture, faza cyklu",
+    "addMeasurement": "Dodaj pomiar",
+    "saving": "Zapisywanie..."
   }
 }

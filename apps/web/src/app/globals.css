@@ -1,115 +1,103 @@
 @import "tailwindcss";
 
-/* Design System Tokens - SizeSync Premium Palette */
-:root {
-  /* Light Mode - Sophisticated Neutrals */
-  --background: 250 250 249;      /* #FAFAF9 - Warm Sand */
-  --foreground: 28 25 23;          /* #1C1917 - Midnight */
+@theme {
+  /* Premium Color System - Light Mode (Default) */
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
 
-  --card: 245 245 244;             /* #F5F5F4 - Soft Stone */
-  --card-foreground: 68 64 60;     /* #44403C - Charcoal */
+  --color-card: #ffffff;
+  --color-card-foreground: #1e293b;
 
-  --popover: 255 255 255;
-  --popover-foreground: 28 25 23;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
 
-  --primary: 255 107 107;          /* #FF6B6B - Coral Sunset */
-  --primary-foreground: 255 255 255;
+  --color-primary: #8b5cf6;
+  --color-primary-foreground: #ffffff;
 
-  --secondary: 168 218 220;        /* #A8DADC - Soft Sage */
-  --secondary-foreground: 28 25 23;
+  --color-secondary: #ec4899;
+  --color-secondary-foreground: #ffffff;
 
-  --muted: 231 229 228;            /* #E7E5E4 - Light Taupe */
-  --muted-foreground: 120 113 108; /* #78716C - Medium Gray */
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
 
-  --accent: 231 111 81;            /* #E76F51 - Terracotta */
-  --accent-foreground: 255 255 255;
+  --color-accent: #6366f1;
+  --color-accent-foreground: #ffffff;
 
-  --destructive: 239 68 68;
-  --destructive-foreground: 255 255 255;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
 
-  --border: 231 229 228;           /* #E7E5E4 */
-  --input: 214 211 209;            /* #D6D3D1 */
-  --ring: 255 107 107;             /* Coral focus */
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #8b5cf6;
 
-  --radius: 0.75rem;
+  /* Typography */
+  --font-family-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Border Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
 }
 
 .dark {
-  /* Dark Mode - Midnight Elegance */
-  --background: 10 10 10;          /* #0A0A0A - True Black */
-  --foreground: 245 245 244;       /* #F5F5F4 - Warm White */
+  --color-background: #18181b;
+  --color-foreground: #fafafa;
 
-  --card: 26 26 26;                /* #1A1A1A - Midnight Charcoal */
-  --card-foreground: 245 245 244;
+  --color-card: #27272a;
+  --color-card-foreground: #fafafa;
 
-  --popover: 26 26 26;
-  --popover-foreground: 245 245 244;
+  --color-popover: #27272a;
+  --color-popover-foreground: #fafafa;
 
-  --primary: 138 74 243;           /* #8A4AF3 - Electric Violet */
-  --primary-foreground: 255 255 255;
+  --color-primary: #facc15;
+  --color-primary-foreground: #18181b;
 
-  --secondary: 69 123 157;         /* #457B9D - Slate Blue */
-  --secondary-foreground: 255 255 255;
+  --color-secondary: #a855f7;
+  --color-secondary-foreground: #ffffff;
 
-  --muted: 42 42 42;               /* #2A2A2A - Dark Gray */
-  --muted-foreground: 168 168 168; /* #A8A8A8 - Soft Gray */
+  --color-muted: #3f3f46;
+  --color-muted-foreground: #a1a1aa;
 
-  --accent: 138 74 243;            /* Electric Violet */
-  --accent-foreground: 255 255 255;
+  --color-accent: #facc15;
+  --color-accent-foreground: #18181b;
 
-  --destructive: 239 68 68;
-  --destructive-foreground: 255 255 255;
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #ffffff;
 
-  --border: 42 42 42;
-  --input: 42 42 42;
-  --ring: 138 74 243;
-}
-
-@theme inline {
-  /* Tailwind 4 Theme Extensions */
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-
-  /* Typography */
-  --font-sans: var(--font-inter), "Inter Variable", system-ui, -apple-system, sans-serif;
-
-  /* Spacing (8px base) */
-  --radius: var(--radius);
+  --color-border: #3f3f46;
+  --color-input: #3f3f46;
+  --color-ring: #facc15;
 }
 
 * {
-  @apply border-border;
+  border-color: theme('colors.border');
 }
 
 body {
-  @apply bg-background text-foreground;
+  background-color: theme('colors.background');
+  color: theme('colors.foreground');
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Ensure dark mode applies correctly */
+.dark body {
+  background-color: #18181b;
+  color: #fafafa;
+}
+
 /* Premium Glassmorphism */
 .glass {
-  background: hsl(var(--card) / 0.8);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
-  border: 1px solid hsl(var(--border) / 0.3);
+  border: 1px solid rgba(226, 232, 240, 0.3);
+}
+
+.dark .glass {
+  background: rgba(39, 39, 42, 0.8);
+  border: 1px solid rgba(63, 63, 70, 0.3);
 }
 
 /* Smooth Transitions */
