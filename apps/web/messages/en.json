@@ -1,0 +1,43 @@
+{
+  "common": {
+    "appName": "SizeSync",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "nav": {
+    "home": "Home",
+    "measurements": "Measurements",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "home": {
+    "welcome": "Welcome to SizeSync",
+    "subtitle": "Your personal size assistant",
+    "cta": "Get Started",
+    "demo": {
+      "title": "Demo Measurements",
+      "average": "Average value",
+      "samples": "samples",
+      "addNew": "Add new measurement"
+    }
+  },
+  "measurements": {
+    "title": "Your measurements",
+    "addFirst": "Add your first measurement",
+    "category": "Category",
+    "label": "Label",
+    "value": "Value",
+    "notes": "Notes",
+    "recordedAt": "Recorded at"
+  }
+}
