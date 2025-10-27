@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { createMeasurementAction } from "@/app/[locale]/actions";
+import { createMeasurementAction } from "@/app/actions";
 
 const initialState = {
   error: undefined as string | undefined

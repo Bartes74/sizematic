@@ -1,11 +1,31 @@
+'use client';
+
 import { format } from "date-fns";
-import { getTranslations } from 'next-intl/server';
+import { useLocale } from "@/providers/locale-provider";
 import { MeasurementForm } from "@/components/measurement-form";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { getMeasurementSummary, listMeasurements } from "@/server/measurements";
 
-export const dynamic = "force-dynamic";
+type Measurement = {
+  id: string;
+  profile_id: string;
+  label: string;
+  value_cm: number;
+  category: string;
+  notes: string | null;
+  recorded_at: string;
+};
+
+type Summary = {
+  average_value_cm: number;
+  sample_size: number;
+  computed_at: string;
+} | null;
+
+type HomePageProps = {
+  measurements: Measurement[];
+  summary: Summary;
+};
 
 const CATEGORY_OPTIONS = ["tops", "bottoms", "footwear", "accessories"];
 
@@ -17,10 +37,8 @@ function formatTimestamp(timestamp: string) {
   return format(new Date(timestamp), "dd.MM.yyyy HH:mm");
 }
 
-export default async function Home() {
-  const t = await getTranslations();
-  const measurements = await listMeasurements();
-  const summary = await getMeasurementSummary();
+export function HomePage({ measurements, summary }: HomePageProps) {
+  const { t } = useLocale();
 
   return (
     <div className="min-h-screen bg-background">
