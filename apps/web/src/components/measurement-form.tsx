@@ -32,7 +32,7 @@ export function MeasurementForm({ categories }: MeasurementFormProps) {
   const { t } = useLocale();
 
   return (
-    <form action={formAction} className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-lg shadow-black/5">
+    <form action={formAction} className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-lg shadow-black/5 sm:p-8">
       <div>
         <h2 className="text-xl font-bold tracking-tight text-foreground">
           {t('form.title')}

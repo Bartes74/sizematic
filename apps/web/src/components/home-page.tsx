@@ -43,44 +43,88 @@ export function HomePage({ measurements, summary }: HomePageProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Premium Header with Glassmorphism */}
-      <header className="sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+      <header className="animate-fade-in-down sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
               {t('common.appName')}
             </p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground">
+            <h1 className="mt-1 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               {t('home.demo.title')}
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <LanguageSwitcher />
             <ThemeToggle />
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr] lg:gap-8">
           {/* Measurements Table Section */}
-          <section className="space-y-6">
-            <div className="flex items-end justify-between">
+          <section className="animate-fade-in-up space-y-6 stagger-1">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
                   {t('measurements.title')}
                 </h2>
                 <p className="mt-1.5 text-sm text-muted-foreground">
                   {t('home.subtitle')}
                 </p>
               </div>
-              <span className="flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm font-medium text-foreground">
-                <span className="flex h-2 w-2 rounded-full bg-primary"></span>
+              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm font-medium text-foreground">
+                <span className="animate-pulse-soft flex h-2 w-2 rounded-full bg-primary"></span>
                 {measurements.length} {t('home.demo.samples')}
               </span>
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-lg shadow-black/5">
-              <table className="min-w-full text-left text-sm">
+              {/* Mobile: Card Layout */}
+              <div className="block md:hidden">
+                {measurements.length === 0 ? (
+                  <div className="px-6 py-12 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      {t('measurements.addFirst')}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border/50">
+                    {measurements.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="animate-fade-in-up p-4 transition-colors hover:bg-muted/30"
+                        style={{ animationDelay: `${idx * 0.1}s` }}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                              {item.category}
+                            </p>
+                            <p className="mt-1 font-semibold text-card-foreground">
+                              {item.label}
+                            </p>
+                          </div>
+                          <p className="text-lg font-bold text-primary">
+                            {formatValue(item.value_cm)}
+                          </p>
+                        </div>
+                        {item.notes && (
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            {item.notes}
+                          </p>
+                        )}
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {formatTimestamp(item.recorded_at)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop: Table Layout */}
+              <table className="hidden min-w-full text-left text-sm md:table">
                 <thead className="border-b border-border bg-muted/30">
                   <tr>
                     <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -110,10 +154,11 @@ export function HomePage({ measurements, summary }: HomePageProps) {
                       </td>
                     </tr>
                   ) : (
-                    measurements.map((item) => (
+                    measurements.map((item, idx) => (
                       <tr
                         key={item.id}
-                        className="group transition-colors hover:bg-muted/30"
+                        className="animate-fade-in-up group transition-colors hover:bg-muted/30"
+                        style={{ animationDelay: `${idx * 0.1}s` }}
                       >
                         <td className="px-6 py-4 font-semibold capitalize text-card-foreground">
                           {item.category}
@@ -139,22 +184,24 @@ export function HomePage({ measurements, summary }: HomePageProps) {
           </section>
 
           {/* Sidebar with Stats & Form */}
-          <aside className="space-y-6">
+          <aside className="animate-slide-in-right space-y-6 stagger-2">
             {/* Stats Card with Gradient */}
-            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8 shadow-lg shadow-primary/5">
-              <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-3xl"></div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-primary">
+            <div className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 shadow-lg shadow-primary/5 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10 sm:p-8">
+              <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-3xl transition-all group-hover:h-40 group-hover:w-40"></div>
+              <h3 className="relative text-xs font-bold uppercase tracking-widest text-primary">
                 {t('home.demo.average')}
               </h3>
-              <p className="mt-4 text-5xl font-bold tracking-tight text-foreground">
+              <p className="relative mt-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
                 {summary?.average_value_cm != null ? formatValue(summary.average_value_cm) : "—"}
               </p>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="relative mt-2 text-sm text-muted-foreground">
                 {summary?.sample_size ?? 0} {t('home.demo.samples')}
               </p>
             </div>
 
-            <MeasurementForm categories={CATEGORY_OPTIONS} />
+            <div className="animate-scale-in stagger-3">
+              <MeasurementForm categories={CATEGORY_OPTIONS} />
+            </div>
           </aside>
         </div>
       </main>
