@@ -74,7 +74,7 @@ export function TrustedCircle({ members, plan = 'free' }: TrustedCircleProps) {
           ) : (
             <div className="rounded-xl bg-muted/50 px-4 py-3">
               <p className="text-xs text-muted-foreground">
-                {t('circle.limitReached', { count: members.length })}
+                {t('circle.limitReached')}
               </p>
             </div>
           )}
