@@ -202,7 +202,7 @@ export function HomePage({
   const sizes = getLatestSizesByCategory(measurements, garments, sizeLabels);
 
   // Placeholder data for other sections (will be replaced with real data later)
-  const circleMembers = [
+  const circleMembers: Array<{ name: string; categories: string[] }> = [
     // Example: { name: "Anna", categories: ["Koszulki", "Spodnie", "Buty"] }
   ];
 
