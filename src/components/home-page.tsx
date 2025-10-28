@@ -1,202 +1,254 @@
 'use client';
 
-import { format } from "date-fns";
-import { useLocale } from "@/providers/locale-provider";
-import { MeasurementForm } from "@/components/measurement-form";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { LanguageSwitcher } from "@/components/language-switcher";
-import type { Measurement, MeasurementSummary, Category } from "@/lib/types";
+import { GlobalHeader } from "@/components/global-header";
+import { QuickActions } from "@/components/quick-actions";
+import { SizeOverview } from "@/components/size-overview";
+import { GiftsAndOccasions } from "@/components/gifts-and-occasions";
+import { MissionsReminders } from "@/components/missions-reminders";
+import { TrustedCircle } from "@/components/trusted-circle";
+import { RecentActivity } from "@/components/recent-activity";
+import type { Measurement, MeasurementSummary, Category, Garment, SizeLabel, GarmentType } from "@/lib/types";
+
+// Mapping of garment types to Polish names
+const GARMENT_TYPE_NAMES: Record<GarmentType, string> = {
+  // Tops
+  tshirt: 'Koszulka',
+  shirt_casual: 'Koszula casualowa',
+  shirt_formal: 'Koszula formalna',
+  sweater: 'Sweter',
+  hoodie: 'Bluza',
+  blazer: 'Marynarka',
+  jacket: 'Kurtka',
+  coat: 'Płaszcz/Parka',
+  // Bottoms
+  jeans: 'Jeansy',
+  pants_casual: 'Spodnie casualowe',
+  pants_formal: 'Spodnie garniturowe',
+  shorts: 'Szorty',
+  skirt: 'Spódnica',
+  // Footwear
+  sneakers: 'Sneakersy',
+  dress_shoes: 'Buty wizytowe',
+  boots: 'Kozaki/Botki',
+  sandals: 'Sandały',
+  slippers: 'Kapcie',
+  // Underwear (headwear category)
+  bra: 'Biustonosz',
+  underwear: 'Majtki',
+  socks: 'Skarpety',
+  // Accessories
+  belt: 'Pasek',
+  scarf: 'Szalik',
+  gloves: 'Rękawiczki',
+  cap: 'Czapka z daszkiem',
+  hat: 'Kapelusz/Czapka',
+  jewelry: 'Biżuteria (ogólna)',
+  necklace: 'Naszyjnik',
+  bracelet: 'Bransoletka',
+  ring: 'Pierścionek',
+  earrings: 'Kolczyki',
+  // Other
+  other: 'Inne',
+};
 
 type HomePageProps = {
   measurements: Measurement[];
   summary: MeasurementSummary | null;
+  userName?: string | null;
+  userRole?: 'free' | 'premium' | 'premium_plus';
+  avatarUrl?: string | null;
+  garments?: Garment[];
+  sizeLabels?: SizeLabel[];
 };
 
-const CATEGORY_OPTIONS: Category[] = [
-  "tops",
-  "bottoms",
-  "footwear",
-  "headwear",
-  "accessories",
-  "outerwear",
-  "kids",
-];
+// Helper to format garment size for display
+function formatGarmentSize(garment: Garment): string {
+  const size = garment.size as any;
 
-function formatValue(value: number) {
-  return `${value.toFixed(1)} cm`;
+  if (size.size) {
+    // Generic size (M, L, XL, etc.)
+    return size.size;
+  } else if (size.collar_cm) {
+    // Formal shirt
+    return `${size.collar_cm}cm ${size.fit_type}`;
+  } else if (size.waist_inch) {
+    // Jeans
+    return `${size.waist_inch}/${size.length_inch}`;
+  } else if (size.size_eu) {
+    // Shoes
+    return `EU ${size.size_eu}`;
+  } else if (size.size_mm) {
+    // Ring
+    const sideLabel = size.side === 'left' ? 'L' : 'P';
+    const partLabel = size.body_part === 'hand' ? 'dł' : 'st';
+    const fingerLabels: Record<string, string> = {
+      thumb: 'kciuk',
+      index: 'wskazuj.',
+      middle: 'środ.',
+      ring: 'serdecz.',
+      pinky: 'mały'
+    };
+    const fingerLabel = fingerLabels[size.finger] || size.finger;
+    return `${size.size_mm}mm (${sideLabel} ${partLabel}, ${fingerLabel})`;
+  }
+
+  return 'N/A';
 }
 
-function formatTimestamp(timestamp: string) {
-  return format(new Date(timestamp), "dd.MM.yyyy HH:mm");
+// Helper to get latest sizes per category from garments and size labels
+function getLatestSizesByCategory(
+  measurements: Measurement[],
+  garments: Garment[] = [],
+  sizeLabels: SizeLabel[] = []
+) {
+  const sizeMap = new Map<Category, {
+    value: string;
+    isOutdated: boolean;
+    count: number;
+    garmentTypeName?: string;
+  }>();
+
+  // New logic: For each category, show favorite OR most recent garment
+  // Group garments by category
+  const garmentsByCategory = garments.reduce((acc: any, g: any) => {
+    if (!acc[g.category]) {
+      acc[g.category] = [];
+    }
+    acc[g.category].push(g);
+    return acc;
+  }, {} as Record<Category, any[]>);
+
+  // For each category, pick the garment to display
+  Object.entries(garmentsByCategory).forEach(([category, categoryGarments]: [string, any[]]) => {
+    // First, try to find a favorite in this category
+    let garmentToShow = categoryGarments.find((g: any) => g.is_favorite);
+
+    // If no favorite, take the most recent one (first in array, since already sorted by created_at desc)
+    if (!garmentToShow) {
+      garmentToShow = categoryGarments[0];
+    }
+
+    if (garmentToShow) {
+      const sizeStr = formatGarmentSize(garmentToShow);
+      const brandName = garmentToShow.brands?.name || garmentToShow.brand_name;
+      const displayValue = brandName
+        ? `${sizeStr} (${brandName})`
+        : sizeStr;
+
+      const garmentTypeName = garmentToShow.type ? GARMENT_TYPE_NAMES[garmentToShow.type as GarmentType] : undefined;
+
+      sizeMap.set(category as Category, {
+        value: displayValue,
+        isOutdated: false,
+        count: categoryGarments.length,
+        garmentTypeName
+      });
+    }
+  });
+
+  // Add size labels (medium priority)
+  sizeLabels.forEach((sl) => {
+    if (!sizeMap.has(sl.category)) {
+      const displayValue = sl.brand_name
+        ? `${sl.label} (${sl.brand_name})`
+        : sl.label;
+
+      sizeMap.set(sl.category, {
+        value: displayValue,
+        isOutdated: false,
+        count: 1
+      });
+    }
+  });
+
+  // Add measurements (lowest priority - fallback)
+  measurements.forEach((m) => {
+    if (!sizeMap.has(m.category)) {
+      const formattedValues = Object.entries(m.values)
+        .filter(([, v]) => v !== undefined)
+        .map(([key, value]) => `${key}: ${(value as number).toFixed(1)} cm`)
+        .join(", ");
+
+      const recordedDate = new Date(m.recorded_at);
+      const monthsAgo = (Date.now() - recordedDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
+      const isOutdated = monthsAgo > 6;
+
+      sizeMap.set(m.category, {
+        value: formattedValues,
+        isOutdated,
+        count: 1
+      });
+    }
+  });
+
+  return Array.from(sizeMap.entries()).map(([category, data]) => ({
+    category,
+    value: data.count > 1 ? `${data.value} +${data.count - 1}` : data.value,
+    isOutdated: data.isOutdated,
+    garmentTypeName: data.garmentTypeName,
+  }));
 }
 
-// Helper to format the values object for display
-function formatMeasurementValues(values: Record<string, number | undefined>): string {
-  return Object.entries(values)
-    .filter(([, value]) => value !== undefined)
-    .map(([key, value]) => `${key}: ${formatValue(value as number)}`)
-    .join(", ");
-}
+export function HomePage({
+  measurements,
+  summary,
+  userName,
+  userRole = 'free',
+  avatarUrl,
+  garments = [],
+  sizeLabels = []
+}: HomePageProps) {
+  // Prepare data for size overview
+  const sizes = getLatestSizesByCategory(measurements, garments, sizeLabels);
 
-export function HomePage({ measurements, summary }: HomePageProps) {
-  const { t } = useLocale();
+  // Placeholder data for other sections (will be replaced with real data later)
+  const circleMembers = [
+    // Example: { name: "Anna", categories: ["Koszulki", "Spodnie", "Buty"] }
+  ];
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Premium Header with Glassmorphism */}
-      <header className="animate-fade-in-down sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
-              {t('common.appName')}
-            </p>
-            <h1 className="mt-1 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-              {t('home.demo.title')}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <LanguageSwitcher />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <GlobalHeader userName={userName} plan={userRole} avatarUrl={avatarUrl} />
 
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-        <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr] lg:gap-8">
-          {/* Measurements Table Section */}
-          <section className="animate-fade-in-up space-y-6 stagger-1">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                  {t('measurements.title')}
-                </h2>
-                <p className="mt-1.5 text-sm text-muted-foreground">
-                  {t('home.subtitle')}
-                </p>
-              </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm font-medium text-foreground">
-                <span className="animate-pulse-soft flex h-2 w-2 rounded-full bg-primary"></span>
-                {measurements.length} {t('home.demo.samples')}
-              </span>
-            </div>
+        <div className="space-y-8">
+          {/* Quick Actions - Full Width */}
+          <QuickActions />
 
-            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-lg shadow-black/5">
-              {/* Mobile: Card Layout */}
-              <div className="block md:hidden">
-                {measurements.length === 0 ? (
-                  <div className="px-6 py-12 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      {t('measurements.addFirst')}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-border/50">
-                    {measurements.map((item, idx) => (
-                      <div
-                        key={item.id}
-                        className="animate-fade-in-up p-4 transition-colors hover:bg-muted/30"
-                        style={{ animationDelay: `${idx * 0.1}s` }}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                              {item.category}
-                            </p>
-                            <p className="mt-1 font-semibold text-card-foreground">
-                              {formatMeasurementValues(item.values)}
-                            </p>
-                          </div>
-                        </div>
-                        {item.notes && (
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            {item.notes}
-                          </p>
-                        )}
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {formatTimestamp(item.recorded_at)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+          {/* Size Overview - Full Width */}
+          <SizeOverview sizes={sizes} plan={userRole} />
 
-              {/* Desktop: Table Layout */}
-              <table className="hidden min-w-full text-left text-sm md:table">
-                <thead className="border-b border-border bg-muted/30">
-                  <tr>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t('measurements.category')}
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t('measurements.value')}
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t('measurements.notes')}
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t('measurements.recordedAt')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/50">
-                  {measurements.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-12 text-center">
-                        <p className="text-sm text-muted-foreground">
-                          {t('measurements.addFirst')}
-                        </p>
-                      </td>
-                    </tr>
-                  ) : (
-                    measurements.map((item, idx) => (
-                      <tr
-                        key={item.id}
-                        className="animate-fade-in-up group transition-colors hover:bg-muted/30"
-                        style={{ animationDelay: `${idx * 0.1}s` }}
-                      >
-                        <td className="px-6 py-4 font-semibold capitalize text-card-foreground">
-                          {item.category}
-                        </td>
-                        <td className="px-6 py-4 font-bold text-primary">
-                          {formatMeasurementValues(item.values)}
-                        </td>
-                        <td className="px-6 py-4 text-muted-foreground">
-                          {item.notes ?? "—"}
-                        </td>
-                        <td className="px-6 py-4 text-xs text-muted-foreground">
-                          {formatTimestamp(item.recorded_at)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          {/* Missions & Gifts Row */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <MissionsReminders />
+            <GiftsAndOccasions />
+          </div>
 
-          {/* Sidebar with Stats & Form */}
-          <aside className="animate-slide-in-right space-y-6 stagger-2">
-            {/* Stats Card with Gradient */}
-            <div className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 shadow-lg shadow-primary/5 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10 sm:p-8">
-              <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-3xl transition-all group-hover:h-40 group-hover:w-40"></div>
-              <h3 className="relative text-xs font-bold uppercase tracking-widest text-primary">
-                {t('home.demo.average')}
-              </h3>
-              <p className="relative mt-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                {summary?.average_value_cm != null ? formatValue(summary.average_value_cm) : "—"}
-              </p>
-              <p className="relative mt-2 text-sm text-muted-foreground">
-                {summary?.sample_size ?? 0} {t('home.demo.samples')}
-              </p>
-            </div>
-
-            <div className="animate-scale-in stagger-3">
-              <MeasurementForm categories={CATEGORY_OPTIONS} />
-            </div>
-          </aside>
+          {/* Circle & Activity Row */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <TrustedCircle members={circleMembers} plan={userRole} />
+            <RecentActivity />
+          </div>
         </div>
       </main>
+
+      {/* Footer Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-sm md:hidden">
+        <div className="flex items-center justify-around px-4 py-3">
+          {['home', 'sizes', 'gifts', 'circle', 'settings'].map((item) => (
+            <a
+              key={item}
+              href={`#${item}`}
+              className="flex flex-col items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span className="capitalize">{item}</span>
+            </a>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }

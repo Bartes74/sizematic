@@ -17,8 +17,20 @@
   "nav": {
     "home": "Strona główna",
     "measurements": "Pomiary",
+    "sizes": "Rozmiary",
+    "gifts": "Prezenty",
+    "circle": "Krąg",
     "profile": "Profil",
     "settings": "Ustawienia"
+  },
+  "header": {
+    "greeting": "Cześć, {{name}} 👋",
+    "greetingDefault": "Witaj 👋",
+    "plan": "Plan:",
+    "planFree": "Free",
+    "planPremium": "Premium",
+    "planPremiumPlus": "Premium+",
+    "upgradePlan": "Dowiedz się, co daje Premium"
   },
   "home": {
     "welcome": "Witaj w SizeHub",
@@ -30,6 +42,74 @@
       "samples": "próbek",
       "addNew": "Dodaj nowy pomiar"
     }
+  },
+  "quickActions": {
+    "title": "Szybkie akcje",
+    "addBodyMeasurement": "Dodaj pomiar ciała",
+    "copyFromLabel": "Przepisz z metki",
+    "sendGiftLink": "Wyślij link prezentowy",
+    "viewMySizes": "Zobacz moje rozmiary"
+  },
+  "sizeOverview": {
+    "title": "Szybki podgląd rozmiarów",
+    "subtitle": "Twoje aktualne rozmiary w różnych kategoriach",
+    "noData": "Dodaj pierwszy pomiar, aby zobaczyć swoje rozmiary",
+    "outdatedBadge": "sprawdź teraz",
+    "categories": {
+      "tops": "Góra",
+      "bottoms": "Dół",
+      "footwear": "Buty",
+      "headwear": "Bielizna",
+      "accessories": "Akcesoria",
+      "outerwear": "Odzież wierzchnia",
+      "lingerie": "Bielizna",
+      "jewelry": "Biżuteria",
+      "kids": "Dziecko"
+    },
+    "addPartner": "Dodaj rozmiary partnera",
+    "addChild": "Dodaj rozmiary dziecka",
+    "premiumOnly": "dostępne w Premium"
+  },
+  "giftsAndOccasions": {
+    "title": "Prezenty i ważne daty",
+    "subtitle": "Nadchodzące okazje i aktywne linki",
+    "upcomingBirthdays": "Zbliżające się urodziny",
+    "activeGiftLinks": "Aktywne linki prezentowe",
+    "secretGiverRequests": "Prośby o dostęp (Secret Giver)",
+    "noOccasions": "Brak nadchodzących okazji",
+    "copyLink": "Kopiuj link",
+    "revoke": "Unieważnij",
+    "allow": "Zezwól",
+    "allowJewelryOnly": "Zezwól tylko na biżuterię",
+    "deny": "Odrzuć",
+    "views": "wyświetleń",
+    "validUntil": "ważny do",
+    "premiumFeature": "W Premium+ możesz zabezpieczyć dostęp hasłem i dłuższą ważnością linku"
+  },
+  "missions": {
+    "title": "Twoje następne kroki",
+    "subtitle": "Misje i przypomnienia",
+    "weeklyProgress": "Postęp misji tygodnia",
+    "reward": "Nagroda",
+    "checkNow": "Sprawdź teraz",
+    "inviteToCircle": "Zaproś kolejną osobę do Kręgu",
+    "premiumRequired": "dostępne w Premium"
+  },
+  "circle": {
+    "title": "Kto zna Twoje rozmiary",
+    "subtitle": "Mój Krąg",
+    "hasAccessTo": "ma dostęp do:",
+    "addPerson": "Dodaj osobę",
+    "limitReached": "Masz już {{count}} {{count, plural, one {osobę} few {osoby} other {osób}}} w Kręgu. W Premium możesz dodać kolejne 3.",
+    "onlyYou": "tylko Ty",
+    "noPeople": "Nie udostępniasz jeszcze swoich rozmiarów nikomu"
+  },
+  "activity": {
+    "title": "Ostatnia aktywność",
+    "subtitle": "Zobacz, kto oglądał Twoje rozmiary",
+    "viewedLink": "{{name}} podejrzała Twój link prezentowy {{count}} {{count, plural, one {raz} other {razy}}} w tym tygodniu",
+    "noActivity": "Brak aktywności w tym tygodniu",
+    "premiumFeature": "W Premium+ zobaczysz kto dokładnie i kiedy oglądał Twoje rozmiary"
   },
   "measurements": {
     "title": "Twoje pomiary",

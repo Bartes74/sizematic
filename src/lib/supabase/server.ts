@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 function requireEnv(name: "NEXT_PUBLIC_SUPABASE_URL" | "NEXT_PUBLIC_SUPABASE_ANON_KEY" | "SUPABASE_SERVICE_ROLE_KEY") {
   const value = process.env[name];
@@ -14,7 +14,7 @@ const supabaseUrl = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
 const supabaseAnonKey = requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
 const serviceRoleKey = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
 
-export async function createSupabaseServerClient() {
+export async function createClient() {
   const cookieStore = await cookies();
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -32,7 +32,7 @@ export async function createSupabaseServerClient() {
 }
 
 export function createSupabaseAdminClient() {
-  return createClient(supabaseUrl, serviceRoleKey, {
+  return createSupabaseClient(supabaseUrl, serviceRoleKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false

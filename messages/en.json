@@ -17,8 +17,20 @@
   "nav": {
     "home": "Home",
     "measurements": "Measurements",
+    "sizes": "Sizes",
+    "gifts": "Gifts",
+    "circle": "Circle",
     "profile": "Profile",
     "settings": "Settings"
+  },
+  "header": {
+    "greeting": "Hi, {{name}} 👋",
+    "greetingDefault": "Welcome 👋",
+    "plan": "Plan:",
+    "planFree": "Free",
+    "planPremium": "Premium",
+    "planPremiumPlus": "Premium+",
+    "upgradePlan": "Learn about Premium benefits"
   },
   "home": {
     "welcome": "Welcome to SizeHub",
@@ -30,6 +42,74 @@
       "samples": "samples",
       "addNew": "Add new measurement"
     }
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "addBodyMeasurement": "Add body measurement",
+    "copyFromLabel": "Copy from label",
+    "sendGiftLink": "Send gift link",
+    "viewMySizes": "View my sizes"
+  },
+  "sizeOverview": {
+    "title": "Size Overview",
+    "subtitle": "Your current sizes across categories",
+    "noData": "Add your first measurement to see your sizes",
+    "outdatedBadge": "check now",
+    "categories": {
+      "tops": "Tops",
+      "bottoms": "Bottoms",
+      "footwear": "Footwear",
+      "headwear": "Headwear",
+      "accessories": "Accessories",
+      "outerwear": "Outerwear",
+      "lingerie": "Lingerie",
+      "jewelry": "Jewelry",
+      "kids": "Kids"
+    },
+    "addPartner": "Add partner's sizes",
+    "addChild": "Add child's sizes",
+    "premiumOnly": "available in Premium"
+  },
+  "giftsAndOccasions": {
+    "title": "Gifts and Important Dates",
+    "subtitle": "Upcoming occasions and active links",
+    "upcomingBirthdays": "Upcoming birthdays",
+    "activeGiftLinks": "Active gift links",
+    "secretGiverRequests": "Access requests (Secret Giver)",
+    "noOccasions": "No upcoming occasions",
+    "copyLink": "Copy link",
+    "revoke": "Revoke",
+    "allow": "Allow",
+    "allowJewelryOnly": "Allow jewelry only",
+    "deny": "Deny",
+    "views": "views",
+    "validUntil": "valid until",
+    "premiumFeature": "In Premium+ you can password-protect links and extend validity"
+  },
+  "missions": {
+    "title": "Your Next Steps",
+    "subtitle": "Missions and reminders",
+    "weeklyProgress": "Weekly mission progress",
+    "reward": "Reward",
+    "checkNow": "Check now",
+    "inviteToCircle": "Invite another person to Circle",
+    "premiumRequired": "available in Premium"
+  },
+  "circle": {
+    "title": "Who Knows Your Sizes",
+    "subtitle": "My Circle",
+    "hasAccessTo": "has access to:",
+    "addPerson": "Add person",
+    "limitReached": "You already have {{count}} {{count, plural, one {person} other {people}}} in your Circle. In Premium you can add 3 more.",
+    "onlyYou": "only you",
+    "noPeople": "You haven't shared your sizes with anyone yet"
+  },
+  "activity": {
+    "title": "Recent Activity",
+    "subtitle": "See who viewed your sizes",
+    "viewedLink": "{{name}} viewed your gift link {{count}} {{count, plural, one {time} other {times}}} this week",
+    "noActivity": "No activity this week",
+    "premiumFeature": "In Premium+ you'll see exactly who and when viewed your sizes"
   },
   "measurements": {
     "title": "Your measurements",
