@@ -119,7 +119,7 @@ function getLatestSizesByCategory(
   }, {} as Record<Category, any[]>);
 
   // For each category, pick the garment to display
-  Object.entries(garmentsByCategory).forEach(([category, categoryGarments]: [string, any[]]) => {
+  (Object.entries(garmentsByCategory) as [string, any[]][]).forEach(([category, categoryGarments]) => {
     // First, try to find a favorite in this category
     let garmentToShow = categoryGarments.find((g: any) => g.is_favorite);
 
