@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { GarmentForm } from "@/components/garment-form";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import type { Category } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -55,12 +56,12 @@ export default async function AddGarmentByCategoryPage({
       <header className="sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <a href="/dashboard/garments/add" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <Link href="/dashboard/garments/add" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
               <span className="text-sm font-medium text-muted-foreground">Powrót do kategorii</span>
-            </a>
+            </Link>
           </div>
         </div>
       </header>

@@ -51,7 +51,7 @@ export function MissionsReminders() {
               <div className="h-full w-[60%] bg-gradient-to-r from-primary to-accent transition-all" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              {t('missions.reward')}: 🎁 Odznaka „Measurement Master"
+              {t('missions.reward')}: 🎁 Odznaka &ldquo;Measurement Master&rdquo;
             </p>
           </div>
         </div>

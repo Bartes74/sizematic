@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useLocale } from "@/providers/locale-provider";
 import type { Category } from "@/lib/types";
 
@@ -44,7 +45,7 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
 
             if (!sizeData) {
               return (
-                <a
+                <Link
                   key={category}
                   href={`/dashboard/garments/add/${category}`}
                   className="group relative overflow-hidden rounded-2xl border border-dashed border-border bg-muted/10 p-6 transition-all hover:bg-muted/20 cursor-pointer"
@@ -57,12 +58,12 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
                       <p className="mt-2 text-sm text-muted-foreground">—</p>
                     </div>
                   </div>
-                </a>
+                </Link>
               );
             }
 
             return (
-              <a
+              <Link
                 key={category}
                 href={`/dashboard/garments/add/${category}`}
                 className="group relative overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-lg shadow-black/5 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-black/10 cursor-pointer block"
@@ -83,7 +84,7 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
                     <p className="text-[10px] text-muted-foreground">{sizeData.garmentTypeName}</p>
                   )}
                 </div>
-              </a>
+              </Link>
             );
           })
         )}
@@ -115,7 +116,7 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
       {/* Manage favorites link */}
       {sizes.length > 0 && (
         <div className="text-center">
-          <a
+          <Link
             href="/dashboard/sizes/manage"
             className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
           >
@@ -123,7 +124,7 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             Zarządzaj rozmiarami
-          </a>
+          </Link>
         </div>
       )}
     </section>

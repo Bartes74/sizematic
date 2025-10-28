@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Witaj w SizeHub!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .card {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo h1 {
+      color: #6366f1;
+      font-size: 32px;
+      margin: 0;
+      font-weight: 700;
+    }
+    .content {
+      color: #374151;
+      line-height: 1.6;
+    }
+    .content h2 {
+      color: #111827;
+      font-size: 24px;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .content p {
+      margin: 16px 0;
+    }
+    .features {
+      background-color: #f9fafb;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .features ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .features li {
+      margin: 8px 0;
+      color: #374151;
+    }
+    .button {
+      display: inline-block;
+      background-color: #6366f1;
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .button:hover {
+      background-color: #4f46e5;
+    }
+    .footer {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 14px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="logo">
+        <h1>SizeHub</h1>
+      </div>
+
+      <div class="content">
+        <h2>Witaj w SizeHub! 👋</h2>
+
+        <p>Cieszymy się, że dołączyłeś do naszej społeczności!</p>
+
+        <p>SizeHub to nowoczesna aplikacja do zarządzania rozmiarami garderoby, która pomoże Ci:</p>
+
+        <div class="features">
+          <ul>
+            <li>📏 Zapisywać i śledzić swoje rozmiary ubrań</li>
+            <li>🎁 Pamiętać o rozmiarach bliskich przy zakupie prezentów</li>
+            <li>👕 Konwertować rozmiary między różnymi markami</li>
+            <li>👥 Udostępniać rozmiary zaufanym osobom</li>
+          </ul>
+        </div>
+
+        <p>Aby rozpocząć korzystanie z aplikacji, potwierdź swój adres email klikając poniższy przycisk:</p>
+
+        <div style="text-align: center;">
+          <a href="{{ .ConfirmationURL }}" class="button">Potwierdź email</a>
+        </div>
+
+        <p style="color: #9ca3af; font-size: 14px; margin-top: 24px;">
+          Jeśli nie rejestrowałeś się w SizeHub, zignoruj tę wiadomość.
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>© 2025 SizeHub. Wszystkie prawa zastrzeżone.</p>
+        <p>To jest automatyczna wiadomość, prosimy nie odpowiadać.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

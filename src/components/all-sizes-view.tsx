@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import type { Category, GarmentType } from '@/lib/types';
 
 type Garment = {
@@ -182,7 +183,7 @@ export function AllSizesView({ garments }: AllSizesViewProps) {
                               </div>
                             );
                           })}
-                          <a
+                          <Link
                             href={`/dashboard/garments/add/${category}`}
                             className="mt-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 p-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
                           >
@@ -190,10 +191,10 @@ export function AllSizesView({ garments }: AllSizesViewProps) {
                               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
                             Dodaj kolejny
-                          </a>
+                          </Link>
                         </div>
                       ) : (
-                        <a
+                        <Link
                           href={`/dashboard/garments/add/${category}`}
                           className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 p-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
                         >
@@ -201,7 +202,7 @@ export function AllSizesView({ garments }: AllSizesViewProps) {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                           </svg>
                           Dodaj rozmiar
-                        </a>
+                        </Link>
                       )}
                     </div>
                   </div>
