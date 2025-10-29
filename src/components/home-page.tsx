@@ -7,7 +7,7 @@ import { GiftsAndOccasions } from "@/components/gifts-and-occasions";
 import { MissionsReminders } from "@/components/missions-reminders";
 import { TrustedCircle } from "@/components/trusted-circle";
 import { RecentActivity } from "@/components/recent-activity";
-import type { Measurement, MeasurementSummary, Category, Garment, SizeLabel, GarmentType } from "@/lib/types";
+import type { Measurement, MeasurementSummary, Category, Garment, SizeLabel, GarmentType, UserRole } from "@/lib/types";
 
 // Mapping of garment types to Polish names
 const GARMENT_TYPE_NAMES: Record<GarmentType, string> = {
@@ -55,7 +55,7 @@ type HomePageProps = {
   measurements: Measurement[];
   summary: MeasurementSummary | null;
   userName?: string | null;
-  userRole?: 'free' | 'premium' | 'premium_plus';
+  userRole?: UserRole;
   avatarUrl?: string | null;
   garments?: Garment[];
   sizeLabels?: SizeLabel[];
@@ -201,6 +201,11 @@ export function HomePage({
   // Prepare data for size overview
   const sizes = getLatestSizesByCategory(measurements, garments, sizeLabels);
 
+  // Map userRole to plan for components that use subscription plans
+  // Admin users get all premium_plus features
+  const plan: 'free' | 'premium' | 'premium_plus' =
+    userRole === 'admin' ? 'premium_plus' : userRole as 'free' | 'premium' | 'premium_plus';
+
   // Placeholder data for other sections (will be replaced with real data later)
   const circleMembers: Array<{ name: string; categories: string[] }> = [
     // Example: { name: "Anna", categories: ["Koszulki", "Spodnie", "Buty"] }
@@ -216,7 +221,7 @@ export function HomePage({
           <QuickActions />
 
           {/* Size Overview - Full Width */}
-          <SizeOverview sizes={sizes} plan={userRole} />
+          <SizeOverview sizes={sizes} plan={plan} />
 
           {/* Missions & Gifts Row */}
           <div className="grid gap-6 lg:grid-cols-2">
@@ -226,7 +231,7 @@ export function HomePage({
 
           {/* Circle & Activity Row */}
           <div className="grid gap-6 lg:grid-cols-2">
-            <TrustedCircle members={circleMembers} plan={userRole} />
+            <TrustedCircle members={circleMembers} plan={plan} />
             <RecentActivity />
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { HomePage } from "@/components/home-page";
 import { getMeasurementSummary, listMeasurements } from "@/server/measurements";
 import { createClient } from "@/lib/supabase/server";
+import type { UserRole } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ export default async function Home() {
 
   // Get user profile for role and display name
   let userName = user?.email?.split('@')[0] || null;
-  let userRole: 'free' | 'premium' | 'premium_plus' = 'free';
+  let userRole: UserRole = 'free';
   let avatarUrl: string | null = null;
   let garments: any[] = [];
   let sizeLabels: any[] = [];
@@ -28,7 +29,7 @@ export default async function Home() {
 
     if (profile) {
       userName = profile.display_name || userName;
-      userRole = profile.role === 'admin' ? 'premium_plus' : (profile.role as any);
+      userRole = profile.role as UserRole;
       avatarUrl = profile.avatar_url || null;
 
       // Get garments (wardrobe items) with brand names
