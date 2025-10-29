@@ -31,10 +31,27 @@ const ROLE_COLORS: Record<UserRole, string> = {
 };
 
 export function AdminUsersTable({ users }: AdminUsersTableProps) {
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string>('');
+  const [currentRole, setCurrentRole] = useState<UserRole>('free');
   const [isChanging, setIsChanging] = useState(false);
 
-  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+  const openModal = (userId: string, userName: string, role: UserRole) => {
+    setSelectedUserId(userId);
+    setSelectedUserName(userName);
+    setCurrentRole(role);
+  };
+
+  const closeModal = () => {
+    if (!isChanging) {
+      setSelectedUserId(null);
+      setSelectedUserName('');
+    }
+  };
+
+  const handleRoleChange = async (newRole: UserRole) => {
+    if (!selectedUserId) return;
+
     setIsChanging(true);
     try {
       const response = await fetch('/api/admin/update-role', {
@@ -42,7 +59,7 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, newRole }),
+        body: JSON.stringify({ userId: selectedUserId, newRole }),
       });
 
       if (response.ok) {
@@ -57,7 +74,7 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
       console.error(error);
     } finally {
       setIsChanging(false);
-      setSelectedUser(null);
+      setSelectedUserId(null);
     }
   };
 
@@ -118,37 +135,13 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
                   </p>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="relative">
-                    <button
-                      onClick={() => setSelectedUser(selectedUser === user.id ? null : user.id)}
-                      disabled={isChanging}
-                      className="text-sm font-medium text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Zmień rolę
-                    </button>
-
-                    {selectedUser === user.id && (
-                      <div className="absolute left-0 mt-2 w-auto rounded-lg border border-border bg-card shadow-lg z-50">
-                        <div className="p-2 space-y-1">
-                          {(['free', 'premium', 'premium_plus', 'admin'] as UserRole[]).map((role) => (
-                            <button
-                              key={role}
-                              onClick={() => handleRoleChange(user.id, role)}
-                              disabled={user.role === role || isChanging}
-                              className={`w-full text-left px-4 py-2.5 text-sm rounded-md transition-colors whitespace-nowrap ${
-                                user.role === role
-                                  ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                                  : 'hover:bg-muted text-foreground'
-                              }`}
-                            >
-                              {ROLE_LABELS[role]}
-                              {user.role === role && ' (obecna)'}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <button
+                    onClick={() => openModal(user.id, user.display_name || user.email || 'Użytkownik', user.role)}
+                    disabled={isChanging}
+                    className="text-sm font-medium text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Zmień rolę
+                  </button>
                 </td>
               </tr>
             ))}
@@ -159,6 +152,60 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
       {users.length === 0 && (
         <div className="px-6 py-12 text-center">
           <p className="text-sm text-muted-foreground">Brak użytkowników w systemie</p>
+        </div>
+      )}
+
+      {/* Modal for changing role */}
+      {selectedUserId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-card border border-border rounded-2xl shadow-xl max-w-md w-full mx-4 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-foreground">Zmień rolę użytkownika</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                {selectedUserName}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              {(['free', 'premium', 'premium_plus', 'admin'] as UserRole[]).map((role) => (
+                <button
+                  key={role}
+                  onClick={() => handleRoleChange(role)}
+                  disabled={currentRole === role || isChanging}
+                  className={`w-full text-left px-4 py-3 text-sm rounded-lg transition-colors border ${
+                    currentRole === role
+                      ? 'bg-muted border-border text-muted-foreground cursor-not-allowed'
+                      : 'bg-background border-border hover:bg-muted hover:border-primary text-foreground'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{ROLE_LABELS[role]}</span>
+                    {currentRole === role && (
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${ROLE_COLORS[role]}`}>
+                        Obecna
+                      </span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={closeModal}
+                disabled={isChanging}
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+              >
+                Anuluj
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
