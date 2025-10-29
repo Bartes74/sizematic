@@ -51,6 +51,11 @@ export default async function AddGarmentByCategoryPage({
     .select('*')
     .order('name');
 
+  // Get brand-garment-type mappings
+  const { data: brandMappings } = await supabase
+    .from('brand_garment_types')
+    .select('brand_id, garment_type');
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
@@ -80,6 +85,7 @@ export default async function AddGarmentByCategoryPage({
           profileId={profile.id}
           category={category as Category}
           brands={brands || []}
+          brandMappings={brandMappings || []}
         />
       </main>
     </div>

@@ -5,10 +5,16 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import type { Brand, Category, GarmentType } from '@/lib/types';
 
+type BrandMapping = {
+  brand_id: string;
+  garment_type: GarmentType;
+};
+
 type GarmentFormProps = {
   profileId: string;
   category: Category;
   brands: Brand[];
+  brandMappings: BrandMapping[];
 };
 
 type GarmentTypeOption = {
@@ -68,57 +74,29 @@ const GARMENT_TYPES: Record<Category, GarmentTypeOption[]> = {
 
 const FIT_TYPES = ['Slim Fit', 'Tapered Fit', 'Regular Fit', 'Classic Fit'];
 
-// Brand keywords mapping - brands that match these keywords will be shown for specific garment types
-const GARMENT_TYPE_BRAND_KEYWORDS: Record<string, string[]> = {
-  // Footwear brands
-  footwear: ['nike', 'adidas', 'puma', 'reebok', 'new balance', 'converse', 'vans', 'asics', 'skechers',
-             'timberland', 'dr martens', 'clarks', 'ecco', 'geox', 'crocs', 'under armour', 'fila',
-             'salomon', 'merrell', 'birkenstock', 'keen', 'toms', 'ugg', 'hunter'],
-  // Accessories/headwear brands
-  accessories: ['stetson', 'kangol', 'carhartt', 'new era', '47 brand', 'the north face',
-                'patagonia', 'columbia', 'buff', 'barts'],
-  // Jewelry brands
-  jewelry: ['pandora', 'swarovski', 'tiffany', 'cartier', 'bvlgari', 'chanel', 'dior', 'gucci',
-            'hermes', 'louis vuitton', 'prada', 'versace', 'michael kors', 'fossil', 'daniel wellington',
-            'cluse', 'mvmt', 'rosefield', 'olivia burton', 'thomas sabo', 'engelsrufer', 'yes', 'w.kruk'],
-  // General clothing brands (shown for tops, bottoms, outerwear)
-  clothing: ['zara', 'h&m', 'reserved', 'mango', 'gap', 'uniqlo', 'cos', 'massimo dutti',
-             'ralph lauren', 'tommy hilfiger', 'calvin klein', 'levi', 'wrangler', 'lee',
-             'hugo boss', 'lacoste', 'superdry', 'jack & jones', 'only', 'vero moda',
-             'pull&bear', 'bershka', 'stradivarius', 'cropp', 'house', 'mohito', 'sinsay'],
-};
-
-// Function to filter brands based on garment type
-function filterBrandsForGarmentType(brands: Brand[], garmentType: GarmentType | '', category: Category): Brand[] {
+// Function to filter brands based on garment type using database mappings
+function filterBrandsForGarmentType(
+  brands: Brand[],
+  garmentType: GarmentType | '',
+  brandMappings: BrandMapping[]
+): Brand[] {
   if (!garmentType) return brands;
 
-  // Determine which keywords to use
-  let keywords: string[] = [];
-
-  if (['sneakers', 'dress_shoes', 'boots', 'sandals', 'slippers'].includes(garmentType)) {
-    keywords = GARMENT_TYPE_BRAND_KEYWORDS.footwear;
-  } else if (['hat', 'cap'].includes(garmentType)) {
-    keywords = GARMENT_TYPE_BRAND_KEYWORDS.accessories;
-  } else if (['jewelry', 'necklace', 'bracelet', 'ring', 'earrings'].includes(garmentType)) {
-    keywords = GARMENT_TYPE_BRAND_KEYWORDS.jewelry;
-  } else {
-    // For clothing items (tops, bottoms, outerwear), show general clothing brands
-    keywords = GARMENT_TYPE_BRAND_KEYWORDS.clothing;
-  }
-
-  // Filter brands that match any keyword (case insensitive)
-  const filtered = brands.filter(brand =>
-    keywords.some(keyword =>
-      brand.name.toLowerCase().includes(keyword.toLowerCase()) ||
-      keyword.toLowerCase().includes(brand.name.toLowerCase())
-    )
+  // Get brand IDs that are mapped to this garment type
+  const mappedBrandIds = new Set(
+    brandMappings
+      .filter(mapping => mapping.garment_type === garmentType)
+      .map(mapping => mapping.brand_id)
   );
+
+  // Filter brands to only those that are mapped to this garment type
+  const filtered = brands.filter(brand => mappedBrandIds.has(brand.id));
 
   // If no brands match the filter, return all brands to avoid empty dropdown
   return filtered.length > 0 ? filtered : brands;
 }
 
-export function GarmentForm({ profileId, category, brands }: GarmentFormProps) {
+export function GarmentForm({ profileId, category, brands, brandMappings }: GarmentFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -128,10 +106,10 @@ export function GarmentForm({ profileId, category, brands }: GarmentFormProps) {
   const [customBrandName, setCustomBrandName] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Filter brands based on selected garment type
+  // Filter brands based on selected garment type using database mappings
   const filteredBrands = useMemo(() => {
-    return filterBrandsForGarmentType(brands, garmentType, category);
-  }, [brands, garmentType, category]);
+    return filterBrandsForGarmentType(brands, garmentType, brandMappings);
+  }, [brands, garmentType, brandMappings]);
 
   // Size fields - different for each garment type
   const [genericSize, setGenericSize] = useState('');
