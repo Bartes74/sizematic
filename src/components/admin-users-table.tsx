@@ -128,14 +128,14 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
                     </button>
 
                     {selectedUser === user.id && (
-                      <div className="absolute right-0 mt-2 w-48 rounded-lg border border-border bg-card shadow-lg z-10">
+                      <div className="absolute right-0 mt-2 min-w-48 rounded-lg border border-border bg-card shadow-lg z-10">
                         <div className="p-2 space-y-1">
                           {(['free', 'premium', 'premium_plus', 'admin'] as UserRole[]).map((role) => (
                             <button
                               key={role}
                               onClick={() => handleRoleChange(user.id, role)}
                               disabled={user.role === role || isChanging}
-                              className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
+                              className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
                                 user.role === role
                                   ? 'bg-muted text-muted-foreground cursor-not-allowed'
                                   : 'hover:bg-muted text-foreground'
