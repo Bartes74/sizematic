@@ -3,12 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
 
-type Params = {
-  params: { claimId: string };
-};
-
-export async function POST(_request: NextRequest, context: Params) {
-  const claimId = context.params.claimId;
+export async function POST(
+  _request: NextRequest,
+  { params }: { params: { claimId: string } }
+) {
+  const claimId = params.claimId;
 
   try {
     const supabase = await createClient();
@@ -82,7 +81,7 @@ export async function POST(_request: NextRequest, context: Params) {
 
     return NextResponse.json({ claim: updated });
   } catch (error) {
-    console.error(`POST /v1/claims/${context.params.claimId}/complete failed:`, error);
+    console.error(`POST /v1/claims/${claimId}/complete failed:`, error);
     return NextResponse.json(
       { message: "Nie udało się oznaczyć prezentu jako kupionego" },
       { status: 500 }

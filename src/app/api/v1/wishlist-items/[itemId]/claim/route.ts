@@ -3,16 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
 
-type Params = {
-  params: { itemId: string };
-};
-
 type ClaimPayload = {
   message?: string | null;
 };
 
-export async function POST(request: NextRequest, context: Params) {
-  const itemId = context.params.itemId;
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { itemId: string } }
+) {
+  const itemId = params.itemId;
 
   try {
     const supabase = await createClient();
@@ -125,7 +124,7 @@ export async function POST(request: NextRequest, context: Params) {
 
     return NextResponse.json({ claim: inserted }, { status: 201 });
   } catch (error) {
-    console.error(`POST /v1/wishlist-items/${context.params.itemId}/claim failed:`, error);
+    console.error(`POST /v1/wishlist-items/${itemId}/claim failed:`, error);
     return NextResponse.json(
       { message: "Nie udało się zarezerwować prezentu" },
       { status: 500 }

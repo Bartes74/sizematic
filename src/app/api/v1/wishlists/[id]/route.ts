@@ -4,12 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import type { WishlistClaim, WishlistItem, WishlistShare } from "@/lib/types";
 import { getProfileForUser } from "@/server/profiles";
 
-type Params = {
-  params: { id: string };
-};
-
-export async function GET(_request: NextRequest, context: Params) {
-  const wishlistId = context.params.id;
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const wishlistId = params.id;
 
   try {
     const supabase = await createClient();

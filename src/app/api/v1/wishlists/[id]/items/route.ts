@@ -4,17 +4,16 @@ import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
 import { enrichWishlistItemFromUrl } from "@/server/wishlists";
 
-type Params = {
-  params: { id: string };
-};
-
 type CreateItemPayload = {
   url: string;
   notes?: string | null;
 };
 
-export async function POST(request: NextRequest, context: Params) {
-  const wishlistId = context.params.id;
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const wishlistId = params.id;
 
   try {
     const { url, notes } = (await request.json()) as CreateItemPayload;

@@ -3,10 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase";
 
-type Params = {
-  params: { id: string };
-};
-
 type SharePayload = {
   emails: string[];
 };
@@ -18,8 +14,11 @@ type ShareResult = {
   reason?: string;
 };
 
-export async function POST(request: NextRequest, context: Params) {
-  const wishlistId = context.params.id;
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const wishlistId = params.id;
 
   try {
     const { emails } = (await request.json()) as SharePayload;
@@ -143,7 +142,7 @@ export async function POST(request: NextRequest, context: Params) {
 
     return NextResponse.json({ results });
   } catch (error) {
-    console.error(`POST /v1/wishlists/${context.params.id}/shares failed:`, error);
+    console.error(`POST /v1/wishlists/${wishlistId}/shares failed:`, error);
     return NextResponse.json(
       { message: "Nie udało się udostępnić listy" },
       { status: 500 }

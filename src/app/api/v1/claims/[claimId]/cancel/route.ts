@@ -3,16 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
 
-type Params = {
-  params: { claimId: string };
-};
-
 type CancelPayload = {
   message?: string | null;
 };
 
-export async function POST(request: NextRequest, context: Params) {
-  const claimId = context.params.claimId;
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { claimId: string } }
+) {
+  const claimId = params.claimId;
 
   try {
     const supabase = await createClient();
@@ -89,7 +88,7 @@ export async function POST(request: NextRequest, context: Params) {
 
     return NextResponse.json({ claim: updated });
   } catch (error) {
-    console.error(`POST /v1/claims/${context.params.claimId}/cancel failed:`, error);
+    console.error(`POST /v1/claims/${claimId}/cancel failed:`, error);
     return NextResponse.json(
       { message: "Nie udało się anulować rezerwacji" },
       { status: 500 }

@@ -3,12 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
 
-type Params = {
-  params: { shareId: string };
-};
-
-export async function POST(_request: NextRequest, context: Params) {
-  const shareId = context.params.shareId;
+export async function POST(
+  _request: NextRequest,
+  { params }: { params: { shareId: string } }
+) {
+  const shareId = params.shareId;
 
   try {
     const supabase = await createClient();
@@ -65,7 +64,7 @@ export async function POST(_request: NextRequest, context: Params) {
 
     return NextResponse.json({ share: updated });
   } catch (error) {
-    console.error(`POST /v1/wishlist-shares/${context.params.shareId}/accept failed:`, error);
+    console.error(`POST /v1/wishlist-shares/${shareId}/accept failed:`, error);
     return NextResponse.json(
       { message: "Nie udało się zaakceptować zaproszenia" },
       { status: 500 }

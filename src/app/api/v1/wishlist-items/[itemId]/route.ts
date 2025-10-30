@@ -3,10 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { SizeMatchConfidence } from "@/lib/types";
 
-type Params = {
-  params: { itemId: string };
-};
-
 type UpdatePayload = Partial<{
   product_name: string | null;
   product_brand: string | null;
@@ -23,8 +19,11 @@ const ALLOWED_FIELDS = new Set([
   "size_confidence",
 ]);
 
-export async function PATCH(request: NextRequest, context: Params) {
-  const itemId = context.params.itemId;
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { itemId: string } }
+) {
+  const itemId = params.itemId;
 
   try {
     const body = (await request.json()) as UpdatePayload;
