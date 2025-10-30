@@ -208,3 +208,73 @@ export type Garment = {
   created_at: string;
   updated_at: string;
 };
+
+export type WishlistStatus = 'draft' | 'active' | 'archived';
+export type ItemParseStatus = 'pending' | 'success' | 'failed';
+export type SizeMatchConfidence = 'exact' | 'similar' | 'manual' | 'missing';
+export type WishlistShareStatus = 'pending' | 'accepted' | 'revoked';
+export type ClaimStatus = 'claimed' | 'purchased' | 'cancelled';
+
+export type Wishlist = {
+  id: string;
+  owner_id: string;
+  owner_profile_id: string;
+  title: string;
+  slug: string;
+  status: WishlistStatus;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WishlistItem = {
+  id: string;
+  wishlist_id: string;
+  url: string;
+  product_name: string | null;
+  product_brand: string | null;
+  image_url: string | null;
+  price_snapshot: Record<string, unknown> | null;
+  parse_status: ItemParseStatus;
+  parse_error: string | null;
+  parsed_at: string | null;
+  matched_size: string | null;
+  size_confidence: SizeMatchConfidence;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WishlistShare = {
+  id: string;
+  wishlist_id: string;
+  recipient_email: string;
+  recipient_profile_id: string | null;
+  status: WishlistShareStatus;
+  invite_token: string;
+  invited_by: string;
+  notified_at: string | null;
+  accepted_at: string | null;
+  created_at: string;
+};
+
+export type WishlistClaim = {
+  id: string;
+  wishlist_item_id: string;
+  share_id: string;
+  claimer_profile_id: string;
+  status: ClaimStatus;
+  message: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BrandSizeProfile = {
+  id: string;
+  profile_id: string;
+  brand_name: string;
+  preferred_size: string;
+  fit_notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
