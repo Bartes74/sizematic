@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, type RouteHandlerContext } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase";
@@ -16,9 +16,9 @@ type ShareResult = {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteHandlerContext<{ id: string }>
 ) {
-  const wishlistId = params.id;
+  const wishlistId = context.params.id;
 
   try {
     const { emails } = (await request.json()) as SharePayload;

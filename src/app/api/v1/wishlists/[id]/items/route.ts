@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, type RouteHandlerContext } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
@@ -11,9 +11,9 @@ type CreateItemPayload = {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteHandlerContext<{ id: string }>
 ) {
-  const wishlistId = params.id;
+  const wishlistId = context.params.id;
 
   try {
     const { url, notes } = (await request.json()) as CreateItemPayload;

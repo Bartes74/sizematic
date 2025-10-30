@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, type RouteHandlerContext } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
 
 export async function POST(
   _request: NextRequest,
-  { params }: { params: { shareId: string } }
+  context: RouteHandlerContext<{ shareId: string }>
 ) {
-  const shareId = params.shareId;
+  const shareId = context.params.shareId;
 
   try {
     const supabase = await createClient();

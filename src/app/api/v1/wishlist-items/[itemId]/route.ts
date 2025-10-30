@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, type RouteHandlerContext } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import type { SizeMatchConfidence } from "@/lib/types";
@@ -21,9 +21,9 @@ const ALLOWED_FIELDS = new Set([
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { itemId: string } }
+  context: RouteHandlerContext<{ itemId: string }>
 ) {
-  const itemId = params.itemId;
+  const itemId = context.params.itemId;
 
   try {
     const body = (await request.json()) as UpdatePayload;
