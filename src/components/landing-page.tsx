@@ -19,6 +19,11 @@ const featureConfigs = [
   { id: 'share', tone: 'sky' as const },
 ] as const;
 
+const featureImages: Partial<Record<(typeof featureConfigs)[number]['id'], string>> = {
+  friction: '/przestan_zgadywac.jpg',
+  catalog: '/katalog.jpg',
+};
+
 const toneStyles: Record<'rose' | 'sky', string> = {
   rose: 'bg-rose-100/80 text-rose-500 dark:bg-rose-500/10 dark:text-rose-200',
   sky: 'bg-sky-100/70 text-sky-500 dark:bg-sky-500/10 dark:text-sky-200',
@@ -147,16 +152,29 @@ export function LandingPage({ branding }: LandingPageProps) {
                   isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'
                 }`}
               >
-                <div className="mx-auto flex h-64 w-full max-w-[320px] items-center justify-center rounded-3xl bg-rose-100/80 text-rose-500 shadow-lg shadow-primary/10 dark:bg-rose-500/10 dark:text-rose-200 lg:h-72">
-                  <div className="relative h-full w-full overflow-hidden rounded-3xl">
-                    <Image
-                      src="/przestan_zgadywac.jpg"
-                      alt={t(`landing.features.${feature.id}.title`)}
-                      fill
-                      className="object-cover"
-                      sizes="(min-width: 1024px) 320px, 80vw"
-                    />
-                  </div>
+                <div
+                  className={`mx-auto flex h-64 w-full max-w-[320px] items-center justify-center rounded-3xl ${toneStyles[feature.tone]} shadow-lg shadow-primary/10 dark:shadow-primary/20 lg:h-72`}
+                >
+                  {featureImages[feature.id] ? (
+                    <div className="relative h-full w-full overflow-hidden rounded-3xl">
+                      <Image
+                        src={featureImages[feature.id]!}
+                        alt={t(`landing.features.${feature.id}.title`)}
+                        fill
+                        className="object-cover"
+                        sizes="(min-width: 1024px) 320px, 80vw"
+                      />
+                    </div>
+                  ) : feature.tone === 'sky' ? (
+                    <svg className="h-16 w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2 12l5 5L22 4" />
+                    </svg>
+                  ) : (
+                    <svg className="h-16 w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5" />
+                      <circle cx="12" cy="12" r="9" />
+                    </svg>
+                  )}
                 </div>
                 <div className="max-w-2xl text-center lg:text-left">
                   <h3 className="text-3xl font-semibold tracking-tight text-foreground">{title}</h3>
