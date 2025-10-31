@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
-import { processMissionEvent } from '@/lib/missions/events';
 
 export async function DELETE(_request: Request, context: unknown) {
   const { params } = context as { params: { memberId: string } };
@@ -62,24 +61,6 @@ export async function DELETE(_request: Request, context: unknown) {
     .update({ status: 'revoked', revoked_at: now })
     .eq('inviter_profile_id', profile.id)
     .eq('invitee_profile_id', memberId);
-
-  try {
-    await processMissionEvent(
-      {
-        type: 'ITEM_CREATED',
-        profileId: profile.id,
-        payload: {
-          source: 'trusted_circle',
-          category: 'circle-removed',
-          createdAt: now,
-          fieldCount: 0,
-        },
-      },
-      admin
-    );
-  } catch (missionError) {
-    console.warn('Mission event failed during member removal:', missionError);
-  }
 
   return NextResponse.json({ ok: true });
 }

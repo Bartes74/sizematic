@@ -9,7 +9,7 @@
 - Prawa strona nagłówka:
   - Przełącznik języka PL / EN (toggler lub menu).
   - Przełącznik trybu jasny / ciemny (ikona słońce/księżyc).
-  - (opcjonalnie niewielka ikona synchronizacji/statusu konta, ale już bez trybu „offline”).
+  - (opcjonalnie niewielka ikona synchronizacji/statusu konta).
 
 **Dla kogo / kiedy ważne:**
 
@@ -42,7 +42,7 @@
 
 ### A2. Skrzynka akcji natychmiastowych (Quick Actions)
 
-Bez zmian w logice i stanach oprócz usunięcia wzmianek o offline:
+Bez zmian w logice i stanach:
 
 - „Dodaj pomiar ciała”
 - „Przepisz z metki”
@@ -50,13 +50,11 @@ Bez zmian w logice i stanach oprócz usunięcia wzmianek o offline:
 
 - link tekstowy „Zobacz moje rozmiary”
 
-Nie ma już wariantu „wyszarzone, bo offline”. Jeśli funkcja jest niedostępna, to tylko z powodu planu (paywall), nie z powodu braku sieci.
-
 ------
 
 ### A3. Moje rozmiary (Szybki podgląd rozmiarów)
 
-Bez zmian poza tym, że nie ma już trybu offline/cache. Od teraz zakładamy pełny dostęp i aktualność widoku.
+Bez zmian — widok zakłada aktualne dane synchronizowane z Supabase.
 
 - Karty kategorii rozmiarowych (ja / partner / dziecko) z ostatnim znanym rozmiarem: koszulki, spodnie W/L, buty (np. 44.5 EU), pierścionek (17.3 mm), itd.
 - Dalej obowiązują:
@@ -68,7 +66,7 @@ Bez zmian poza tym, że nie ma już trybu offline/cache. Od teraz zakładamy pe�
 
 ### A4. Prezenty i okazje
 
-Bez zmian poza tym, że nie ma już informacji „wymaga połączenia”. Zakładamy połączenie.
+Bez zmian.
 
 Sekcja nadal pokazuje:
 
@@ -82,19 +80,7 @@ Tu nadal trzymamy subtelne upselle typu:
 
 ------
 
-### A5. Misje i przypomnienia („Twoje następne kroki”)
-
-Bez zmian poza tym, że nie ma już wariantu „dokończ online” – wszystko traktujemy jako możliwe tu i teraz.
-
-Wciąż:
-
-- Pokazujemy jedną najważniejszą akcję do zrobienia („Nie mierzyliśmy długości stopy od 14 mies. Chcesz sprawdzić teraz?”).
-- Pokazujemy progres misji tygodnia i nagrodę.
-- Używamy misji jako mechanizmu retencji i miękkiego upsellu (np. „Zaproś kolejną osobę do Kręgu – dostępne w Premium”).
-
-------
-
-### A6. Mój Krąg („Kto zna Twoje rozmiary”)
+### A5. Mój Krąg („Kto zna Twoje rozmiary”)
 
 Bez zmian poza usunięciem stanów zależnych od połączenia.
 
@@ -110,7 +96,7 @@ To zostaje, bo to jest idealne miejsce do konwersji na plan płatny.
 
 ------
 
-### A7. Podsumowanie tygodnia / aktywność („Ostatnia aktywność”)
+### A6. Podsumowanie tygodnia / aktywność („Ostatnia aktywność”)
 
 Bez zmian funkcjonalnych, poza tym, że nie ma już statusu „ostatnia synchronizacja”.
 
@@ -121,7 +107,7 @@ Wciąż:
 
 ------
 
-### A8. Stopka / nawigacja główna
+### A7. Stopka / nawigacja główna
 
 Bez zmian:
 
@@ -130,7 +116,7 @@ Bez zmian:
 
 ------
 
-## B. Priorytetyzacja treści (aktualizacja tylko jeśli dotyczy offline)
+## B. Priorytetyzacja treści
 
 Kolejność ważności ekranu pozostaje:
 
@@ -138,11 +124,10 @@ Kolejność ważności ekranu pozostaje:
 2. Skrzynka akcji natychmiastowych.
 3. Początek „Szybki podgląd rozmiarów”.
 4. Prezenty i okazje.
-5. Misje i przypomnienia.
-6. Mój Krąg.
-7. Ostatnia aktywność.
+5. Mój Krąg.
+6. Ostatnia aktywność.
 
-Nie wspominamy już o komunikatach offline i „funkcja niedostępna bez sieci”, bo tego scenariusza nie ma.
+Komunikaty statusu koncentrują się na dostępności funkcji (limity planu, brak danych) i nie duplikują informacji o połączeniu.
 
 Reszta zasad priorytetyzacji bez zmian:
 
@@ -185,9 +170,9 @@ Upsell planu pozostaje miękki:
 
 ------
 
-## D. Prywatność i poczucie kontroli (bez offline, reszta bez zmian)
+## D. Prywatność i poczucie kontroli
 
-To się nie zmienia, bo offline nie wpływał na semantykę prywatności:
+Założenia pozostają bez zmian:
 
 - W „Kto zna Twoje rozmiary” każda osoba ma jawnie wypisane kategorie, do których ma dostęp. Zero domysłów.
 - Przy kategoriach intymnych (bielizna / biustonosz) komunikujemy „(tylko Ty)” dopóki nie zostanie to świadomie udostępnione.

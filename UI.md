@@ -13,14 +13,14 @@
 SizeHub — Projekt interfejsu użytkownika (MVP)
 Kompletny projekt UI dla aplikacji PWA (Next.js + React + Tailwind), zgodny z architekturą
 measurement‑first  (ZPR),  funkcjami  udostępniania  (Zaufany  Krąg,  Secret  Giver),
-Prezentowym linkiem, mikro‑misjami oraz powiadomieniami kontekstowymi. Dokument
+Prezentowym linkiem oraz powiadomieniami kontekstowymi. Dokument
 zawiera:  informację  architektoniczną,  mapę  nawigacji,  kluczowe  ekrany  i  przepływy,
-komponenty,  copy  &  i18n,  stany  (empty/error/offline),  dostępność,  paywalle  i  logikę
+komponenty,  copy  &  i18n,  stany  (empty/error/loading),  dostępność,  paywalle  i  logikę
 planów.
 1) Założenia projektowe
 Cel produktu:  ułatwienie zarządzania rozmiarami (measurement‑first, EN 13402) oraz wygodne
 udostępnianie ich rodzinie/przyjaciołom i kupującym prezenty.
-Platforma:  PWA (offline-first) z czytelnym oznaczaniem funkcji dostępnych tylko online (SG,
+Platforma:  PWA z czytelnym oznaczaniem funkcji płatnych lub wymagających dodatkowych uprawnień (SG,
 tworzenie linków, płatności).
 Tonality & mikro‑copy:  spokojny, pomocny, bez presji; krótkie komunikaty i jedna
 rekomendowana akcja.
@@ -75,7 +75,7 @@ Skeletony  dla list; EmptyState  z jedną akcją.
 3) Informacja architektoniczna (frontend)
 Routing:  Next.js App Router ( /app), segmenty: (auth), (protected) .
 Stan:  React Query (server), Zustand (UI/local), i18n (PL/EN).
-Offline:  Service Worker + Dexie/IndexedDB: cache profilu, ZPR, brandów/map, linków, misji.
+Synchronizacja:  React Server Components + Supabase SSR; mutacje przez Server Actions.
 A11y:  Headless UI (Dialog, Listbox, Menu), focus management, aria-* kompletne.
 4) Architektura nawigacji i IA (5 zakładek)
 ## 4.1 AppShell
@@ -88,7 +88,7 @@ A. Autoryzacja i onboarding
 /onboarding  — slajdy + szybka konfiguracja: język, jednostki, powiadomienia, motyw; CTA →
 „Dodaj wymiary” / „Dodaj metkę”.
 B. Home (hub) /home — karty skrótów (Dodaj wymiary, Dodaj metkę, Konwersje, Utwórz link).
-Sekcje: Nadchodzące okazje · Misje tygodnia · Aktywność Kręgu. Offline‑badge.
+Sekcje: Nadchodzące okazje · Aktywność Kręgu.
 C. ZPR (profil) /profile  — zakładki: Odzież (tops/bottoms/outerwear/underwear), Buty,
 Akcesoria, Biżuteria. Widoki: lista wymiarów z jednostkami, „Edytuj”, „Historia zmian”, „Dodaj
 metkę”.
@@ -106,8 +106,8 @@ G. Prezentowy link /links (lista: status aktywny/wygasły/jednorazowy, licznik o
 Revoke · Przedłuż) · /links/create  (scope, kategorie, TTL, max_views, one_time, [Premium+]:
 hasło) · /s/{token}  (publiczny widok gościa: wishlist + bazowe rozmiary, obsługa hasła, licznik
 odsłon).
-H. Okazje, Wishlista, Misje /events  (kalendarz miesiąc/lista) · /wishlist  (kafle; tytuł/link/
-kategoria/notatki) · /missions  (once/weekly, pasek postępu, „Odbierz nagrodę”).•
+H. Okazje i Wishlista /events  (kalendarz miesiąc/lista) · /wishlist  (kafle; tytuł/link/
+kategoria/notatki).•
 •
 •
 •
@@ -145,10 +145,7 @@ konto.
 Hero karty skrótów:  1) „Dodaj wymiary” 2) „Dodaj metkę” 3) „Konwersje” 4) „Utwórz Prezentowy
 link”.
 Sekcja „Nadchodzące okazje”:  lista z datą, CTA „Utwórz link” / „Dodaj do wishlisty”.
-„Misje tygodnia”:  3–4 płytki (progress bar , mini‑nagroda).
 „Aktywność Kręgu”:  licznik wyświetleń profilu/wishlisty (bez PII), skróty do reguł.
-Offline badge:  dyskretny pasek u dołu z podpowiedzią („Edycja ZPR działa offline; linki/SG
-dostępne po powrocie online”).
 ## 5.2 ZPR — widok kategorii
 Lista pól (cm/in) z przełącznikiem jednostek; przycisk Edytuj  otwiera form.
 Historia zmian  jako sheet/modal z możliwością przywracania.
@@ -162,7 +159,7 @@ wszystkie” (pełny ekran konwersji). Badge Źródło: official/derived  z tool
 ## 5.4 Ekran Konwersji
 Wejście:  przełącznik METKA / POMIARY .
 Wyjście:  tabela „Marka · Region · Label · Confidence”; filtrowanie po regionie (EU/US/UK);
-informacja offline/ostrzeżenia dla brakujących marek; CTA „Zapisz do ZPR” / „Dodaj do wishlisty”.
+ostrzeżenia dla brakujących marek; CTA „Zapisz do ZPR” / „Dodaj do wishlisty”.
 ## 5.5 Zaufany Krąg & Reguły
 /circle : lista członków z limitem wg planu; przycisk „Zaproś” (e‑mail/kod).
 /sharing : tabela reguł (kategoria → przełącznik Read, data wygaśnięcia, podgląd).
@@ -208,14 +205,13 @@ przycisk Utwórz  → ekran sukcesu z Kopiuj .
 odsłon, akcje: Kopiuj · Przedłuż · Revoke).
 Widok publiczny /s/{token} : nagłówek z nazwą linku, sekcje Wishlista  i Bazowe rozmiary
 (tylko zakres udostępniony), licznik odsłon; dla Premium+ — ekran hasła.
-## 5.8 Okazje, Wishlista, Misje
+## 5.8 Okazje i Wishlista
 /events:  widok miesiąca + lista; pigułki dat; formularz dodania (tytuł, data, coroczne, notatki).
 /wishlist:  kafle z tytułem, URL, kategorią, notatkami; brak miniatur ≠ błąd.
-/missions:  płytki z opisem, progressem i nagrodą; przycisk Odbierz  (kupon/bonus blokady SG).
 ## 5.9 Ustawienia
 Konto:  e‑mail, OAuth, eksport/usuń konto.
 Język/jednostki/motyw:  przełączniki natychmiastowe.
-Powiadomienia:  granularne opt‑in (Okazje, ZPR, Krąg, Linki, SG, Misje, Digest) + Godziny ciszy .
+Powiadomienia:  granularne opt‑in (Okazje, ZPR, Krąg, Linki, SG, Digest) + Godziny ciszy .
 Plan i płatności:  porównanie planów (różnice, cena), zarządzanie subskrypcją.
 Prywatność:  włącz/wyłącz blokadę SG, lista aktywnych linków (REVOKE/Extend), polityki
 udostępniania.
@@ -264,8 +260,7 @@ zakończenie → automatyczne wygaśnięcie.•
 Tabela reguł: kolumna Kategoria  + przełącznik Read + opcjonalna data wygaśnięcia.
 „Podgląd adresata” — tryb tylko do odczytu.
 Limity członków i reguł egzekwowane per plan.
-## 6.5 Misje i powiadomienia
-Misje once/weekly  z jasną nagrodą; reset tygodniowy i subtelne przypomnienia.
+## 6.5 Powiadomienia
 Powiadomienia: progi (urodziny 21/7/3/1; przeterminowane wymiary 12/24m; wzrost dzieci co
 3m; wygasanie linków 72/48/24h; SG natychmiast/24h).
 7) Komponenty (biblioteka UI)
@@ -282,7 +277,7 @@ wartość), KeyValue  dla historii zmian.
 ## 7.4 Dialogi i informatory
 Modal  (zgody SG, paywall), Drawer/Sheet  (historia zmian), Toast , Tooltip , HoverCard .
 ## 7.5 Specjalne
-ConversionTable , RangeBadge , LinkCard  (TTL/max_views/licznik), MissionTile , CircleMember ,
+ConversionTable , RangeBadge , LinkCard  (TTL/max_views/licznik), CircleMember ,
 ShareRuleRow , SGRequestItem  (status, czas do wygaśnięcia).
 ## 7.6 Stany aplikacyjne
 EmptyState , ErrorState  (z Retry), OfflineBadge , LoadingSpinner .
@@ -313,13 +308,13 @@ badge z poziomem planu.•
 
 Secret Giver:  token zawsze płatny (20 PLN). Dla odbiorcy — baner blokady SG  (Free/Premium:
 włączona po opłacie 5 PLN/m; Premium+: w cenie).
-9) Stany: offline / loading / empty / error
+9) Stany: loading / empty / error
 Offline:  banner + piktogram; ZPR edytowalny, narzędzia online (SG, linki) → disabled z tooltipem.
 Loading:  skeletony list, disabled CTA ze spinnerem.
 Empty:
 ZPR pusty → „Zacznij od pomiarów / metki” (2 przyciski).
 Brak członków Kręgu → „Zaproś pierwszą osobę” + korzyści.
-Brak misji weekly → informacja o czasie resetu.
+Brak powiadomień → informacja o ciszy nocnej / konfiguracji kanałów.
 Error:  delikatny ekran błędu z „Spróbuj ponownie” i krótkim opisem (bez technikaliów).
 ## 10) Dostępność (WCAG 2.1 AA)
 Kontrast CTA i tekstów; focus‑visible na wszystkich elementach interaktywnych.
@@ -329,7 +324,7 @@ prefers-reduced-motion : redukcja animacji.
 ## 11) i18n i mikro‑copy (PL/EN)
 ## 11.1 Namespace’y
 auth, onboarding, profile, labels, conversions, circle, sharing, sg, links,
-events, wishlist, missions, settings, common .
+events, wishlist, settings, common .
 ## 11.2 Przykładowe mikro‑kopie
 Powiadomienie SG:
 PL: „{name} prosi o dostęp do Twoich rozmiarów w kategorii {category} na {hours} h.”
@@ -399,8 +394,6 @@ Linki REVOKE/EXTEND dostępne z klawiatury.
 i18n: formaty dat (PL: DD.MM, EN: MMM D), jednostki cm/in niezależne od języka.
 ## 16) Załącznik: Teksty stanów (PL/EN)
 Offline:
-PL: „Jesteś offline. Edycja profilu działa, linki/SG wrócą po połączeniu.”
-EN: “You’re offline. Profile edits work; links/SG resume when online.”
 Empty ZPR:
 PL: „Zacznij od pomiarów albo metki — to 2 min.”
 EN: “Start with measurements or a label — 2 minutes.”

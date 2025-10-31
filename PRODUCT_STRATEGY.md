@@ -9,7 +9,7 @@
 
 ## 🎯 Executive Summary
 
-SizeHub to premium, offline-first PWA dla zarządzania garderobą z filozofią **"Concierge Intelligence"** - aplikacja która nigdy nie pyta dwukrotnie, obserwuje wzorce, przewiduje potrzeby i działa jak osobisty asystent premium.
+SizeHub to premium PWA dla zarządzania garderobą z filozofią **"Concierge Intelligence"** - aplikacja która nigdy nie pyta dwukrotnie, obserwuje wzorce, przewiduje potrzeby i działa jak osobisty asystent premium.
 
 ---
 
@@ -691,7 +691,6 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
 - Stripe integration
 - Subscription tiers
 - Advanced analytics
-- Micro-missions
 
 **Deliverables:**
 - Working payment flow

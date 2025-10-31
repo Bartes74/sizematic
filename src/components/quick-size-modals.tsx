@@ -111,27 +111,6 @@ export function QuickSizeModal({
       const { error: insertError } = await supabase.from('size_labels').insert(payload);
       if (insertError) throw insertError;
 
-      void fetch('/api/v1/missions/events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          type: 'ITEM_CREATED',
-          payload: {
-            source: 'size_label',
-            category: payload.category,
-            subtype: payload.product_type ?? null,
-            createdAt: new Date().toISOString(),
-            fieldCount: 1,
-            criticalFieldCompleted: true,
-          },
-        }),
-      }).catch((eventError) => {
-        console.error('Failed to emit mission event for size label:', eventError);
-      });
-
       onSaved();
       onClose();
     } catch (err: any) {

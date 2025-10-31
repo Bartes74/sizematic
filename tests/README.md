@@ -17,5 +17,8 @@ pnpm test:e2e
 
 ## Aktualne scenariusze
 - `tests/e2e/landing.spec.ts` – smoke test landing page (hero + modal logowania).
+- `tests/e2e/auth.spec.ts` – logowanie poprawne oraz obsługa błędnych danych.
+- `tests/e2e/dashboard.spec.ts` – podstawowe sekcje dashboardu, dodanie szybkiego rozmiaru, przejście do katalogu.
+- `tests/e2e/sizes-directory.spec.ts` – widok „Wszystkie rozmiary” i nawigacja do formularza dodawania.
 
-Kolejne testy (dashboard, quick sizes, missions) oznaczone są jako TODO w `tests/TEST_PLAN.md`.
+Scenariusze dla Kręgu Zaufania nadal rozwijamy – status znajdziesz w `tests/TEST_PLAN.md`.

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
-import { processMissionEvent } from "@/lib/missions/events";
 
 export async function POST(_request: NextRequest, context: unknown) {
   const { params } = context as { params: { shareId: string } };
@@ -59,26 +58,6 @@ export async function POST(_request: NextRequest, context: unknown) {
 
     if (updateError) {
       throw new Error(updateError.message);
-    }
-
-    try {
-      await processMissionEvent(
-        {
-          type: 'ITEM_CREATED',
-          profileId: share.owner_profile_id,
-          payload: {
-            source: 'wishlist',
-            category: 'wishlist-share',
-            createdAt: now,
-            fieldCount: 1,
-            criticalFieldCompleted: true,
-            uniqueHash: share.id,
-          },
-        },
-        supabase
-      );
-    } catch (missionError) {
-      console.warn('Mission event failed for wishlist share:', missionError);
     }
 
     return NextResponse.json({ share: updated });

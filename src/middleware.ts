@@ -1,23 +1,76 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import createIntlMiddleware from 'next-intl/middleware';
-import { defaultLocale, locales, localePrefix } from '@/i18n/config';
+import { defaultLocale, locales } from '@/i18n/config';
 
-const handleI18nRouting = createIntlMiddleware({
-  locales,
-  defaultLocale,
-  localePrefix,
-});
+type Locale = (typeof locales)[number];
 
-export async function middleware(request: NextRequest) {
-  const i18nResponse = handleI18nRouting(request);
+const LOCALE_COOKIE = 'NEXT_LOCALE';
 
-  // Return early if the middleware handled the response (redirect/rewrite)
-  if (i18nResponse.headers.get('x-middleware-next') !== '1') {
-    return i18nResponse;
+function normalizeLocale(value: string | undefined | null): Locale | null {
+  if (!value) {
+    return null;
   }
 
-  const response = i18nResponse;
+  const normalized = value.toLowerCase();
+  if (locales.includes(normalized as Locale)) {
+    return normalized as Locale;
+  }
+
+  return null;
+}
+
+function resolveLocaleFromAcceptLanguage(headerValue: string | null): Locale | null {
+  if (!headerValue) {
+    return null;
+  }
+
+  const requestedLocales = headerValue
+    .split(',')
+    .map((part) => part.split(';')[0]?.trim())
+    .filter(Boolean);
+
+  for (const candidate of requestedLocales) {
+    const normalized = candidate?.toLowerCase()?.split('-')[0];
+    if (normalized && locales.includes(normalized as Locale)) {
+      return normalized as Locale;
+    }
+  }
+
+  return null;
+}
+
+function applyLocaleMetadata(response: NextResponse, locale: Locale) {
+  response.headers.set('x-next-intl-locale', locale);
+  response.cookies.set(LOCALE_COOKIE, locale, { path: '/', sameSite: 'lax' });
+  return response;
+}
+
+export async function middleware(request: NextRequest) {
+  const url = request.nextUrl.clone();
+
+  const localeQuery = normalizeLocale(url.searchParams.get('locale'));
+  if (localeQuery) {
+    url.searchParams.delete('locale');
+    const redirect = NextResponse.redirect(url);
+    return applyLocaleMetadata(redirect, localeQuery);
+  }
+
+  const cookieLocale = normalizeLocale(request.cookies.get(LOCALE_COOKIE)?.value);
+  const headerLocale = resolveLocaleFromAcceptLanguage(request.headers.get('accept-language'));
+  const locale = cookieLocale ?? headerLocale ?? defaultLocale;
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-next-intl-locale', locale);
+
+  let response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+
+  if (cookieLocale !== locale) {
+    response.cookies.set(LOCALE_COOKIE, locale, { path: '/', sameSite: 'lax' });
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,17 +93,17 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // If user is not logged in and trying to access protected routes
   if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/', request.url));
+    const redirect = NextResponse.redirect(new URL('/', request.url));
+    return applyLocaleMetadata(redirect, locale);
   }
 
-  // If user is logged in and trying to access auth page, redirect to dashboard
   if (user && request.nextUrl.pathname === '/') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    const redirect = NextResponse.redirect(new URL('/dashboard', request.url));
+    return applyLocaleMetadata(redirect, locale);
   }
 
-  return response;
+  return applyLocaleMetadata(response, locale);
 }
 
 export const config = {

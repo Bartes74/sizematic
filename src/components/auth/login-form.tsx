@@ -119,18 +119,22 @@ export function LoginForm() {
 
         <form onSubmit={handleForgotPassword} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t('auth.login.emailLabel')}
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-              placeholder={t('auth.login.emailPlaceholder')}
-            />
-          </div>
+          <label
+            htmlFor="login-forgot-email"
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            {t('auth.login.emailLabel')}
+          </label>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            id="login-forgot-email"
+            className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+            placeholder={t('auth.login.emailPlaceholder')}
+          />
+        </div>
 
           {errorMessage && (
             <div className="rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
@@ -167,7 +171,10 @@ export function LoginForm() {
 
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <label
+            htmlFor="login-email"
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
             {t('auth.login.emailLabel')}
           </label>
           <input
@@ -175,6 +182,7 @@ export function LoginForm() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            id="login-email"
             className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
             placeholder={t('auth.login.emailPlaceholder')}
             autoComplete="email"
@@ -182,7 +190,10 @@ export function LoginForm() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <label
+            htmlFor="login-password"
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
             {t('auth.login.passwordLabel')}
           </label>
           <div className="relative">
@@ -191,6 +202,7 @@ export function LoginForm() {
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              id="login-password"
               className="w-full rounded-xl border border-input bg-background px-4 py-3 pr-12 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
               placeholder={t('auth.login.passwordPlaceholder')}
               autoComplete="current-password"

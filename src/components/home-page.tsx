@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { GlobalHeader } from '@/components/global-header';
 import { QUICK_CATEGORY_CONFIGS, PRODUCT_TYPE_MAP } from '@/data/product-tree';
 import type { QuickCategoryId } from '@/data/product-tree';
-import { DashboardMissions } from '@/components/missions/dashboard-missions';
 import { TrustedCircle } from '@/components/trusted-circle';
 import { QuickSizeModal, QuickSizePreferencesModal } from '@/components/quick-size-modals';
 import type {
@@ -619,9 +618,6 @@ export function HomePage({
             ))}
           </div>
         </div>
-
-        <DashboardMissions />
-
         <SectionCard>
           <h2 className="pb-4 text-lg font-semibold text-foreground sm:text-xl">Fill in Your Data Gaps</h2>
           <div className="grid gap-3 md:grid-cols-3">

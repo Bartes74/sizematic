@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
-import { processMissionEvent } from '@/lib/missions/events';
 
 export async function PUT(request: Request, context: unknown) {
   const { params } = context as { params: { memberId: string } };
@@ -62,26 +61,6 @@ export async function PUT(request: Request, context: unknown) {
     await admin
       .from('trusted_circle_permissions')
       .insert(payload);
-  }
-
-  const now = new Date().toISOString();
-
-  try {
-    await processMissionEvent(
-      {
-        type: 'ITEM_CREATED',
-        profileId: profile.id,
-        payload: {
-          source: 'trusted_circle',
-          category: 'permissions-update',
-          createdAt: now,
-          fieldCount: selections.length,
-        },
-      },
-      admin
-    );
-  } catch (missionError) {
-    console.warn('Mission event failed during permission update:', missionError);
   }
 
   return NextResponse.json({ ok: true });

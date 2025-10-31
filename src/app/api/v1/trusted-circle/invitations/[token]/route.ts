@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 import { getTrustedCircleLimit } from '@/lib/trusted-circle/utils';
-import { processMissionEvent } from '@/lib/missions/events';
 import type { UserRole } from '@/lib/types';
 
 export async function POST(_request: Request, context: unknown) {
@@ -118,38 +117,6 @@ export async function POST(_request: Request, context: unknown) {
 
   if (membershipError) {
     return NextResponse.json({ error: membershipError.message }, { status: 500 });
-  }
-
-  try {
-    await processMissionEvent(
-      {
-        type: 'ITEM_CREATED',
-        profileId: invitation.inviter_profile_id,
-        payload: {
-          source: 'trusted_circle',
-          category: 'circle-accepted',
-          createdAt: now,
-          fieldCount: 1,
-        },
-      },
-      admin
-    );
-
-    await processMissionEvent(
-      {
-        type: 'ITEM_CREATED',
-        profileId: profile.id,
-        payload: {
-          source: 'trusted_circle',
-          category: 'circle-accepted',
-          createdAt: now,
-          fieldCount: 1,
-        },
-      },
-      admin
-    );
-  } catch (missionError) {
-    console.warn('Mission event failed after accepting invitation:', missionError);
   }
 
   return NextResponse.json({

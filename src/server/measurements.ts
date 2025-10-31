@@ -8,7 +8,6 @@ import type {
   SizeSource,
 } from "@/lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { processMissionEvent } from "@/lib/missions/events";
 
 type DbClient = SupabaseClient<Record<string, unknown>>;
 
@@ -75,23 +74,4 @@ export async function addMeasurementForProfile(
     throw new Error(`Failed to insert measurement: ${error.message}`);
   }
 
-  const fieldCount = Object.values(payload.values).filter(
-    (value) => value !== undefined && value !== null && value !== 0
-  ).length;
-
-  await processMissionEvent(
-    {
-      type: "ITEM_CREATED",
-      profileId,
-      payload: {
-        source: "measurement",
-        category: payload.category,
-        subtype: null,
-        createdAt: new Date().toISOString(),
-        fieldCount,
-        criticalFieldCompleted: false,
-      },
-    },
-    client
-  );
 }

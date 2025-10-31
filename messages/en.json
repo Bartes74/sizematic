@@ -87,15 +87,6 @@
     "validUntil": "valid until",
     "premiumFeature": "In Premium+ you can password-protect links and extend validity"
   },
-  "missions": {
-    "title": "Your Next Steps",
-    "subtitle": "Missions and reminders",
-    "weeklyProgress": "Weekly mission progress",
-    "reward": "Reward",
-    "checkNow": "Check now",
-    "inviteToCircle": "Invite another person to Circle",
-    "premiumRequired": "available in Premium"
-  },
   "circle": {
     "title": "Who Knows Your Sizes",
     "subtitle": "My Circle",

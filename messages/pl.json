@@ -87,15 +87,6 @@
     "validUntil": "ważny do",
     "premiumFeature": "W Premium+ możesz zabezpieczyć dostęp hasłem i dłuższą ważnością linku"
   },
-  "missions": {
-    "title": "Twoje następne kroki",
-    "subtitle": "Misje i przypomnienia",
-    "weeklyProgress": "Postęp misji tygodnia",
-    "reward": "Nagroda",
-    "checkNow": "Sprawdź teraz",
-    "inviteToCircle": "Zaproś kolejną osobę do Kręgu",
-    "premiumRequired": "dostępne w Premium"
-  },
   "circle": {
     "title": "Kto zna Twoje rozmiary",
     "subtitle": "Mój Krąg",

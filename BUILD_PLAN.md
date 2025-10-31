@@ -2,7 +2,7 @@
 
 ## 0. Cel dokumentu
 
-Dostarczamy kompletny, techniczny plan budowy **MVP SizeHub** (PWA z trybem offline-first) z modułami: **ZPR (measurement-first, EN 13402), auto‑konwersje marek, Zaufany Krąg, reguły udostępnień (per kategoria), Secret Giver (token), Prezentowy link, mikro‑misje, powiadomienia kontekstowe, kalendarz okazji, wishlista, monetyzacja (Stripe) i RLS**. W tym dokumencie **pomijamy UI**, skupiamy się na backendzie, kontraktach, danych, bezpieczeństwie, testach i harmonogramie.
+Dostarczamy kompletny, techniczny plan budowy **MVP SizeHub** (PWA) z modułami: **ZPR (measurement-first, EN 13402), auto‑konwersje marek, Zaufany Krąg, reguły udostępnień (per kategoria), Secret Giver (token), Prezentowy link, powiadomienia kontekstowe, kalendarz okazji, wishlista, monetyzacja (Stripe) i RLS**. W tym dokumencie **pomijamy UI**, skupiamy się na backendzie, kontraktach, danych, bezpieczeństwie, testach i harmonogramie.
 
 ---
 
@@ -21,19 +21,18 @@ Dostarczamy kompletny, techniczny plan budowy **MVP SizeHub** (PWA z trybem offl
 - **Free / Premium / Premium+** – różnice w limitach Kręgu, parametrach Prezentowego linku, powiadomieniach, blokadzie SG (płatna w Free/Premium, w cenie w Premium+). Przykład: Premium=4 osoby w Kręgu, Premium+=∞; SG token 20 PLN; blokada SG 5 PLN/m (Free/Premium). Prezentowy link: TTL/limit odsłon/hasło zależnie od planu.
 
 ### 1.3. Główne scenariusze (skrót)
-- **ZPR**: dodawanie pomiarów wg EN 13402 i/lub szybkich „metek”; historia zmian. **Auto‑konwersje** marek (offline z cache, priorytet oficjalnych tabel).  
+- **ZPR**: dodawanie pomiarów wg EN 13402 i/lub szybkich „metek”; historia zmian. **Auto‑konwersje** marek (cache lokalne z priorytetem oficjalnych tabel).  
 - **Udostępnianie**: reguły read‑only per kategoria do pojedynczych osób lub całego Kręgu (limity planów).  
 - **Secret Giver**: Requester kupuje token (Stripe), składa prośbę o dostęp; Target akceptuje/odrzuca; dostęp czasowy tylko do wskazanej kategorii; RLS egzekwuje widoczność.  
 - **Prezentowy link**: generowanie linku dla gości bez konta, z parametrami TTL, max_views, one_time i (Plus) hasłem; odczyt tylko przez Edge Function (service role), RLS bez publicznego SELECT.  
-- **Powiadomienia**: reguły kontekstowe (okazje 21/7/3/1; „stare” wymiary 12/24m; dzieci co 3m; wygasanie linków 72/48/24h; SG natychmiast/24h; misje max 1/d) + tygodniowy digest. CRON przez Edge Functions.  
-- **Mikro‑misje**: once/weekly/quarterly, nagrody (odznaki, kupony Stripe, darmowe dni blokady SG), progress i claim.
+- **Powiadomienia**: reguły kontekstowe (okazje 21/7/3/1; „stare” wymiary 12/24m; dzieci co 3m; wygasanie linków 72/48/24h; SG natychmiast/24h) + tygodniowy digest. CRON przez Edge Functions.  
 
 ---
 
 ## 2. Architektura i zależności
 
 ### 2.1. Stos technologiczny (MVP)
-- **Frontend (PWA, offline-first)**: Next.js + React + TypeScript; React Query (server‑state), Zustand (UI/local), i18next; Service Worker + IndexedDB/Dexie do cache modeli domenowych; oznaczanie funkcji „tylko online”. *(UI poza zakresem, ale technika offline/cache jest wymagana przez funkcjonalność).*  
+- **Frontend (PWA)**: Next.js + React + TypeScript; React Query (server‑state), Zustand (UI/local), i18next; dane pobierane bezpośrednio z Supabase przez Server Components i Server Actions.  
 - **Backend/Infra**: **Supabase** (PostgreSQL, Auth, Storage, Edge Functions, Scheduled Jobs/CRON), **Stripe** (checkout + subskrypcje), **FCM** (Web Push), **Postmark/SendGrid** (e‑mail).  
 - **Bezpieczeństwo**: **RLS** per tabela, egzekwowanie udostępnień/SG w SQL, dostęp do linków publicznych wyłącznie przez Edge (service role). TLS in‑transit, szyfrowanie at‑rest, DPIA/RODO.
 
@@ -49,10 +48,10 @@ Dostarczamy kompletny, techniczny plan budowy **MVP SizeHub** (PWA z trybem offl
 
 ## 3. Model danych i migracje
 
-Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_labels, measurement_history, brands, brand_size_maps, brand_equivalences, trust_circles, trust_circle_members, share_rules, shared_links, secret_giver_requests, privacy_blocks, events, wishlists, wishlist_items, missions, mission_progress, notification_rules, notification_log, subscriptions, stripe_events**.
+Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_labels, measurement_history, brands, brand_size_maps, brand_equivalences, trust_circles, trust_circle_members, share_rules, shared_links, secret_giver_requests, privacy_blocks, events, wishlists, wishlist_items, notification_rules, notification_log, subscriptions, stripe_events**.
 
 ### 3.1. Typy i enumy
-`category`, `target_gender`, `unit_pref`, `user_plan`, `sg_status`, `share_scope`, `shared_link_scope`, `notif_channel`, `mission_type`, `reward_type`, `size_source`.
+`category`, `target_gender`, `unit_pref`, `user_plan`, `sg_status`, `share_scope`, `shared_link_scope`, `notif_channel`, `size_source`.
 
 ### 3.2. Kluczowe tabele (esencja)
 - **profiles** – 1:1 z auth.users; plan, preferencje jednostek, ustawienia.  
@@ -63,7 +62,6 @@ Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_
 - **secret_giver_requests** – wnioski SG i cykl życia (pending/approved/denied/expired) + approved_until.  
 - **privacy_blocks** – abonament/bonus na blokadę SG.  
 - **events / wishlists / wishlist_items** – kalendarz/wishlista.  
-- **missions / mission_progress** – mikro‑misje i progress.  
 - **notification_rules / notification_log** – definicje i dziennik wysyłek.  
 - **subscriptions** – lustrzany stan subskrypcji (Stripe/IAP).  
 - **stripe_events** – idempotencja webhooków Stripe.
@@ -87,7 +85,7 @@ Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_
 - **trust_circles/trust_circle_members/share_rules**: właściciel zarządza; adresaci mają *read*.  
 - **shared_links**: właściciel zarządza; publiczny odczyt wyłącznie przez Edge (service).  
 - **secret_giver_requests**: requester/target *select*; statusy modyfikowane przez Edge.  
-- **missions / mission_progress / notifications / subscriptions**: `missions` – global read; pozostałe owner‑only.
+- **notification_rules / notification_log / subscriptions**: owner-only zarządzane przez konto użytkownika.
 
 ---
 
@@ -96,13 +94,13 @@ Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_
 ### 5.1. Auto‑konwersje marek
 - **Wejście**: tryb METKA (`brand_from`, `label`) lub POMIARY (`measurements`).  
 - **Proces**: odczyt zakresów z `brand_size_maps` → rzutowanie do `brand_to`/wszystkich, priorytet `source=official`, `confidence`.  
-- **Offline**: działa na cache marek/map w PWA; online uzupełnia brakujące mapy (synchronizacja).
+- **Cache**: opcjonalne prefetchowanie marek/map w tle; dane domyślnie pobierane na żądanie.
 
 ### 5.2. Egzekwowanie limitów planu
 - Helper Edge `assertPlanLimits(user_id, feature)` – limity Kręgu, parametry Prezentowego linku (TTL, max_views, zakres kategorii), blokada SG. Zwraca błąd biznesowy (HTTP 402/403) z kodem domenowym.
 
 ### 5.3. Powiadomienia kontekstowe
-- **CRON daily 07:30**: okazje (21/7/3/1), stary rozmiar (12/24m), dzieci (co 3m), link expiry (72/48/24h), misje (max 1/d).  
+- **CRON daily 07:30**: okazje (21/7/3/1), stary rozmiar (12/24m), dzieci (co 3m), link expiry (72/48/24h).  
 - **CRON weekly Mon 08:00**: digest.  
 - **Natychmiastowe**: SG request/new status; limit 1/6h dla kontekstowych (z wyjątkami); „godziny ciszy”.
 
@@ -132,22 +130,18 @@ Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_
 - `GET /api/shared-links/{token}` – **public**: waliduje `revoked_at/expires_at/max_views/one_time`, inkrementuje `views_count` atomowo, zwraca payload (wishlist + bazowe rozmiary).  
 - `POST /api/shared-links/revoke` – unieważnienie.
 
-### 6.5. Misje i nagrody
-- `POST /api/missions/progress` – idempotentny progress event.  
-- `POST /api/missions/claim` – kupon Stripe / `privacy_blocks`.
-
-### 6.6. Powiadomienia i digest
+### 6.5. Powiadomienia i digest
 - `POST /functions/compute-notifications-daily` – CRON daily (service role).  
 - `POST /functions/compute-digest-weekly` – CRON weekly (service role).  
 - `POST /functions/notify` – adapter FCM/Postmark z logiem i rate‑limitami.
 
 ---
 
-## 7. Offline-first i synchronizacja
+## 7. Synchronizacja danych
 
-- **Cache domenowy** w IndexedDB (Dexie): profil, ZPR, brandy/mapy, linki, misje, i18n.  
-- **Kolejka mutacji** dla edycji ZPR i innych operacji możliwych offline; strategia konfliktu **last‑write‑wins** + dziennik zmian/historia.  
-- **Blokady**: operacje wymagające sieci (SG, linki, płatności) oznaczone i wstrzymane offline.
+- Dane odczytywane są bezpośrednio z Supabase podczas renderowania (React Server Components, Server Actions).  
+- Mutacje wykonywane w Server Actions odświeżają widoki (`router.refresh`, rewalidacje) i nie wymagają lokalnych kolejek.  
+- UI obsługuje stany `loading`/`error`; zakładamy aktywne połączenie sieciowe w czasie korzystania z aplikacji.
 
 ---
 
@@ -193,8 +187,7 @@ Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_
 - **SDK Edge**: helpers (`getUser`, `assertPlanLimits`, `genToken`, `hashPassword`, `notify`, rate‑limiter).  
 - Konfiguracja providerów (Supabase, Stripe – ceny/produkty, Postmark/FCM, secrets).
 
-### Faza 1 — Rdzeń (T0–T+4 tyg.)
-- **ZPR (measurements/labels/history)** + walidacja jednostek; tryb offline (kolejka mutacji).  
+- **ZPR (measurements/labels/history)** + walidacja jednostek.  
 - **Konwersje**: `conversions_recommend` (METKA/POMIARY) + cache marek/map.  
 - Testy jednostkowe/integracyjne + E2E #1.
 
@@ -211,7 +204,6 @@ Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_
 
 ### Faza 4 — Retencja (T+8–T+10 tyg.)
 - **Powiadomienia kontekstowe** (CRON daily/weekly, quiet hours, rate‑limit).  
-- **Mikro‑misje** + claim (kupony Stripe / `privacy_blocks`).  
 - **Digest tygodniowy**.  
 - E2E #5–#6.
 
@@ -228,8 +220,8 @@ Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_
 - **API/Edge**: kontrakty i walidacje; rate‑limit; kody domenowe błędów.  
 - **Płatności**: webhook idempotentny, zmiany planów w `profiles.plan` i `privacy_blocks`.  
 - **Linki**: TTL/limit/one_time/hasło (Plus) egzekwowane; REVOKE natychmiastowe.  
-- **Konwersje**: METKA/POMIARY działają również na cache (offline).  
-- **Powiadomienia/Misje**: CRONy, quiet hours, log, claim nagród.  
+- **Konwersje**: METKA/POMIARY mogą korzystać z lokalnie prefetchnietych danych marek/map.  
+- **Powiadomienia**: CRONy, quiet hours, log.  
 - **E2E**: 6 scenariuszy przechodzi na stagingu bez P0/P1.
 
 ---
@@ -237,18 +229,18 @@ Typy domenowe (enum), tabele, indeksy i relacje: **profiles, measurements, size_
 ## 13. Załączniki operacyjne
 
 - **.env przykłady** (web/edge).  
-- **Seedy**: marki/mapy (demo), konta testowe, minimalne ZPR, misje startowe, eventy/wishlista.  
+- **Seedy**: marki/mapy (demo), konta testowe, minimalne ZPR, eventy/wishlista.  
 - **Komendy Stripe (dev)**: `stripe listen --forward-to ...`, `stripe trigger checkout.session.completed ...`.  
 - **Playwright config** i helper `loginAs()` do E2E.  
-- **Feature flags** (misje, digest, SG) i rate‑limit per endpoint.
+- **Feature flags** (digest, SG) i rate‑limit per endpoint.
 
 ---
 
 ## 14. Ryzyka i mitigacje (skrót)
 
-- **Niepełne tabele marek** → wersjonowanie `brand_size_maps`, `source`, `confidence`, komunikat „przybliżone”, cache offline.  
+- **Niepełne tabele marek** → wersjonowanie `brand_size_maps`, `source`, `confidence`, komunikat „przybliżone”, cache’owanie braków po stronie serwera.  
 - **Nadmiernie długie TTL linków** → domyślne krótkie, `max_views`, `one_time`, REVOKE.  
-- **Niska retencja po wprowadzeniu danych** → mikro‑misje, kontekstowe powiadomienia, digest od D1.
+- **Niska retencja po wprowadzeniu danych** → kontekstowe powiadomienia i digest od D1.
 
 ---
 
@@ -364,12 +356,6 @@ components:
         max_views: { type: integer, minimum: 1, maximum: 1000 }
         one_time: { type: boolean, default: false }
         password: { type: string, nullable: true }
-    MissionProgressInput:
-      type: object
-      required: [mission_code, event]
-      properties:
-        mission_code: { type: string }
-        event: { type: string }
 paths:
   /api/zpr/measurements:
     post:
@@ -585,26 +571,6 @@ paths:
                 token: { type: string }
       responses:
         '204': { description: Unieważniono }
-        '401': { description: Brak autoryzacji }
-  /api/missions/progress:
-    post:
-      summary: Record mission progress (idempotent)
-      security: [ { bearerAuth: [] } ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/MissionProgressInput' }
-      responses:
-        '200': { description: OK }
-        '401': { description: Brak autoryzacji }
-  /api/missions/claim:
-    post:
-      summary: Claim mission reward
-      security: [ { bearerAuth: [] } ]
-      responses:
-        '200': { description: Nagroda przyznana }
-        '409': { description: Już odebrano }
         '401': { description: Brak autoryzacji }
   /functions/compute-notifications-daily:
     post:

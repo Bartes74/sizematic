@@ -1,7 +1,6 @@
 import "server-only";
 
 import { createSupabaseAdminClient } from "@/lib/supabase";
-import { processMissionEvent } from "@/lib/missions/events";
 import type {
   ItemParseStatus,
   SizeMatchConfidence,
@@ -68,22 +67,6 @@ export async function enrichWishlistItemFromUrl(params: {
       .from("wishlist_items")
       .update(updatePayload)
       .eq("id", itemId);
-
-    await processMissionEvent(
-      {
-        type: 'ITEM_CREATED',
-        profileId: ownerProfileId,
-        payload: {
-          source: 'wishlist',
-          category: 'wishlist',
-          createdAt: now,
-          fieldCount: updatePayload.matched_size ? 1 : 0,
-          wishlistId: wishlistId,
-          matchedSize: updatePayload.matched_size ?? null,
-        },
-      },
-      supabase
-    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Nie udało się pobrać danych produktu";

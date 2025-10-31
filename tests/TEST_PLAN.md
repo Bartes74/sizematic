@@ -8,16 +8,16 @@
 
 | Obszar | Scenariusze | Status |
 | --- | --- | --- |
-| Autoryzacja | Logowanie poprawne / błędne, rejestracja demo | TODO |
+| Autoryzacja | Logowanie poprawne / błędne (auth.spec.ts), rejestracja demo | 🟡 login ✅ / rejestracja TODO |
 | Landing page | Render hero, otwarcie modalu logowania | ✅ (landing.spec.ts) |
-| Dashboard | Render nagłówka, sekcji „Zapisz swoje rozmiary”, „Twoje misje”, „Krąg zaufanych” | TODO |
-| Quick Sizes | Dodanie rozmiaru z modalu, aktualizacja skrótów, weryfikacja kafelków | TODO |
-| Trusted Circle | Widok listy członków + fallback gdy brak danych | TODO |
-| Missions | Fallback „Brak misji” oraz render przykładowej misji (mock danych) | TODO |
-| Strona „Zobacz wszystkie rozmiary” | Nawigacja z dashboardu, render kart, modal edycji | TODO |
+| Dashboard | Render nagłówka, sekcji „Zapisz swoje rozmiary”, „Krąg zaufanych” | ✅ (dashboard.spec.ts) |
+| Quick Sizes | Dodanie rozmiaru z modalu, aktualizacja skrótów, weryfikacja kafelków | ✅ (dashboard.spec.ts) |
+| Trusted Circle | Widok listy członków + fallback gdy brak danych | ✅ (dashboard.spec.ts) |
+| Strona „Zobacz wszystkie rozmiary” | Nawigacja z dashboardu, render kart, modal edycji | ✅ (sizes-directory.spec.ts) |
 
 ## Założenia
 - Używamy testowego użytkownika seed (do ustalenia w kolejnych krokach).
+- `PLAYWRIGHT_TEST_EMAIL` oraz `PLAYWRIGHT_TEST_PASSWORD` muszą wskazywać tego użytkownika.
 - Testy uruchamiamy w Chrome (headless). Inne przeglądarki dodamy po stabilizacji.
 - MCP wykorzystamy do debuggingu (komendy `get-screenshot`, `get-context`, nagrania).
 
