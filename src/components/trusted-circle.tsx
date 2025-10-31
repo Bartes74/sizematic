@@ -110,7 +110,7 @@ export function TrustedCircle() {
   const usedSlots = members.length + pendingInvites.length;
   const limitLabel = limit === null
     ? t('circle.limitUnlimited')
-    : t('circle.limitInfo', { used: usedSlots, limit });
+    : t('circle.limitInfo');
 
   const { data: sharedData, error: sharedError, isLoading: sharedLoading, mutate: refreshShared } = useSWR<SharedData>(
     activeMember ? `/api/v1/trusted-circle/members/${activeMember.profile.id}/shared` : null,
