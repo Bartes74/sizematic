@@ -203,7 +203,7 @@ export function ProfileEditForm({ initialData }: ProfileEditFormProps) {
                   />
                 ) : (
                   <span className="text-3xl font-bold text-primary">
-                    {displayName?.charAt(0)?.toUpperCase() || initialData.email.charAt(0).toUpperCase()}
+                    {(displayName ? displayName.trim().slice(0, 1).toUpperCase() : initialData.email.slice(0, 1).toUpperCase())}
                   </span>
                 )}
               </div>

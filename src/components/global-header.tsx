@@ -47,7 +47,7 @@ export function GlobalHeader({
     router.refresh();
   };
 
-  const initials = userName?.charAt(0)?.toUpperCase() ?? "S";
+  const initials = userName ? userName.trim().slice(0, 1).toUpperCase() || "S" : "S";
   const logoAlt = `${brandingConfig.site_name} logo`;
 
   return (

@@ -81,9 +81,13 @@ function SectionCard({
 }
 
 function formatMeasurementKey(key: string) {
+  if (!key) {
+    return '';
+  }
   return key
     .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .map((part) => (part ? part.slice(0, 1).toUpperCase() + part.slice(1) : ''))
+    .filter(Boolean)
     .join(' ');
 }
 

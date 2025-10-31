@@ -307,7 +307,10 @@ function fallbackBrandFromUrl(url: string) {
 }
 
 function capitalize(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  if (!value) {
+    return '';
+  }
+  return value.slice(0, 1).toUpperCase() + value.slice(1);
 }
 
 async function resolveBrandSizeMatch(

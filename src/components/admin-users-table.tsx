@@ -107,7 +107,10 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                      {(user.display_name || user.email || 'U').charAt(0).toUpperCase()}
+                      {(() => {
+                        const source = user.display_name?.trim() || user.email?.trim() || 'U';
+                        return source.slice(0, 1).toUpperCase();
+                      })()}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-foreground">
