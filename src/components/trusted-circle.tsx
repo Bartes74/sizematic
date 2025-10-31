@@ -261,9 +261,7 @@ export function TrustedCircle() {
                     />
                     <div>
                       <p className="font-medium text-foreground">{invite.invitee_email}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {t('circle.sentAt', { date: sentAt })}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{sentAt}</p>
                     </div>
                   </div>
                   <button
