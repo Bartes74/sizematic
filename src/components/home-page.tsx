@@ -625,7 +625,7 @@ export function HomePage({
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                          {item.title.charAt(0)}
+                          {item.title ? item.title.slice(0, 1) : ''}
                         </div>
                       )}
                     </div>
