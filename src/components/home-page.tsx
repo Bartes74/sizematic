@@ -393,7 +393,12 @@ export function HomePage({
           labelsForCategory.find((label) => label.product_type === preference.productType) ?? null;
       }
       if (!selectedLabel) {
-        selectedLabel = labelsForCategory[0] ?? null;
+        selectedLabel =
+          labelsForCategory.find((label) =>
+            label.product_type
+              ? categoryConfig.productTypes.some((type) => type.id === label.product_type)
+              : false
+          ) ?? null;
       }
 
       let sizeValue = '--';
