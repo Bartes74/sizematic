@@ -11,8 +11,8 @@ import type {
   Brand,
   BrandTypeMapping,
   Category,
-  QuickCategoryId,
 } from '@/lib/types';
+import type { QuickCategoryId } from '@/data/product-tree';
 import { QuickSizeModal, QuickSizePreferencesModal } from '@/components/quick-size-modals';
 
 function parseSizeLabelParts(label: string): { value: string; unit: string | null } {
