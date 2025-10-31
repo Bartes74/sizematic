@@ -30,7 +30,7 @@ type SharedData = {
   }>;
 };
 
-const fetcher = (url: string) => fetch(url).then((res) => {
+const fetcher = (url: string) => fetch(url, { credentials: 'include' }).then((res) => {
   if (!res.ok) {
     throw new Error('Nie udało się pobrać danych');
   }

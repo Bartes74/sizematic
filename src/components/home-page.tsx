@@ -530,30 +530,32 @@ export function HomePage({
               </svg>
             </button>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7">
-            {quickSizeTiles.map((tile) => (
-              <button
-                key={tile.categoryId}
-                type="button"
-                onClick={() => setActiveQuickTile({ categoryId: tile.categoryId, productTypeId: tile.productTypeId })}
-                className="group flex h-full flex-col items-center gap-4 rounded-[28px] border border-border/60 bg-[var(--surface-muted)] p-5 text-center shadow-[0_20px_45px_-30px_rgba(6,134,239,0.55)] transition hover:border-[#48A9A6] hover:shadow-[#48A9A6]/30"
-              >
-                <p className="text-sm font-semibold text-foreground">{tile.label}</p>
-                {tile.hasData ? (
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-3xl font-semibold text-foreground">{tile.sizeValue}</p>
-                    {tile.sizeUnit ? (
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                        {tile.sizeUnit}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : (
-                  <span className="text-3xl font-semibold text-foreground">--</span>
-                )}
-                <p className="text-xs text-muted-foreground">{tile.productTypeLabel}</p>
-              </button>
-            ))}
+          <div className="no-scrollbar -mx-4 overflow-x-auto pb-2">
+            <div className="flex min-w-max gap-4 px-4">
+              {quickSizeTiles.map((tile) => (
+                <button
+                  key={tile.categoryId}
+                  type="button"
+                  onClick={() => setActiveQuickTile({ categoryId: tile.categoryId, productTypeId: tile.productTypeId })}
+                  className="group flex w-[190px] shrink-0 flex-col items-center gap-4 rounded-[28px] border border-border/60 bg-[var(--surface-interactive)] p-5 text-center shadow-[0_20px_45px_-30px_rgba(6,134,239,0.45)] transition hover:border-[#48A9A6] hover:shadow-[#48A9A6]/25"
+                >
+                  <p className="text-sm font-semibold text-foreground">{tile.label}</p>
+                  {tile.hasData ? (
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-3xl font-semibold text-foreground">{tile.sizeValue}</p>
+                      {tile.sizeUnit ? (
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          {tile.sizeUnit}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <span className="text-3xl font-semibold text-foreground">--</span>
+                  )}
+                  <p className="text-xs text-muted-foreground">{tile.productTypeLabel}</p>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
