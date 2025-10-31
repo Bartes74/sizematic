@@ -394,11 +394,15 @@ export function HomePage({
       }
       if (!selectedLabel) {
         selectedLabel =
-          labelsForCategory.find((label) =>
-            label.product_type
-              ? categoryConfig.productTypes.some((type) => type.id === label.product_type)
-              : false
-          ) ?? null;
+          labelsForCategory.find((label) => {
+            if (!label.product_type) {
+              return false;
+            }
+            const owningCategory = QUICK_CATEGORY_CONFIGS.find((item) =>
+              item.productTypes.some((type) => type.id === label.product_type)
+            );
+            return owningCategory?.id === config.id;
+          }) ?? null;
       }
 
       let sizeValue = '--';
