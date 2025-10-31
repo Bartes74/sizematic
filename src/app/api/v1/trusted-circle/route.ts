@@ -87,12 +87,22 @@ export async function GET() {
     incomingMap.set(row.owner_profile_id, list);
   });
 
-  const members = (memberships.data ?? []).map((row) => ({
-    profile: row.member_profile,
-    connected_at: row.created_at,
-    outgoing_permissions: outgoingMap.get(row.member_profile.id) ?? [],
-    incoming_permissions: incomingMap.get(row.member_profile.id) ?? [],
-  }));
+  const members = (memberships.data ?? []).map((row) => {
+    const memberProfile = Array.isArray(row.member_profile)
+      ? row.member_profile[0]
+      : row.member_profile;
+
+    if (!memberProfile) {
+      return null;
+    }
+
+    return {
+      profile: memberProfile,
+      connected_at: row.created_at,
+      outgoing_permissions: outgoingMap.get(memberProfile.id) ?? [],
+      incoming_permissions: incomingMap.get(memberProfile.id) ?? [],
+    };
+  }).filter((member): member is NonNullable<typeof member> => member !== null);
 
   return NextResponse.json({
     plan: profile.role,
