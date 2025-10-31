@@ -47,14 +47,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Brak danych zdarzenia' }, { status: 400 });
   }
 
-  const source =
-    payload.source === 'measurement' ||
-    payload.source === 'garment' ||
-    payload.source === 'size_label' ||
-    payload.source === 'wishlist' ||
-    payload.source === 'trusted_circle'
-      ? payload.source
-      : 'other';
+  const ALLOWED_SOURCES = ['measurement', 'garment', 'size_label', 'wishlist', 'trusted_circle', 'other'] as const;
+  type AllowedSource = typeof ALLOWED_SOURCES[number];
+
+  const sourceValue = typeof payload.source === 'string' ? payload.source : undefined;
+  const source: AllowedSource = ALLOWED_SOURCES.includes(sourceValue as AllowedSource)
+    ? (sourceValue as AllowedSource)
+    : 'other';
 
   const event = {
     type: 'ITEM_CREATED' as const,
