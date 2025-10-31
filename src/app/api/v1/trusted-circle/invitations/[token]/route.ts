@@ -109,12 +109,15 @@ export async function POST(_request: Request, context: unknown) {
     { owner_profile_id: profile.id, member_profile_id: invitation.inviter_profile_id },
   ];
 
-  for (const pair of membershipPairs) {
-    await admin
-      .from('trusted_circle_memberships')
-      .insert(pair)
-      .onConflict('owner_profile_id,member_profile_id')
-      .ignore();
+  const { error: membershipError } = await admin
+    .from('trusted_circle_memberships')
+    .upsert(membershipPairs, {
+      onConflict: 'owner_profile_id,member_profile_id',
+      ignoreDuplicates: true,
+    });
+
+  if (membershipError) {
+    return NextResponse.json({ error: membershipError.message }, { status: 500 });
   }
 
   try {
