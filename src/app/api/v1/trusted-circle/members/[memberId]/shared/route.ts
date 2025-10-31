@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 
-export async function GET(_request: Request, { params }: { params: { memberId: string } }) {
+export async function GET(_request: Request, context: unknown) {
+  const { params } = context as { params: { memberId: string } };
   const supabase = await createClient();
   const admin = createSupabaseAdminClient();
 

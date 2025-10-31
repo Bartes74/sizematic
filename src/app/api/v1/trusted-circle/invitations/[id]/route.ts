@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, context: unknown) {
+  const { params } = context as { params: { id: string } };
   const supabase = await createClient();
   const admin = createSupabaseAdminClient();
 

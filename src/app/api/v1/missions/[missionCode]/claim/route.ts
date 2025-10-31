@@ -15,8 +15,9 @@ import type { MissionStatus } from '@/lib/types';
 
 export async function POST(
   _request: Request,
-  { params }: { params: { missionCode: string } }
+  context: unknown
 ) {
+  const { params } = context as { params: { missionCode: string } };
   const supabase = await createClient();
   const {
     data: { user },

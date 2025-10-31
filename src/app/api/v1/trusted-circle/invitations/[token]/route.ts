@@ -4,7 +4,8 @@ import { getTrustedCircleLimit } from '@/lib/trusted-circle/utils';
 import { processMissionEvent } from '@/lib/missions/events';
 import type { UserRole } from '@/lib/types';
 
-export async function POST(_request: Request, { params }: { params: { token: string } }) {
+export async function POST(_request: Request, context: unknown) {
+  const { params } = context as { params: { token: string } };
   const supabase = await createClient();
   const admin = createSupabaseAdminClient();
   const token = params.token;
