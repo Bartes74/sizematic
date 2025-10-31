@@ -33,11 +33,12 @@ export function useLocale() {
       return;
     }
 
-    const queryString = searchParams?.toString();
-    const href = queryString ? `${pathname}?${queryString}` : pathname;
+    const params = new URLSearchParams(searchParams?.toString());
+    params.set('locale', nextLocale);
+    const href = `${pathname}?${params.toString()}`;
 
     try {
-      router.replace(href, {locale: nextLocale});
+      router.replace(href);
     } catch (error) {
       if (process.env.NODE_ENV !== 'production') {
         console.error('Failed to switch locale', error);

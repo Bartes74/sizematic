@@ -56,10 +56,7 @@ export function LandingPage({ branding }: LandingPageProps) {
   return (
     <div className="relative min-h-screen bg-background text-foreground">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-surface-elevated via-background to-background dark:from-[#08142a] dark:via-[#071225] dark:to-[#071225]" />
-      <header
-        className="sticky top-0 z-50 border-b border-border/60 backdrop-blur"
-        style={{ backgroundColor: 'var(--surface-elevated)' }}
-      >
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur dark:bg-background/60">
         <div className="mx-auto flex h-[100px] max-w-6xl items-center justify-between px-4 lg:px-6">
           <div className="flex items-center gap-3">
             <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-primary/15 text-primary">
