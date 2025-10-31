@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { LocaleProvider } from "@/providers/locale-provider";
+import type { Locale } from "@/i18n/config";
 import "./globals.css";
 
 const inter = Inter({
@@ -10,21 +12,28 @@ const inter = Inter({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "SizeHub - Your Personal Size Assistant",
-  description: "Premium wardrobe management with intelligent size tracking",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("common");
+  const tagline = t("appTagline");
+  return {
+    title: `${t("appName")} - ${tagline}`,
+    description: tagline,
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = (await getLocale()) as Locale;
+  const messages = await getMessages();
+
   return (
-    <html lang="pl" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProvider>
-          <LocaleProvider>
+          <LocaleProvider locale={locale} messages={messages}>
             {children}
           </LocaleProvider>
         </ThemeProvider>

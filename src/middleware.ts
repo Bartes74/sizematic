@@ -1,12 +1,23 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import createIntlMiddleware from 'next-intl/middleware';
+import { defaultLocale, locales, localePrefix } from '@/i18n/config';
+
+const handleI18nRouting = createIntlMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix,
+});
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
+  const i18nResponse = handleI18nRouting(request);
+
+  // Return early if the middleware handled the response (redirect/rewrite)
+  if (i18nResponse.headers.get('x-middleware-next') !== '1') {
+    return i18nResponse;
+  }
+
+  const response = i18nResponse;
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,12 +28,6 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({
-            request,
-          });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );

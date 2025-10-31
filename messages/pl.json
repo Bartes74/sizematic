@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "SizeHub",
+    "appTagline": "Niespodzianka w idealnym rozmiarze!",
     "loading": "Ładowanie...",
     "error": "Wystąpił błąd",
     "save": "Zapisz",
