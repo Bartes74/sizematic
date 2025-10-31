@@ -205,10 +205,16 @@ export function GarmentForm({ profileId, category, brands, brandMappings }: Garm
 
       if (insertError) throw insertError;
 
-      const sizeFieldCount = Object.values(garmentData.size ?? {}).reduce(
-        (count, value) => (value !== undefined && value !== null && value !== '' ? count + 1 : count),
-        0
-      );
+      const sizeValues = Object.values(garmentData.size ?? {}) as Array<string | number | null | undefined>;
+      const sizeFieldCount = sizeValues.reduce<number>((acc, value) => {
+        if (value === undefined || value === null) {
+          return acc;
+        }
+        if (typeof value === 'string' && value.trim() === '') {
+          return acc;
+        }
+        return acc + 1;
+      }, 0);
 
       try {
         await fetch('/api/v1/missions/events', {
