@@ -25,7 +25,7 @@ export type QuickCategoryConfig = {
 export const QUICK_CATEGORY_CONFIGS: QuickCategoryConfig[] = [
   {
     id: 'outerwear',
-    label: 'Odzież wierzchnia',
+    label: 'Okrycia',
     supabaseCategories: ['outerwear'],
     productTypes: [
       { id: 'kurtka_puchowa', label: 'Kurtka / puchówka', garmentTypes: ['jacket'] },

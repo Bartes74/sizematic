@@ -563,24 +563,26 @@ export function HomePage({
       <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-16 pt-12 lg:px-6">
 
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-foreground sm:text-xl">Zapisz swoje rozmiary</h2>
-          <Link
-            href="/dashboard/sizes"
-            className="text-sm font-medium text-primary transition hover:text-primary/80"
-          >
-            Zobacz wszystkie
-          </Link>
-            <button
-              type="button"
-              onClick={() => setPreferencesOpen(true)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-[var(--surface-muted)] text-muted-foreground shadow-sm transition hover:border-[#48A9A6] hover:text-[#48A9A6]"
-              aria-label="Konfiguruj skróty rozmiarów"
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">Zapisz swoje rozmiary</h2>
+              <button
+                type="button"
+                onClick={() => setPreferencesOpen(true)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-[var(--surface-muted)] text-muted-foreground shadow-sm transition hover:border-[#48A9A6] hover:text-[#48A9A6]"
+                aria-label="Konfiguruj skróty rozmiarów"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h5m11 0h-6m-4 0v10m2 0h9m-13 0H4M9 7a2 2 0 114 0 2 2 0 11-4 0zm6 10a2 2 0 114 0 2 2 0 11-4 0z" />
+                </svg>
+              </button>
+            </div>
+            <Link
+              href="/dashboard/sizes"
+              className="text-sm font-semibold text-primary transition hover:text-primary/80"
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h5m11 0h-6m-4 0v10m2 0h9m-13 0H4M9 7a2 2 0 114 0 2 2 0 11-4 0zm6 10a2 2 0 114 0 2 2 0 11-4 0z" />
-              </svg>
-            </button>
+              Zobacz wszystkie
+            </Link>
           </div>
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
             {quickSizeTiles.map((tile) => (
