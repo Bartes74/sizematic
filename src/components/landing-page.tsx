@@ -22,6 +22,7 @@ const featureConfigs = [
 const featureImages: Partial<Record<(typeof featureConfigs)[number]['id'], string>> = {
   friction: '/przestan_zgadywac.jpg',
   catalog: '/katalog.jpg',
+  secret: '/secret_giver.jpg',
 };
 
 const toneStyles: Record<'rose' | 'sky', string> = {
