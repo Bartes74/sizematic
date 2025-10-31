@@ -1,9 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function TrustedCircleAcceptPage() {
+  return (
+    <Suspense fallback={<AcceptInvitationFallback />}>
+      <TrustedCircleAcceptContent />
+    </Suspense>
+  );
+}
+
+function TrustedCircleAcceptContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get('token');
@@ -84,6 +92,17 @@ export default function TrustedCircleAcceptPage() {
         >
           Przejdź do dashboardu
         </button>
+      </div>
+    </div>
+  );
+}
+
+function AcceptInvitationFallback() {
+  return (
+    <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col justify-center gap-4 px-4">
+      <div className="space-y-2 text-center">
+        <h1 className="text-2xl font-semibold text-foreground">Krąg Zaufanych</h1>
+        <p className="text-sm text-muted-foreground">Ładuję zaproszenie...</p>
       </div>
     </div>
   );
