@@ -47,11 +47,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Brak danych zdarzenia' }, { status: 400 });
   }
 
+  const source =
+    payload.source === 'measurement' ||
+    payload.source === 'garment' ||
+    payload.source === 'size_label' ||
+    payload.source === 'wishlist' ||
+    payload.source === 'trusted_circle'
+      ? payload.source
+      : 'other';
+
   const event = {
     type: 'ITEM_CREATED' as const,
     profileId: profile.id,
     payload: {
-      source: (payload.source as string) ?? 'other',
+      source,
       category: (payload.category as string) ?? 'other',
       subtype: (payload.subtype as string | null | undefined) ?? null,
       createdAt: typeof payload.createdAt === 'string' ? payload.createdAt : new Date().toISOString(),
