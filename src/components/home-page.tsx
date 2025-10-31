@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { GlobalHeader } from '@/components/global-header';
 import { createClient } from '@/lib/supabase/client';
@@ -9,6 +10,7 @@ import { QUICK_CATEGORY_CONFIGS, PRODUCT_TYPE_MAP, getQuickCategoryConfig } from
 import type { QuickCategoryId } from '@/data/product-tree';
 import { DashboardMissions } from '@/components/missions/dashboard-missions';
 import { TrustedCircle } from '@/components/trusted-circle';
+import { QuickSizeModal, QuickSizePreferencesModal } from '@/components/quick-size-modals';
 import type {
   Measurement,
   Category,
@@ -92,6 +94,34 @@ function SectionCard({
   return (
     <div className={`section-card transition ${className}`}>
       {children}
+    </div>
+  );
+}
+
+type ModalShellProps = {
+  onClose: () => void;
+  children: ReactNode;
+  maxWidth?: string;
+};
+
+function ModalShell({ onClose, children, maxWidth = 'max-w-2xl' }: ModalShellProps) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className={`w-full ${maxWidth} rounded-3xl border border-border bg-card p-6 shadow-2xl`}>
+        <div className="flex items-center justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-border/60 p-2 text-muted-foreground transition hover:border-primary hover:text-primary"
+            aria-label="Zamknij"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />
+            </svg>
+          </button>
+        </div>
+        <div className="mt-4">{children}</div>
+      </div>
     </div>
   );
 }
@@ -535,7 +565,13 @@ export function HomePage({
 
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-foreground sm:text-xl">Zapisz swoje rozmiary</h2>
+          <h2 className="text-lg font-semibold text-foreground sm:text-xl">Zapisz swoje rozmiary</h2>
+          <Link
+            href="/dashboard/sizes"
+            className="text-sm font-medium text-primary transition hover:text-primary/80"
+          >
+            Zobacz wszystkie
+          </Link>
             <button
               type="button"
               onClick={() => setPreferencesOpen(true)}
@@ -702,536 +738,6 @@ export function HomePage({
           />
         </ModalShell>
       )}
-    </div>
-  );
-}
-
-type QuickSizeModalProps = {
-  categoryId: QuickCategoryId;
-  initialProductTypeId: string | null;
-  profileId: string;
-  brands: Brand[];
-  brandIdsByGarmentType: Map<GarmentType, Set<string>>;
-  onClose: () => void;
-  onSaved: () => void;
-};
-
-function QuickSizeModal({ categoryId, initialProductTypeId, profileId, brands, brandIdsByGarmentType, onClose, onSaved }: QuickSizeModalProps) {
-  const supabase = createClient();
-  const categoryConfig = getQuickCategoryConfig(categoryId);
-  const [selectedBrandId, setSelectedBrandId] = useState('');
-  const [customBrandName, setCustomBrandName] = useState('');
-  const [sizeLabel, setSizeLabel] = useState('');
-  const [notes, setNotes] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const defaultTypeId = categoryConfig.productTypes[0]?.id ?? null;
-  const [selectedProductTypeId, setSelectedProductTypeId] = useState<string | null>(initialProductTypeId ?? defaultTypeId);
-
-  useEffect(() => {
-    if (!selectedProductTypeId && categoryConfig.productTypes.length) {
-      setSelectedProductTypeId(categoryConfig.productTypes[0].id);
-    }
-  }, [selectedProductTypeId, categoryConfig.productTypes]);
-
-  const allowedBrandIds = useMemo(() => {
-    if (!selectedProductTypeId) return null;
-    const typeConfig = PRODUCT_TYPE_MAP[selectedProductTypeId];
-    if (!typeConfig) return null;
-    const union = new Set<string>();
-    typeConfig.garmentTypes.forEach((garmentType) => {
-      const ids = brandIdsByGarmentType.get(garmentType);
-      if (ids) {
-        ids.forEach((id) => union.add(id));
-      }
-    });
-    return union.size ? union : null;
-  }, [selectedProductTypeId, brandIdsByGarmentType]);
-
-  const filteredBrands = useMemo(() => {
-    if (!allowedBrandIds) return brands;
-    return brands.filter((brand) => allowedBrandIds.has(brand.id));
-  }, [allowedBrandIds, brands]);
-
-  useEffect(() => {
-    if (selectedBrandId && allowedBrandIds && !allowedBrandIds.has(selectedBrandId)) {
-      setSelectedBrandId('');
-    }
-  }, [allowedBrandIds, selectedBrandId]);
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setError(null);
-
-    if (!sizeLabel.trim()) {
-      setError('Proszę wpisać rozmiar');
-      return;
-    }
-
-    if (!selectedProductTypeId) {
-      setError('Proszę wybrać typ produktu');
-      return;
-    }
-
-    if (!selectedBrandId && !customBrandName.trim()) {
-      setError('Proszę wybrać markę lub wpisać jej nazwę');
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const payload = {
-        profile_id: profileId,
-        category: categoryConfig.supabaseCategories[0],
-        label: sizeLabel.trim(),
-        brand_id: selectedBrandId || null,
-        brand_name: selectedBrandId ? null : customBrandName.trim() || null,
-        notes: notes.trim() || null,
-        source: 'label' as const,
-        product_type: selectedProductTypeId,
-      };
-
-      const { error: insertError } = await supabase.from('size_labels').insert(payload);
-      if (insertError) throw insertError;
-
-      try {
-        await fetch('/api/v1/missions/events', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            type: 'ITEM_CREATED',
-            payload: {
-              source: 'size_label',
-              category: payload.category,
-              subtype: payload.product_type ?? null,
-              createdAt: new Date().toISOString(),
-              fieldCount: 1,
-              criticalFieldCompleted: true,
-            },
-          }),
-        });
-      } catch (eventError) {
-        console.error('Failed to emit mission event for size label:', eventError);
-      }
-
-      onSaved();
-      onClose();
-    } catch (err: any) {
-      setError(err.message ?? 'Nie udało się zapisać rozmiaru');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-1">
-        <h3 className="text-xl font-semibold text-foreground">Dodaj rozmiar — {categoryConfig.label}</h3>
-        <p className="text-sm text-muted-foreground">
-          Uzupełnij metkę, aby szybciej odnajdywać najważniejsze rozmiary w dashboardzie.
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Typ produktu</label>
-          <select
-            value={selectedProductTypeId ?? ''}
-            onChange={(event) => {
-              const next = event.target.value || null;
-              setSelectedProductTypeId(next);
-              setSelectedBrandId('');
-              setCustomBrandName('');
-            }}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-[#48A9A6] focus:outline-none focus:ring-2 focus:ring-[#48A9A6]/20"
-          >
-            {categoryConfig.productTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Marka</label>
-          <select
-            value={selectedBrandId}
-            onChange={(event) => {
-              setSelectedBrandId(event.target.value);
-              if (event.target.value) {
-                setCustomBrandName('');
-              }
-            }}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-[#48A9A6] focus:outline-none focus:ring-2 focus:ring-[#48A9A6]/20"
-          >
-            <option value="">Wybierz markę lub wpisz poniżej...</option>
-            {filteredBrands.map((brand) => (
-              <option key={brand.id} value={brand.id}>
-                {brand.name}
-              </option>
-            ))}
-          </select>
-          {!selectedBrandId && (
-            <input
-              type="text"
-              value={customBrandName}
-              onChange={(event) => setCustomBrandName(event.target.value)}
-              placeholder="np. Zara, Reserved, Mango..."
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-[#48A9A6] focus:outline-none focus:ring-2 focus:ring-[#48A9A6]/20"
-            />
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Rozmiar</label>
-          <input
-            type="text"
-            value={sizeLabel}
-            onChange={(event) => setSizeLabel(event.target.value)}
-            placeholder="np. M, L, 42, 38/32, 42.5"
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-[#48A9A6] focus:outline-none focus:ring-2 focus:ring-[#48A9A6]/20"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Notatki (opcjonalnie)</label>
-          <textarea
-            rows={3}
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            placeholder="np. 'Idealne dopasowanie', 'Luźniejsze w ramionach'..."
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-[#48A9A6] focus:outline-none focus:ring-2 focus:ring-[#48A9A6]/20"
-          />
-        </div>
-      </div>
-
-      {error && (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
-
-      <div className="flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted"
-        >
-          Anuluj
-        </button>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="rounded-xl bg-[#48A9A6] px-5 py-2.5 text-sm font-semibold text-white shadow shadow-[#48A9A6]/30 transition hover:bg-[#3c8f8c] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isLoading ? 'Zapisywanie...' : 'Zapisz rozmiar'}
-        </button>
-      </div>
-    </form>
-  );
-}
-
-type PreferenceSelection = {
-  productTypeId: string | null;
-  sizeLabelId: string | null;
-};
-
-type QuickSizePreferencesModalProps = {
-  profileId: string;
-  sizeLabels: SizeLabel[];
-  sizePreferences: DashboardSizePreference[];
-  onClose: () => void;
-  onSaved: () => void;
-};
-
-function QuickSizePreferencesModal({ profileId, sizeLabels, sizePreferences, onClose, onSaved }: QuickSizePreferencesModalProps) {
-  const supabase = createClient();
-
-  const labelsByQuickCategory = useMemo(() => {
-    const result = new Map<QuickCategoryId, SizeLabel[]>();
-    QUICK_CATEGORY_CONFIGS.forEach((config) => {
-      const aggregated = config.supabaseCategories.flatMap((supCategory) =>
-        sizeLabels.filter((label) => label.category === supCategory)
-      );
-      aggregated.sort(
-        (a, b) =>
-          new Date(b.created_at || b.recorded_at).getTime() -
-          new Date(a.created_at || a.recorded_at).getTime()
-      );
-      result.set(config.id, aggregated);
-    });
-    return result;
-  }, [sizeLabels]);
-
-  const initialSelections = useMemo(() => {
-    const map: Record<QuickCategoryId, PreferenceSelection> = {} as Record<QuickCategoryId, PreferenceSelection>;
-    QUICK_CATEGORY_CONFIGS.forEach((config) => {
-      const pref = sizePreferences.find((p) => p.quick_category === config.id);
-      const productTypeValid = pref?.product_type && config.productTypes.some((type) => type.id === pref.product_type)
-        ? pref.product_type
-        : null;
-      map[config.id] = {
-        productTypeId: productTypeValid,
-        sizeLabelId: pref?.size_label_id ?? null,
-      };
-    });
-    return map;
-  }, [sizePreferences]);
-
-  const [selections, setSelections] = useState<Record<QuickCategoryId, PreferenceSelection>>(initialSelections);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setSelections(initialSelections);
-  }, [initialSelections]);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    setError(null);
-
-    try {
-      const updates: Array<{ profile_id: string; quick_category: string; product_type: string | null; size_label_id: string | null }> = [];
-      const removals: QuickCategoryId[] = [];
-
-      QUICK_CATEGORY_CONFIGS.forEach((config) => {
-        const initial = initialSelections[config.id];
-        const current = selections[config.id];
-
-        const normalizedCurrent: PreferenceSelection = {
-          productTypeId: current.productTypeId,
-          sizeLabelId: current.sizeLabelId,
-        };
-
-        const normalizedInitial: PreferenceSelection = {
-          productTypeId: initial.productTypeId,
-          sizeLabelId: initial.sizeLabelId,
-        };
-
-        const hasSelection = normalizedCurrent.productTypeId || normalizedCurrent.sizeLabelId;
-        const hadSelection = normalizedInitial.productTypeId || normalizedInitial.sizeLabelId;
-
-        if (hasSelection) {
-          if (
-            normalizedCurrent.productTypeId !== normalizedInitial.productTypeId ||
-            normalizedCurrent.sizeLabelId !== normalizedInitial.sizeLabelId
-          ) {
-            updates.push({
-              profile_id: profileId,
-              quick_category: config.id,
-              product_type: normalizedCurrent.productTypeId,
-              size_label_id: normalizedCurrent.sizeLabelId,
-            });
-          }
-        } else if (hadSelection) {
-          removals.push(config.id);
-        }
-      });
-
-      if (updates.length) {
-        const { error: upsertError } = await supabase
-          .from('dashboard_size_preferences')
-          .upsert(updates, { onConflict: 'profile_id,quick_category' });
-        if (upsertError) throw upsertError;
-      }
-
-      if (removals.length) {
-        const { error: deleteError } = await supabase
-          .from('dashboard_size_preferences')
-          .delete()
-          .eq('profile_id', profileId)
-          .in('quick_category', removals);
-        if (deleteError) throw deleteError;
-      }
-
-      onSaved();
-    } catch (err: any) {
-      setError(err.message ?? 'Nie udało się zapisać ustawień');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <h3 className="text-xl font-semibold text-foreground">Wybierz rozmiary do szybkiego podglądu</h3>
-        <p className="text-sm text-muted-foreground">
-          Wskaż typ produktu oraz konkretną metkę, która ma się pojawiać na głównym ekranie. Pozostaw puste, jeśli wolisz ostatni zapis.
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        {QUICK_CATEGORY_CONFIGS.map((config) => {
-          const selection = selections[config.id];
-          const labels = labelsByQuickCategory.get(config.id) ?? [];
-          const selectedType = selection.productTypeId || config.productTypes[0]?.id || null;
-          const labelsForType = selectedType
-            ? labels.filter((label) => label.product_type === selectedType)
-            : [];
-
-          return (
-            <div key={config.id} className="space-y-3 rounded-2xl border border-border/60 bg-background/80 p-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm font-semibold text-foreground">{config.label}</p>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Typ produktu</label>
-                  <select
-                    value={selection.productTypeId ?? ''}
-                    onChange={(event) => {
-                      const nextType = event.target.value || null;
-                      setSelections((prev) => ({
-                        ...prev,
-                        [config.id]: {
-                          productTypeId: nextType,
-                          sizeLabelId: null,
-                        },
-                      }));
-                    }}
-                    className="rounded-lg border border-border bg-background px-3 py-2 text-xs focus:border-[#48A9A6] focus:outline-none focus:ring-2 focus:ring-[#48A9A6]/20"
-                  >
-                    <option value="">Ostatni zapis</option>
-                    {config.productTypes.map((type) => (
-                      <option key={type.id} value={type.id}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {selection.productTypeId ? (
-                labelsForType.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">Brak zapisanych metek dla tego typu produktu.</p>
-                ) : (
-                  <div className="grid gap-2 md:grid-cols-2">
-                    {labelsForType.map((label) => (
-                      <label
-                        key={label.id}
-                        className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-2 text-sm transition ${
-                          selection.sizeLabelId === label.id ? 'border-[#48A9A6] bg-[#48A9A6]/10' : 'border-border/60'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name={`preference-${config.id}`}
-                          value={label.id}
-                          checked={selection.sizeLabelId === label.id}
-                          onChange={() =>
-                            setSelections((prev) => ({
-                              ...prev,
-                              [config.id]: {
-                                productTypeId: selection.productTypeId,
-                                sizeLabelId: label.id,
-                              },
-                            }))
-                          }
-                          className="mt-1"
-                        />
-                        <div>
-                          <p className="font-medium text-foreground">{label.label}</p>
-                          <p className="text-xs text-muted-foreground">{label.brand_name || 'Metka bez marki'}</p>
-                        </div>
-                      </label>
-                    ))}
-                    <label
-                      className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-2 text-sm transition ${
-                        selection.sizeLabelId === null ? 'border-[#48A9A6] bg-[#48A9A6]/10' : 'border-border/60'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name={`preference-${config.id}`}
-                        value=""
-                        checked={selection.sizeLabelId === null}
-                        onChange={() =>
-                          setSelections((prev) => ({
-                            ...prev,
-                            [config.id]: {
-                              productTypeId: selection.productTypeId,
-                              sizeLabelId: null,
-                            },
-                          }))
-                        }
-                        className="mt-1"
-                      />
-                      <div>
-                        <p className="font-medium text-foreground">Pokaż ostatnią metkę</p>
-                        <p className="text-xs text-muted-foreground">Automatycznie wybierz najnowszy rozmiar w tej kategorii</p>
-                      </div>
-                    </label>
-                  </div>
-                )
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Kategoria będzie pokazywać najnowszy zapis (bez przypisania do konkretnego typu).
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {error && (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
-
-      <div className="flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted"
-        >
-          Anuluj
-        </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isSaving}
-          className="rounded-xl bg-[#48A9A6] px-5 py-2.5 text-sm font-semibold text-white shadow shadow-[#48A9A6]/30 transition hover:bg-[#3c8f8c] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSaving ? 'Zapisywanie...' : 'Zapisz ustawienia'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-type ModalShellProps = {
-  children: ReactNode;
-  onClose: () => void;
-  maxWidth?: string;
-};
-
-function ModalShell({ children, onClose, maxWidth = 'max-w-2xl' }: ModalShellProps) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-10">
-      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
-      <div className={`relative z-10 w-full ${maxWidth}`}>
-        <div className="relative max-h-[calc(100vh-6rem)] overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute right-4 top-4 rounded-full border border-border/60 p-2 text-muted-foreground transition hover:border-[#48A9A6] hover:text-[#48A9A6]"
-            aria-label="Zamknij"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
-          <div className="max-h-[calc(100vh-9rem)] overflow-y-auto px-6 pb-6 pt-12">
-            {children}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
