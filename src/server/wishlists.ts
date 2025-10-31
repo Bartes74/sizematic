@@ -34,7 +34,7 @@ export async function enrichWishlistItemFromUrl(params: {
   url: string;
   ownerProfileId: string;
 }) {
-  const { itemId, url, ownerProfileId } = params;
+  const { itemId, url, ownerProfileId, wishlistId } = params;
   const supabase = createSupabaseAdminClient();
   const now = new Date().toISOString();
 
