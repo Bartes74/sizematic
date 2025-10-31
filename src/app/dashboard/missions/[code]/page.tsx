@@ -4,13 +4,14 @@ import { getMissionsWithState } from "@/lib/missions/queries";
 import { mapMissionState } from "@/lib/missions/mapper";
 import MissionDetail from "@/components/missions/mission-detail";
 
-type MissionDetailPageProps = {
-  params: { code: string };
-};
-
 export const dynamic = "force-dynamic";
 
-export default async function MissionDetailPage({ params }: MissionDetailPageProps) {
+export default async function MissionDetailPage({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}) {
+  const resolvedParams = await params;
   const supabase = await createClient();
   const {
     data: { user },
@@ -30,7 +31,7 @@ export default async function MissionDetailPage({ params }: MissionDetailPagePro
     notFound();
   }
 
-  const code = params.code?.toUpperCase() ?? "";
+  const code = resolvedParams.code?.toUpperCase() ?? "";
   const locale = (profile.locale ?? "pl") as "pl" | "en";
   const missions = await getMissionsWithState(
     { profileId: profile.id, locale },
