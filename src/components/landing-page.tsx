@@ -175,7 +175,7 @@ export function LandingPage({ branding }: LandingPageProps) {
 
         <section
           className="rounded-3xl border border-primary/30 px-8 py-12 text-center shadow-lg shadow-primary/20 backdrop-blur sm:px-12"
-          style={{ backgroundColor: isDark ? '#291E29' : '#E6F0F0' }}
+          style={{ backgroundColor: isDark ? '#05111B' : '#E6F0F0' }}
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             {t('landing.cta.kicker')}
