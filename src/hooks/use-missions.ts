@@ -6,7 +6,10 @@ type MissionsResponse = {
 };
 
 async function fetcher(url: string) {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
   if (!response.ok) {
     throw new Error(`Nie udało się pobrać misji (${response.status})`);
   }
