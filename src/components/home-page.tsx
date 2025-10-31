@@ -38,6 +38,22 @@ type HomePageProps = {
   brands?: Brand[];
   brandMappings?: BrandTypeMapping[];
   profileId: string;
+  trustedCircleInitial?: {
+    plan: string | null;
+    limit: number | null;
+    pending_invitations: Array<{ id: string; invitee_email: string; status: string; created_at: string }>;
+    members: Array<{
+      profile: {
+        id: string;
+        display_name: string | null;
+        email: string | null;
+        avatar_url: string | null;
+      };
+      connected_at: string;
+      outgoing_permissions: { category: string; product_type: string | null }[];
+      incoming_permissions: { category: string; product_type: string | null }[];
+    }>;
+  };
 };
 
 type DataGapCard = {
@@ -262,6 +278,7 @@ export function HomePage({
   brands = [],
   brandMappings = [],
   profileId,
+  trustedCircleInitial,
 }: HomePageProps) {
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
@@ -648,7 +665,7 @@ export function HomePage({
             </SectionCard>
 
             <SectionCard>
-              <TrustedCircle />
+              <TrustedCircle initialData={trustedCircleInitial} />
             </SectionCard>
           </div>
         </section>

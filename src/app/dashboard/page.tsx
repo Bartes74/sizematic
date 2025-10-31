@@ -12,6 +12,7 @@ import type {
   UserRole,
 } from "@/lib/types";
 import { redirect } from "next/navigation";
+import { getTrustedCircleSnapshot } from "@/server/trusted-circle";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,7 @@ export default async function Home() {
     logo_url: null,
     logo_path: null,
   };
+  let trustedCircleInitial: Awaited<ReturnType<typeof getTrustedCircleSnapshot>> | null = null;
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -120,6 +122,12 @@ export default async function Home() {
     };
   }
 
+  try {
+    trustedCircleInitial = await getTrustedCircleSnapshot(user.id);
+  } catch (error) {
+    console.warn('Failed to load trusted circle snapshot for dashboard:', error);
+  }
+
   return (
     <HomePage
       measurements={measurements}
@@ -133,6 +141,7 @@ export default async function Home() {
       brands={brands}
       brandMappings={brandMappings}
       profileId={profile.id}
+      trustedCircleInitial={trustedCircleInitial ?? undefined}
     />
   );
 }

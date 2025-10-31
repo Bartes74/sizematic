@@ -93,9 +93,18 @@ function formatProductType(categoryId: string, productTypeId: string | null) {
   return resolveProductTypeLabel(categoryId, productTypeId);
 }
 
-export function TrustedCircle() {
+type TrustedCircleProps = {
+  initialData?: {
+    plan: string | null;
+    limit: number | null;
+    pending_invitations: Array<{ id: string; invitee_email: string; status: string; created_at: string }>;
+    members: MemberSummary[];
+  };
+};
+
+export function TrustedCircle({ initialData }: TrustedCircleProps) {
   const { t } = useLocale();
-  const { circle, isLoading, error, refresh } = useTrustedCircle();
+  const { circle, isLoading, error, refresh } = useTrustedCircle(initialData);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteMessage, setInviteMessage] = useState('');
   const [inviteStatus, setInviteStatus] = useState<string | null>(null);
