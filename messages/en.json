@@ -33,7 +33,7 @@
     "upgradePlan": "Learn about Premium benefits"
   },
   "home": {
-    "welcome": "Welcome to SizeHub",
+    "welcome": "Welcome to GiftFit",
     "subtitle": "Your personal size assistant",
     "cta": "Get Started",
     "demo": {
@@ -100,9 +100,35 @@
     "subtitle": "My Circle",
     "hasAccessTo": "has access to:",
     "addPerson": "Add person",
-    "limitReached": "You already have {{count}} {{count, plural, one {person} other {people}}} in your Circle. In Premium you can add 3 more.",
+    "limitReachedButton": "Limit reached",
+    "limitInfo": "Plan limit: {{used}}/{{limit}}",
+    "limitUnlimited": "Premium+ plan (no limit)",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "user@example.com",
+    "messagePlaceholder": "Message (optional)",
+    "emailRequired": "Enter an email address.",
+    "inviteSent": "Invitation sent.",
+    "inviteErrorGeneric": "We couldn't send the invitation.",
+    "pendingTitle": "Pending invitations",
+    "sentAt": "sent {{date}}",
+    "cancelInvite": "Cancel",
+    "membersTitle": "Trusted people",
+    "manage": "Manage",
+    "connectedSince": "connected since {{date}}",
     "onlyYou": "only you",
-    "noPeople": "You haven't shared your sizes with anyone yet"
+    "noPeople": "You haven't shared your sizes with anyone yet",
+    "sharingWithMember": "I share with this person",
+    "theyShareWithMe": "This person shares with me",
+    "wholeCategorySuffix": "(entire category)",
+    "saveSettings": "Save settings",
+    "removeMember": "Remove from circle",
+    "saving": "Saving...",
+    "removing": "Removing...",
+    "refresh": "Refresh",
+    "loadingShared": "Loading data...",
+    "noSharedSizes": "No shared sizes.",
+    "permissionsUpdated": "Settings updated.",
+    "permissionsError": "We couldn't save the settings."
   },
   "activity": {
     "title": "Recent Activity",
@@ -131,5 +157,125 @@
     "notesPlaceholder": "Optional: posture, cycle phase",
     "addMeasurement": "Add Measurement",
     "saving": "Saving..."
+  },
+  "landing": {
+    "header": {
+      "login": "Sign in"
+    },
+    "hero": {
+      "title": "GiftFit nails the size every single time!",
+      "body": "No more stress when choosing a present! You know that feeling when you want to buy someone the perfect sweater, dream shoes or beautiful lingerie, but a single question freezes you: \"Which size should I pick?\" Asking outright ruins the surprise. Guessing far too often ends with a return.\n\nGiftFit solves this problem once and for all.",
+      "cta": "Join GiftFit!",
+      "supporting": "5-minute setup • Zero guesswork",
+      "cardTitle": "Gifts that fit",
+      "cardBody": "GiftFit families save an average of 3 hours a month on exchanges and lean on more than 10 million size profiles.",
+      "stats": {
+        "families": {
+          "label": "Families",
+          "value": "25k+",
+          "description": "active profiles"
+        },
+        "returns": {
+          "label": "Returns",
+          "value": "-68%",
+          "description": "fewer failed gifts"
+        }
+      }
+    },
+    "features": {
+      "friction": {
+        "title": "Stop guessing.",
+        "body": "Say goodbye to the anxiety and awkward moments caused by wrong sizes. GiftFit is your personal guarantee of a delightful gift and total peace of mind. Discover how easily you can choose perfectly fitted clothes, shoes and accessories that genuinely delight your loved ones. Show them you know them inside out while keeping the surprise alive until the big reveal. With GiftFit every occasion becomes pure joy, without risky guesses or annoying returns."
+      },
+      "catalog": {
+        "title": "Your private size catalog.",
+        "body": "Imagine having every single measurement – from your best-fit jeans to your running shoe size and even ring circumference – organised in one place, always at hand. That confidence makes online shopping effortless. Forget frustration and wasted time on returns; intentional shopping helps you minimise mistakes, save money and stay calm. Most importantly, your data remains top-secret: private, secure and accessible only to you."
+      },
+      "secret": {
+        "title": "Unlock the magic of Secret Giver.",
+        "body": "This feature lets you discreetly check one precise size for someone special, so your gift fits perfectly while the surprise stays hidden. You’re always in control: if privacy matters most, you can disable the option instantly with a single click. It’s the perfect balance between the joy of gifting and your sense of security."
+      },
+      "share": {
+        "title": "Make gifting joyful for your circle!",
+        "body": "Wave goodbye to awkward returns and forced smiles. Share your profile safely with a trusted circle of family and friends. The best part? You stay in full control. Decide exactly who sees what – maybe your partner sees shirt and shoe sizes, while your best friend only sees ring size. They gain the confidence to buy gifts you’ll truly love, and you enjoy presents that fit perfectly every single time."
+      }
+    },
+    "cta": {
+      "kicker": "Ready to nail every gift, every time?",
+      "heading": "Join GiftFit and leave size stress behind for good.",
+      "body": "Experience the joy of giving presents that simply fit. Sign up for free and invite your circle – together you’ll turn uncertainty into the pure pleasure of gifting.",
+      "button": "Join GiftFit now!"
+    },
+    "demoCredentials": {
+      "title": "Test accounts:",
+      "admin": "Admin",
+      "demo": "Demo"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Welcome back to GiftFit",
+      "emailLabel": "Email",
+      "emailPlaceholder": "john@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "forgotLink": "Forgot password?",
+      "forgotTitle": "Reset your password",
+      "forgotSubtitle": "Enter your email and we'll send you a reset link",
+      "forgotSubmit": "Send reset link",
+      "forgotSubmitting": "Sending...",
+      "forgotBack": "← Back to sign in",
+      "forgotSuccessTitle": "Check your inbox!",
+      "forgotSuccessBody": "We sent a reset link to {{email}}",
+      "forgotSuccessBack": "← Back to sign in",
+      "testAccountsTitle": "Test accounts:",
+      "adminLabel": "Admin",
+      "demoLabel": "Demo"
+    },
+    "register": {
+      "title": "Create an account",
+      "subtitle": "Join GiftFit and start managing your sizes",
+      "displayNameLabel": "Name (optional)",
+      "displayNamePlaceholder": "John Doe",
+      "emailLabel": "Email *",
+      "emailPlaceholder": "john@example.com",
+      "passwordLabel": "Password *",
+      "confirmPasswordLabel": "Repeat password *",
+      "submit": "Sign up",
+      "submitting": "Signing up...",
+      "successTitle": "Check your inbox!",
+      "successBody": "We sent an email to {{email}}. Click the link inside to confirm your account and start using GiftFit."
+    },
+    "password": {
+      "strengthLabel": "Password strength:",
+      "strength": {
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong",
+        "very-strong": "Very strong"
+      }
+    },
+    "errors": {
+      "invalidEmail": "Enter a valid email address",
+      "passwordMismatch": "Passwords do not match",
+      "generic": "Something went wrong. Please try again.",
+      "login": {
+        "emailNotConfirmed": "Please confirm your email before signing in. Check your inbox.",
+        "invalidCredentials": "Incorrect email or password"
+      },
+      "register": {
+        "emailTaken": "This email address is already in use.",
+        "generic": "We couldn't complete the sign up. Please try again."
+      },
+      "password": {
+        "minLength": "Password must be at least 8 characters long",
+        "uppercase": "Password must include an uppercase letter",
+        "digit": "Password must include a digit",
+        "special": "Password must include a special character (@$!%*?&#_-+=)"
+      }
+    }
   }
 }

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SizeSync Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0686ef",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1a23",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1c2732",
+                        "text-light": "#0d151c",
+                        "text-dark": "#e1e1e1",
+                        "text-muted-light": "#47779e",
+                        "text-muted-dark": "#94a3b8",
+                        "border-light": "#e6eef4",
+                        "border-dark": "#334155"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark bg-background-light/80 dark:bg-background-dark/80 px-6 sm:px-10 py-3 backdrop-blur-sm">
+<div class="flex items-center gap-4">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+</svg>
+</div>
+<h1 class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-[-0.015em]">SizeSync</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark shadow-soft hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-xl">workspace_premium</span>
+</button>
+<button class="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark shadow-soft hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-xl">language</span>
+</button>
+<button class="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark shadow-soft hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-xl">dark_mode</span>
+</button>
+<div class="ml-2 size-10 rounded-full bg-cover bg-center bg-no-repeat ring-2 ring-primary/50" data-alt="User avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBhKm2LwtoB2rggDNOCUs92v9h56hcFcbVHKz-MBPrxZcmFrbC6MSy4CwhiJ5rUnWk5Hy9nS3mEz7oqram0qbE0mlKuU6DqDOPs7ZtpyKFF74yod2Ahe1y5PLSmdjLkuqQpgjhRgnkQnuk_UWR1d4Yn97c-Yykv9f5z_M5Mv1Ewi1ezYWX0jkg4paAkVk4Sxl95nq3C8ViVu0CawDN2G8HQVApf-WZUNMamhlM-dKCXfiMjB5DoCwQ2r_ySNj11dyvfcf5odh__TOs");'></div>
+</div>
+</header>
+<main class="flex flex-1 justify-center p-4 sm:p-6 lg:p-10">
+<div class="flex w-full max-w-5xl flex-col gap-8">
+<section>
+<h2 class="text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4">Quick Add</h2>
+<div class="flex overflow-x-auto pb-4 [-ms-scrollbar-style:none] [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<div class="flex flex-nowrap items-stretch gap-4 pl-4">
+<div class="flex flex-col flex-shrink-0 gap-3 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-4 items-center justify-center w-32 h-32 cursor-pointer hover:shadow-soft hover:-translate-y-1 transition-all">
+<span class="material-symbols-outlined text-3xl text-primary">styler</span>
+<h3 class="text-text-light dark:text-text-dark text-base font-bold leading-tight text-center">Góra</h3>
+</div>
+<div class="flex flex-col flex-shrink-0 gap-3 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-4 items-center justify-center w-32 h-32 cursor-pointer hover:shadow-soft hover:-translate-y-1 transition-all">
+<span class="material-symbols-outlined text-3xl text-primary">deceased</span>
+<h3 class="text-text-light dark:text-text-dark text-base font-bold leading-tight text-center">Dół</h3>
+</div>
+<div class="flex flex-col flex-shrink-0 gap-3 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-4 items-center justify-center w-32 h-32 cursor-pointer hover:shadow-soft hover:-translate-y-1 transition-all">
+<span class="material-symbols-outlined text-3xl text-primary">scene</span>
+<h3 class="text-text-light dark:text-text-dark text-base font-bold leading-tight text-center">Odzież wierzchnia</h3>
+</div>
+<div class="flex flex-col flex-shrink-0 gap-3 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-4 items-center justify-center w-32 h-32 cursor-pointer hover:shadow-soft hover:-translate-y-1 transition-all">
+<span class="material-symbols-outlined text-3xl text-primary">apparel</span>
+<h3 class="text-text-light dark:text-text-dark text-base font-bold leading-tight text-center">Bielizna</h3>
+</div>
+<div class="flex flex-col flex-shrink-0 gap-3 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-4 items-center justify-center w-32 h-32 cursor-pointer hover:shadow-soft hover:-translate-y-1 transition-all">
+<span class="material-symbols-outlined text-3xl text-primary">scooter</span>
+<h3 class="text-text-light dark:text-text-dark text-base font-bold leading-tight text-center">Buty</h3>
+</div>
+<div class="flex flex-col flex-shrink-0 gap-3 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-4 items-center justify-center w-32 h-32 cursor-pointer hover:shadow-soft hover:-translate-y-1 transition-all">
+<span class="material-symbols-outlined text-3xl text-primary">diamond</span>
+<h3 class="text-text-light dark:text-text-dark text-base font-bold leading-tight text-center">Biżuteria</h3>
+</div>
+<div class="flex flex-col flex-shrink-0 gap-3 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-4 items-center justify-center w-32 h-32 cursor-pointer hover:shadow-soft hover:-translate-y-1 transition-all">
+<span class="material-symbols-outlined text-3xl text-primary">watch</span>
+<h3 class="text-text-light dark:text-text-dark text-base font-bold leading-tight text-center">Akcesoria</h3>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4">Your Missions &amp; Streak</h2>
+<div class="flex overflow-x-auto pb-4 [-ms-scrollbar-style:none] [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<div class="flex items-stretch gap-4 pl-4">
+<div class="flex h-full flex-1 flex-col gap-4 rounded-xl min-w-64 p-4 border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient representing shoe mission" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDd6zv5X8V8OoIcHQVRjskqM7jNrDlAmptKM-1AFrWxb8c1SO3LKFbkbl4SbJMG2J9xSSM8QFLIVuIpc2CrWvtbjuqLqPV8zW-IHkO3NpkUQMZQQ_u8Vfrs7gORd9wo_GkQ8_B2cv45VAJBEkjXURn_Tf3fakypLswsXSsZ89_J2w5SLQuBTIDzHy2XkRFu2i59XizD-i3zxTOvqvm-i_MJvwng9YE7irEQY2cT8KJx4ZHi0NuEKzFJ7Dl1FRE38sf57CiYSmJoO6U");'></div>
+<div>
+<p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal">Shoe Specialist</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Add 3 pairs of shoes</p>
+</div>
+</div>
+<div class="flex h-full flex-1 flex-col gap-4 rounded-xl min-w-64 p-4 border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient representing jean mission" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuChQMt1TDWtdUpD0O8uRYfQ7r2B6wbVI--8skl-vKExYFmCMrGySD1-CwjJafY1NYShOr1bFBSBCCcUx6MKnj9orCsvIcS1wZWUFF0UVztlJ5vknX7TV1DY1dwpDK8Ahj1rRif8Vj4caVw8wHngq-1SeAgqG2OaiB_dpolOuP76IdWIsXQaDURkKHA93XlBKnYpR6YJVqjiSCpE2uqJIdFiPaTzq75XlkUiimOM_bRJ3vW2kncM141dqRjpnmQdu-caBufY90ocQcg");'></div>
+<div>
+<p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal">Jean Genius</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Log your jean size</p>
+</div>
+</div>
+<div class="flex h-full flex-1 flex-col gap-4 rounded-xl min-w-64 p-4 border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient representing wardrobe mission" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjLn4K-xZAAhF-lJOZqv-rmpiuF-ZRSRl2EbYD8l3DfNkvVgUOvdUoIG5oyXDVCIjXTri-hEb8BHWvIWfsT8uOHQbb5NSqtnEa1jCZic98PMRy_nEq_V5gIkZq_Uw_H6d7X5jGos0yB9fHA6BVgnWssgZRPXW6Z8X8FzE4yBxHO13uOdi6vQcW1UtJzmz2lLJ8zFU23hkMBwApSVqdKAzN-woKRbxell60-pxdWRoFAdzRWBJ4xm_ROSMBrC4uc5RUSAQ9BQvo5ao");'></div>
+<div>
+<p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal">Wardrobe Wizard</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Add 5 new items</p>
+</div>
+</div>
+<div class="flex h-full flex-1 flex-col gap-4 rounded-xl min-w-64 p-4 border border-primary/50 bg-primary/10 dark:bg-primary/20 shadow-soft">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient representing streak mission" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD0O1uTouYPFCFBSmq7qSmn_muJkcMgje02CuMcC53zJCRotHfhFEibqU2t2ZP5An0JIarWFyJnxznm7JB8Ywt8vlLJfyQl9Iur-oGxfI5K9vqcgYeXmMSX8MTXie8hvQYUMpRlez_WWhZnCrYVmNZ1zaUpGL6RPg66nd4uMprZABriXAJi3AZOD9O1xMgpB3I9doabM2NCTUzAMfGwxvO2UYmCpe8upB63KzQRaj5ggifsO91iwy8y-R3ZVFUedcbQh1_Rc342xDo");'></div>
+<div>
+<p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal">7-Day Streak</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Log in tomorrow to continue</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4">Fill in Your Data Gaps</h2>
+<div class="flex overflow-x-auto pb-4 [-ms-scrollbar-style:none] [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<div class="flex items-stretch gap-4 pl-4">
+<div class="flex flex-col justify-between items-start rounded-xl min-w-64 p-4 border-2 border-dashed border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft">
+<span class="material-symbols-outlined text-3xl text-primary">straighten</span>
+<div class="mt-8">
+<p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal">What's your waist?</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Add your waist measurement for better fits.</p>
+</div>
+</div>
+<div class="flex flex-col justify-between items-start rounded-xl min-w-64 p-4 border-2 border-dashed border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft">
+<span class="material-symbols-outlined text-3xl text-primary">style</span>
+<div class="mt-8">
+<p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal">Missing Blazer Size</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Help us find the perfect formal wear for you.</p>
+</div>
+</div>
+<div class="flex flex-col justify-between items-start rounded-xl min-w-64 p-4 border-2 border-dashed border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft">
+<span class="material-symbols-outlined text-3xl text-primary">favorite</span>
+<div class="mt-8">
+<p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal">Favorite Brands?</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Add brands you love for tailored suggestions.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+<div class="flex flex-col gap-8">
+<section>
+<h2 class="text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4">Event Calendar</h2>
+<div class="flex overflow-x-auto pb-4 [-ms-scrollbar-style:none] [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<div class="flex items-stretch gap-4 pl-4">
+<div class="flex flex-col gap-2 rounded-xl min-w-48 p-4 border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft cursor-pointer hover:shadow-lg transition-shadow">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">calendar_month</span>
+<p class="text-sm font-semibold text-primary">Oct 28</p>
+</div>
+<p class="text-text-light dark:text-text-dark font-semibold">Friend's Wedding</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm">Formal attire</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl min-w-48 p-4 border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft cursor-pointer hover:shadow-lg transition-shadow">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">calendar_month</span>
+<p class="text-sm font-semibold text-primary">Nov 12</p>
+</div>
+<p class="text-text-light dark:text-text-dark font-semibold">Weekend Getaway</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm">Casual &amp; comfy</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl min-w-48 p-4 border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft cursor-pointer hover:shadow-lg transition-shadow">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">calendar_month</span>
+<p class="text-sm font-semibold text-primary">Dec 24</p>
+</div>
+<p class="text-text-light dark:text-text-dark font-semibold">Holiday Party</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm">Festive chic</p>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4">Share Profile</h2>
+<div class="flex flex-col items-start gap-4 rounded-xl p-6 bg-primary/10 dark:bg-primary/20 mx-4">
+<p class="text-text-light dark:text-text-dark text-base font-semibold">Share your size profile</p>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm">Make shopping for gifts easier for friends and family.</p>
+<button class="flex items-center justify-center rounded-lg h-10 bg-primary text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] px-4 hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-lg">ios_share</span>
+<span>Get Shareable Link</span>
+</button>
+</div>
+</section>
+</div>
+<div class="flex flex-col gap-8">
+<section>
+<h2 class="text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4">Wishlist</h2>
+<div class="flex flex-col gap-3 px-4">
+<div class="flex items-center gap-4 p-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<div class="size-14 rounded-lg bg-cover bg-center flex-shrink-0" data-alt="Nike Air Force 1 shoes" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBj_-DEDUreeInr05l2fYH94N2b0zj2OxYp0aG1yhH-WMVnQDDrQyMKR219NdfidTftvbXNaKwuFF8BzqzibTG7agZNv4AyU9-CI7mHiidOQuL-BiwZt8_OVQtIaKEOsWail91oWi0pxSt4t5jfyx__6kpwGilGWFedZ3T05921kb9Cer9UV-DWDYnkQmHXntIGI2DGig8UA8q1_f6meCNmWk5T7YS8-53jqJb4vdHeJCuQaxeMcdR5bMXGYnD1qTfWNIL3rdqYc64");'></div>
+<div class="flex-grow">
+<p class="font-semibold text-sm">Nike Air Force 1</p>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Size: 10 US</p>
+</div>
+<span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">more_vert</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<div class="size-14 rounded-lg bg-cover bg-center flex-shrink-0" data-alt="Levi's 501 Jeans" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDM9SVx2RvesTQIRu0tkYc2LpOqsxA0Bd7HpiF7kj-nAGxbERLF2_7TyFZdivGaHUtd3newzy1gE4rHxsl_wZ3SCd63iZJNOeeYNbD9fVuwGgm6kRuBCH-pjhwicG1QMbDX1T-1rdu_ElV0y2iwXRypKcRuHCjjAh9rHzpHuUgzTtGIOKNBwhvK6T_J61xKtjbrKyYhyIfLP1vn9eYgNv6HWqm5UVed8OX7IINmW2juODbqVoGDEJMw7M_Csk25Er37kjCOWAdu5UI");'></div>
+<div class="flex-grow">
+<p class="font-semibold text-sm">Levi's 501 Jeans</p>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Size: 32x32</p>
+</div>
+<span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">more_vert</span>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4">Last Activity</h2>
+<div class="flex flex-col gap-1 px-4">
+<div class="flex items-center gap-4 p-3 rounded-lg">
+<div class="flex items-center justify-center size-10 rounded-full bg-primary/10 dark:bg-primary/20 text-primary">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</div>
+<p class="text-sm">Added <span class="font-semibold">Nike Air Force 1</span> to your wardrobe.</p>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-lg">
+<div class="flex items-center justify-center size-10 rounded-full bg-primary/10 dark:bg-primary/20 text-primary">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<p class="text-sm">Completed <span class="font-semibold">"Jean Genius"</span> mission.</p>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-lg">
+<div class="flex items-center justify-center size-10 rounded-full bg-primary/10 dark:bg-primary/20 text-primary">
+<span class="material-symbols-outlined">edit</span>
+</div>
+<p class="text-sm">Updated size for <span class="font-semibold">Formal Shirts</span>.</p>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

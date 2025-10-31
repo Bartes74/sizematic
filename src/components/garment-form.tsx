@@ -205,6 +205,34 @@ export function GarmentForm({ profileId, category, brands, brandMappings }: Garm
 
       if (insertError) throw insertError;
 
+      const sizeFieldCount = Object.values(garmentData.size ?? {}).reduce(
+        (count, value) => (value !== undefined && value !== null && value !== '' ? count + 1 : count),
+        0
+      );
+
+      try {
+        await fetch('/api/v1/missions/events', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            type: 'ITEM_CREATED',
+            payload: {
+              source: 'garment',
+              category,
+              subtype: garmentType || null,
+              fieldCount: sizeFieldCount,
+              createdAt: new Date().toISOString(),
+              criticalFieldCompleted: sizeFieldCount > 0,
+            },
+          }),
+        });
+      } catch (eventError) {
+        console.error('Failed to emit mission event:', eventError);
+      }
+
       // Redirect back to dashboard
       router.push('/dashboard');
       router.refresh();

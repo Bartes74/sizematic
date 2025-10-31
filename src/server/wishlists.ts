@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createSupabaseAdminClient } from "@/lib/supabase";
+import { processMissionEvent } from "@/lib/missions/events";
 import type {
   ItemParseStatus,
   SizeMatchConfidence,
@@ -67,6 +68,22 @@ export async function enrichWishlistItemFromUrl(params: {
       .from("wishlist_items")
       .update(updatePayload)
       .eq("id", itemId);
+
+    await processMissionEvent(
+      {
+        type: 'ITEM_CREATED',
+        profileId: ownerProfileId,
+        payload: {
+          source: 'wishlist',
+          category: 'wishlist',
+          createdAt: now,
+          fieldCount: updatePayload.matched_size ? 1 : 0,
+          wishlistId: wishlistId,
+          matchedSize: updatePayload.matched_size ?? null,
+        },
+      },
+      supabase
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Nie udało się pobrać danych produktu";
@@ -147,13 +164,14 @@ function extractMetadataFromHtml(html: string, url: string): ProductMetadata {
   const jsonLdMetadata = extractJsonLdProduct(html);
 
   return {
-    name: jsonLdMetadata?.name ?? ogTitle ?? titleTag ?? null ?? undefined,
+    name: jsonLdMetadata?.name ?? ogTitle ?? titleTag ?? undefined,
     brand:
       jsonLdMetadata?.brand ??
       productBrand ??
       jsonLdMetadata?.offers?.brand ??
-      fallbackBrandFromUrl(url),
-    image: jsonLdMetadata?.image ?? ogImage ?? null ?? undefined,
+      fallbackBrandFromUrl(url) ??
+      undefined,
+    image: jsonLdMetadata?.image ?? ogImage ?? undefined,
     price: jsonLdMetadata?.offers?.price ?? price ?? undefined,
     currency: jsonLdMetadata?.offers?.priceCurrency ?? currency ?? undefined,
   };

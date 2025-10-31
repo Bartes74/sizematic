@@ -1,70 +1,138 @@
 import { HomePage } from "@/components/home-page";
-import { getMeasurementSummary, listMeasurements } from "@/server/measurements";
+import { listMeasurementsForProfile } from "@/server/measurements";
 import { createClient } from "@/lib/supabase/server";
-import type { UserRole } from "@/lib/types";
+import type {
+  Brand,
+  BrandTypeMapping,
+  BrandingSettings,
+  DashboardSizePreference,
+  Garment,
+  Measurement,
+  SizeLabel,
+  UserRole,
+} from "@/lib/types";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const measurements = await listMeasurements();
-  const summary = await getMeasurementSummary();
-
-  // Get current user
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/");
+  }
 
   // Get user profile for role and display name
-  let userName = user?.email?.split('@')[0] || null;
-  let userRole: UserRole = 'free';
+  let userName = user.email?.split("@")[0] || null;
+  let userRole: UserRole = "free";
   let avatarUrl: string | null = null;
-  let garments: any[] = [];
-  let sizeLabels: any[] = [];
+  type GarmentWithBrand = Garment & {
+    brands?: {
+      name: string | null;
+    } | null;
+  };
+  let garments: GarmentWithBrand[] = [];
+  let sizeLabels: SizeLabel[] = [];
+  let measurements: Measurement[] = [];
+  let sizePreferences: DashboardSizePreference[] = [];
+  let brands: Brand[] = [];
+  let brandMappings: BrandTypeMapping[] = [];
+  let branding: BrandingSettings = {
+    site_name: "SizeHub",
+    site_claim: "SizeSync",
+    logo_url: null,
+    logo_path: null,
+  };
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id, display_name, role, avatar_url')
-      .eq('owner_id', user.id)
-      .single();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, display_name, role, avatar_url")
+    .eq("owner_id", user.id)
+    .single();
 
-    if (profile) {
-      userName = profile.display_name || userName;
-      userRole = profile.role as UserRole;
-      avatarUrl = profile.avatar_url || null;
+  if (!profile) {
+    // The profile should exist thanks to auth trigger.
+    throw new Error("Profil użytkownika nie istnieje dla zalogowanego konta.");
+  }
 
-      // Get garments (wardrobe items) with brand names
-      const { data: garmentsData } = await supabase
-        .from('garments')
-        .select(`
+  userName = profile.display_name || userName;
+  userRole = profile.role as UserRole;
+  avatarUrl = profile.avatar_url || null;
+
+  measurements = await listMeasurementsForProfile(supabase, profile.id);
+
+  const { data: garmentsData } = await supabase
+    .from("garments")
+    .select(
+      `
           *,
           brands (
             name
           )
-        `)
-        .eq('profile_id', profile.id)
-        .order('created_at', { ascending: false });
+        `
+    )
+    .eq("profile_id", profile.id)
+    .order("created_at", { ascending: false });
 
-      // Get size labels
-      const { data: sizeLabelsData } = await supabase
-        .from('size_labels')
-        .select('*')
-        .eq('profile_id', profile.id)
-        .order('created_at', { ascending: false });
+  const { data: sizeLabelsData } = await supabase
+    .from("size_labels")
+    .select("*")
+    .eq("profile_id", profile.id)
+    .order("created_at", { ascending: false });
 
-      garments = garmentsData || [];
-      sizeLabels = sizeLabelsData || [];
-    }
+  garments = (garmentsData ?? []) as GarmentWithBrand[];
+  sizeLabels = (sizeLabelsData ?? []) as SizeLabel[];
+
+  const { data: preferencesData } = await supabase
+    .from("dashboard_size_preferences")
+    .select("quick_category, product_type, size_label_id")
+    .eq("profile_id", profile.id);
+
+  sizePreferences = (preferencesData ?? []) as DashboardSizePreference[];
+
+  const { data: brandsData } = await supabase
+    .from("brands")
+    .select("id, name, logo_url, website_url, created_at, updated_at, slug")
+    .order("name", { ascending: true });
+
+  brands = (brandsData ?? []) as Brand[];
+
+  const { data: brandMappingsData } = await supabase
+    .from("brand_garment_types")
+    .select("brand_id, garment_type");
+
+  brandMappings = (brandMappingsData ?? []) as BrandTypeMapping[];
+
+  const { data: brandingData } = await supabase
+    .from("branding_settings")
+    .select("site_name, site_claim, logo_url, logo_path")
+    .single();
+
+  if (brandingData) {
+    branding = {
+      site_name: brandingData.site_name ?? branding.site_name,
+      site_claim: brandingData.site_claim ?? branding.site_claim,
+      logo_url: brandingData.logo_url ?? null,
+      logo_path: brandingData.logo_path ?? null,
+    };
   }
 
   return (
     <HomePage
       measurements={measurements}
-      summary={summary}
       userName={userName}
       userRole={userRole}
       avatarUrl={avatarUrl}
       garments={garments}
       sizeLabels={sizeLabels}
+      branding={branding}
+      sizePreferences={sizePreferences}
+      brands={brands}
+      brandMappings={brandMappings}
+      profileId={profile.id}
     />
   );
 }

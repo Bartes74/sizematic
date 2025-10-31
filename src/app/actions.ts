@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { addMeasurement } from "@/server/measurements";
+import { addMeasurementForProfile } from "@/server/measurements";
 import type { Category, MeasurementValues } from "@/lib/types";
+import { createClient } from "@/lib/supabase/server";
+import { getProfileForUser } from "@/server/profiles";
 
 type MeasurementFormState = {
   error?: string;
@@ -49,13 +51,24 @@ export async function createMeasurementAction(
   };
 
   try {
-    await addMeasurement({
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { error: "Musisz być zalogowany, aby zapisać pomiary." };
+    }
+
+    const profile = await getProfileForUser(supabase, user.id);
+
+    await addMeasurementForProfile(supabase, profile.id, {
       category: category as Category,
       values,
       notes,
     });
 
-    revalidatePath("/");
+    revalidatePath("/dashboard");
 
     return {};
   } catch (error) {

@@ -1,14 +1,16 @@
-import { NextRequest, NextResponse, type RouteHandlerContext } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
-import type { WishlistClaim, WishlistItem, WishlistShare } from "@/lib/types";
+import type {
+  WishlistClaim,
+  WishlistItem,
+  WishlistShare,
+} from "@/lib/types";
 import { getProfileForUser } from "@/server/profiles";
 
-export async function GET(
-  _request: NextRequest,
-  context: RouteHandlerContext<{ id: string }>
-) {
-  const wishlistId = context.params.id;
+export async function GET(_request: NextRequest, context: unknown) {
+  const { params } = context as { params: { id: string } };
+  const wishlistId = params.id;
 
   try {
     const supabase = await createClient();

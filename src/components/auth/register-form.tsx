@@ -5,6 +5,13 @@ import { useLocale } from '@/providers/locale-provider';
 import { validatePassword, getPasswordStrength } from '@/lib/password-validation';
 import { createClient } from '@/lib/supabase/client';
 
+const PASSWORD_ERROR_KEY_BY_MESSAGE: Record<string, string> = {
+  'Hasło musi mieć minimum 8 znaków': 'auth.errors.password.minLength',
+  'Hasło musi zawierać wielką literę': 'auth.errors.password.uppercase',
+  'Hasło musi zawierać cyfrę': 'auth.errors.password.digit',
+  'Hasło musi zawierać znak specjalny (@$!%*?&#_-+=)': 'auth.errors.password.special',
+};
+
 export function RegisterForm() {
   const { t } = useLocale();
   const [email, setEmail] = useState('');
@@ -14,32 +21,31 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const passwordValidation = validatePassword(password);
   const passwordStrength = password.length > 0 ? getPasswordStrength(password) : null;
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const errorMessage = errorKey ? t(errorKey) : null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrorKey(null);
 
-    // Validate email
     if (!email || !email.includes('@')) {
-      setError('Podaj poprawny adres email');
+      setErrorKey('auth.errors.invalidEmail');
       return;
     }
 
-    // Validate password
     if (!passwordValidation.isValid) {
-      setError(passwordValidation.errors[0]);
+      const firstError = passwordValidation.errors[0];
+      setErrorKey(PASSWORD_ERROR_KEY_BY_MESSAGE[firstError] ?? 'auth.errors.generic');
       return;
     }
 
-    // Check if passwords match
     if (password !== confirmPassword) {
-      setError('Hasła nie są identyczne');
+      setErrorKey('auth.errors.passwordMismatch');
       return;
     }
 
@@ -47,7 +53,7 @@ export function RegisterForm() {
 
     try {
       const supabase = createClient();
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -58,15 +64,21 @@ export function RegisterForm() {
         },
       });
 
-      if (signUpError) {
-        throw signUpError;
+      if (error) {
+        if (error.message?.toLowerCase().includes('already registered')) {
+          setErrorKey('auth.errors.register.emailTaken');
+        } else {
+          setErrorKey('auth.errors.register.generic');
+        }
+        return;
       }
 
       if (data.user) {
         setSuccess(true);
       }
-    } catch (err: any) {
-      setError(err.message || 'Wystąpił błąd podczas rejestracji');
+    } catch (error) {
+      console.error(error);
+      setErrorKey('auth.errors.register.generic');
     } finally {
       setLoading(false);
     }
@@ -81,12 +93,9 @@ export function RegisterForm() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-foreground">Sprawdź swoją skrzynkę!</h2>
+          <h2 className="text-2xl font-bold text-foreground">{t('auth.register.successTitle')}</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Wysłaliśmy email na adres <strong>{email}</strong>
-          </p>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Kliknij link w wiadomości, aby potwierdzić swoje konto i rozpocząć korzystanie z SizeHub.
+            {t('auth.register.successBody').replace('{{email}}', email)}
           </p>
         </div>
       </div>
@@ -96,59 +105,54 @@ export function RegisterForm() {
   return (
     <div className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-xl">
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Utwórz konto</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Dołącz do SizeHub i zacznij zarządzać swoimi rozmiarami
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('auth.register.title')}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{t('auth.register.subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Display Name */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Imię (opcjonalne)
+            {t('auth.register.displayNameLabel')}
           </label>
           <input
             type="text"
             value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            onChange={(event) => setDisplayName(event.target.value)}
             className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-            placeholder="Jan Kowalski"
+            placeholder={t('auth.register.displayNamePlaceholder')}
           />
         </div>
 
-        {/* Email */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Email *
+            {t('auth.register.emailLabel')}
           </label>
           <input
             type="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
             className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-            placeholder="jan@example.com"
+            placeholder={t('auth.register.emailPlaceholder')}
           />
         </div>
 
-        {/* Password */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Hasło *
+            {t('auth.register.passwordLabel')}
           </label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               className="w-full rounded-xl border border-input bg-background px-4 py-3 pr-12 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-              placeholder="••••••••"
+              placeholder={t('auth.login.passwordPlaceholder')}
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() => setShowPassword((prev) => !prev)}
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               {showPassword ? (
@@ -164,7 +168,6 @@ export function RegisterForm() {
             </button>
           </div>
 
-          {/* Password strength indicator */}
           {passwordStrength && (
             <div className="space-y-1">
               <div className="flex gap-1">
@@ -172,7 +175,7 @@ export function RegisterForm() {
                   <div
                     key={level}
                     className={`h-1 flex-1 rounded-full ${
-                      level <= (passwordStrength.score / 2)
+                      level <= passwordStrength.score / 2
                         ? passwordStrength.strength === 'weak'
                           ? 'bg-destructive'
                           : passwordStrength.strength === 'medium'
@@ -186,7 +189,7 @@ export function RegisterForm() {
                 ))}
               </div>
               <p className="text-[10px] text-muted-foreground">
-                Siła hasła:{' '}
+                {t('auth.password.strengthLabel')}{' '}
                 <span
                   className={
                     passwordStrength.strength === 'weak'
@@ -198,53 +201,33 @@ export function RegisterForm() {
                       : 'text-green-500'
                   }
                 >
-                  {passwordStrength.strength === 'weak'
-                    ? 'Słabe'
-                    : passwordStrength.strength === 'medium'
-                    ? 'Średnie'
-                    : passwordStrength.strength === 'strong'
-                    ? 'Silne'
-                    : 'Bardzo silne'}
+                  {t(`auth.password.strength.${passwordStrength.strength}`)}
                 </span>
               </p>
             </div>
           )}
-
-          {/* Password validation errors */}
-          {password.length > 0 && !passwordValidation.isValid && (
-            <div className="space-y-1">
-              {passwordValidation.errors.map((err, idx) => (
-                <p key={idx} className="text-xs text-destructive">
-                  • {err}
-                </p>
-              ))}
-            </div>
-          )}
         </div>
 
-        {/* Confirm Password */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Potwierdź hasło *
+            {t('auth.register.confirmPasswordLabel')}
           </label>
           <div className="relative">
             <input
               type={showConfirmPassword ? 'text' : 'password'}
               required
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className={`w-full rounded-xl border px-4 py-3 pr-12 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:outline-none focus:ring-4 ${
-                confirmPassword.length > 0
-                  ? passwordsMatch
-                    ? 'border-green-500 bg-green-500/5 focus:border-green-500 focus:ring-green-500/10'
-                    : 'border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/10'
-                  : 'border-input bg-background focus:border-primary focus:ring-primary/10'
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              className={`w-full rounded-xl border px-4 py-3 pr-12 text-sm font-medium transition-all focus:outline-none focus:ring-4 focus:ring-primary/10 ${
+                passwordsMatch || confirmPassword.length === 0
+                  ? 'border-input bg-background text-foreground'
+                  : 'border-destructive bg-destructive/10 text-destructive'
               }`}
-              placeholder="••••••••"
+              placeholder={t('auth.login.passwordPlaceholder')}
             />
             <button
               type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               {showConfirmPassword ? (
@@ -259,28 +242,23 @@ export function RegisterForm() {
               )}
             </button>
           </div>
-
-          {confirmPassword.length > 0 && (
-            <p className={`text-xs ${passwordsMatch ? 'text-green-500' : 'text-destructive'}`}>
-              {passwordsMatch ? '✓ Hasła są identyczne' : '✗ Hasła nie są identyczne'}
-            </p>
+          {!passwordsMatch && confirmPassword.length > 0 && (
+            <p className="text-xs text-destructive">{t('auth.errors.passwordMismatch')}</p>
           )}
         </div>
 
-        {/* Error message */}
-        {error && (
+        {errorMessage && (
           <div className="rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
-            {error}
+            {errorMessage}
           </div>
         )}
 
-        {/* Submit button */}
         <button
           type="submit"
-          disabled={loading || !passwordValidation.isValid || !passwordsMatch}
-          className="w-full rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+          disabled={loading}
+          className="w-full rounded-xl bg-[#48A9A6] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#48A9A6]/30 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#48A9A6]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#48A9A6] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 hover:bg-[#3c8f8c]"
         >
-          {loading ? 'Tworzenie konta...' : 'Utwórz konto'}
+          {loading ? t('auth.register.submitting') : t('auth.register.submit')}
         </button>
       </form>
     </div>

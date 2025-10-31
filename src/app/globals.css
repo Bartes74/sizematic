@@ -1,82 +1,94 @@
 @import "tailwindcss";
 
 @theme {
-  /* Premium Color System - Light Mode (Default) */
-  --color-background: #f8fafc;
-  --color-foreground: #0f172a;
+  /* Light mode palette */
+  --color-background: #f5f7f8;
+  --color-foreground: #0d151c;
 
   --color-card: #ffffff;
-  --color-card-foreground: #1e293b;
+  --color-card-foreground: #0d151c;
 
   --color-popover: #ffffff;
-  --color-popover-foreground: #0f172a;
+  --color-popover-foreground: #0d151c;
 
-  --color-primary: #8b5cf6;
-  --color-primary-foreground: #ffffff;
+  --color-primary: #0686ef;
+  --color-primary-foreground: #f5fbff;
 
-  --color-secondary: #ec4899;
-  --color-secondary-foreground: #ffffff;
+  --color-secondary: #0c6fd1;
+  --color-secondary-foreground: #e7f3ff;
 
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
+  --color-muted: #e9f0f5;
+  --color-muted-foreground: #47779e;
 
-  --color-accent: #6366f1;
-  --color-accent-foreground: #ffffff;
+  --color-accent: #0c6fd1;
+  --color-accent-foreground: #e7f0fe;
 
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
 
-  --color-border: #e2e8f0;
-  --color-input: #e2e8f0;
-  --color-ring: #8b5cf6;
+  --color-border: #e6eef4;
+  --color-input: #e6eef4;
+  --color-ring: #0686ef;
 
-  /* Typography */
+  --surface-elevated: rgba(255, 255, 255, 0.75);
+  --surface-highlight: rgba(6, 134, 239, 0.08);
+  --surface-interactive: #ffffff;
+  --surface-muted: #e9f0f5;
+
   --font-family-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-
-  /* Border Radius */
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
 .dark {
-  --color-background: #18181b;
-  --color-foreground: #fafafa;
+  --color-background: #0f1a23;
+  --color-foreground: #e1e1e1;
 
-  --color-card: #27272a;
-  --color-card-foreground: #fafafa;
+  --color-card: #1c2732;
+  --color-card-foreground: #e1e1e1;
 
-  --color-popover: #27272a;
-  --color-popover-foreground: #fafafa;
+  --color-popover: #1c2732;
+  --color-popover-foreground: #e1e1e1;
 
-  --color-primary: #facc15;
-  --color-primary-foreground: #18181b;
+  --color-primary: #0686ef;
+  --color-primary-foreground: #031019;
 
-  --color-secondary: #a855f7;
-  --color-secondary-foreground: #ffffff;
+  --color-secondary: #0a5dc0;
+  --color-secondary-foreground: #d8e9ff;
 
-  --color-muted: #3f3f46;
-  --color-muted-foreground: #a1a1aa;
+  --color-muted: #142330;
+  --color-muted-foreground: #94a3b8;
 
-  --color-accent: #facc15;
-  --color-accent-foreground: #18181b;
+  --color-accent: #0a5dc0;
+  --color-accent-foreground: #d8e9ff;
 
   --color-destructive: #f87171;
-  --color-destructive-foreground: #ffffff;
+  --color-destructive-foreground: #0f1a23;
 
-  --color-border: #3f3f46;
-  --color-input: #3f3f46;
-  --color-ring: #facc15;
+  --color-border: #334155;
+  --color-input: #334155;
+  --color-ring: #0686ef;
+
+  --surface-elevated: rgba(28, 39, 50, 0.78);
+  --surface-highlight: rgba(6, 134, 239, 0.12);
+  --surface-interactive: #1c2732;
+  --surface-muted: #142330;
+
+  --shadow-soft: 0 16px 40px rgba(4, 12, 20, 0.42);
 }
 
 * {
-  border-color: theme('colors.border');
+  border-color: var(--color-border);
 }
 
 body {
-  background-color: theme('colors.background');
-  color: theme('colors.foreground');
+  background-color: var(--color-background);
+  color: var(--color-foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -84,20 +96,90 @@ body {
 
 /* Ensure dark mode applies correctly */
 .dark body {
-  background-color: #18181b;
-  color: #fafafa;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }
 
 /* Premium Glassmorphism */
 .glass {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.3);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(230, 238, 244, 0.7);
 }
 
 .dark .glass {
-  background: rgba(39, 39, 42, 0.8);
-  border: 1px solid rgba(63, 63, 70, 0.3);
+  background: rgba(28, 39, 50, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.55);
+}
+
+.section-card {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 28px;
+  color: var(--color-foreground);
+  box-shadow: var(--shadow-soft);
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+.quick-add-tile,
+.data-gap-card,
+.scroller-card,
+.list-chip,
+.share-card,
+.interactive-tile {
+  background-color: var(--surface-interactive);
+  border: 1px solid var(--color-border);
+  color: var(--color-foreground);
+  box-shadow: var(--shadow-soft);
+}
+
+.quick-add-icon,
+.chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background-color: var(--surface-muted);
+  color: var(--color-primary);
+}
+
+.dark .quick-add-icon,
+.dark .chip-icon {
+  background-color: rgba(35, 49, 62, 0.9);
+  color: var(--color-primary);
+}
+
+.quick-add-tile:hover,
+.interactive-tile:hover,
+.data-gap-card:hover,
+.scroller-card:hover {
+  border-color: rgba(6, 134, 239, 0.45);
+  box-shadow: 0 8px 25px rgba(6, 134, 239, 0.14);
+}
+
+.arrow-button {
+  background-color: var(--surface-interactive);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+  color: var(--color-foreground);
+}
+
+.dark .arrow-button {
+  background-color: rgba(28, 39, 50, 0.92);
+  border-color: rgba(51, 65, 85, 0.6);
+}
+
+.wishlist-card {
+  background-color: rgba(6, 134, 239, 0.08);
+}
+
+.dark .wishlist-card {
+  background-color: rgba(6, 134, 239, 0.14);
+}
+
+.event-card {
+  border-radius: 22px;
+  padding: 18px;
 }
 
 /* Smooth Transitions */
@@ -105,6 +187,16 @@ body {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
+}
+
+/* Hide horizontal scrollbars but allow scrolling */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Premium Animations */

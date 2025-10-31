@@ -1,19 +1,18 @@
-import { NextRequest, NextResponse, type RouteHandlerContext } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
 import { enrichWishlistItemFromUrl } from "@/server/wishlists";
+import { processMissionEvent } from "@/lib/missions/events";
 
 type CreateItemPayload = {
   url: string;
   notes?: string | null;
 };
 
-export async function POST(
-  request: NextRequest,
-  context: RouteHandlerContext<{ id: string }>
-) {
-  const wishlistId = context.params.id;
+export async function POST(request: NextRequest, context: unknown) {
+  const { params } = context as { params: { id: string } };
+  const wishlistId = params.id;
 
   try {
     const { url, notes } = (await request.json()) as CreateItemPayload;
@@ -86,6 +85,22 @@ export async function POST(
     }).catch((error) => {
       console.error("Failed to enrich wishlist item:", error);
     });
+
+    await processMissionEvent(
+      {
+        type: 'ITEM_CREATED',
+        profileId: wishlist.owner_profile_id ?? profile.id,
+        payload: {
+          source: 'wishlist',
+          category: 'wishlist',
+          createdAt: inserted.created_at ?? new Date().toISOString(),
+          fieldCount: inserted.matched_size ? 1 : 0,
+          wishlistId: wishlistId,
+          matchedSize: inserted.matched_size,
+        },
+      },
+      supabase
+    );
 
     return NextResponse.json({ item: inserted }, { status: 201 });
   } catch (error) {

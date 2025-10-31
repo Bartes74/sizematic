@@ -1,136 +1,175 @@
 'use client';
-
-import { useState, useRef, useEffect } from 'react';
-import { useLocale } from "@/providers/locale-provider";
+import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import type { UserRole } from '@/lib/types';
+import { createClient } from "@/lib/supabase/client";
+import type { BrandingSettings, UserRole } from "@/lib/types";
 
 type GlobalHeaderProps = {
   userName?: string | null;
   role?: UserRole;
   avatarUrl?: string | null;
+  branding?: BrandingSettings | null;
 };
 
-export function GlobalHeader({ userName, role = 'free', avatarUrl }: GlobalHeaderProps) {
-  const { t } = useLocale();
+export function GlobalHeader({
+  userName,
+  role = "free",
+  avatarUrl,
+  branding,
+}: GlobalHeaderProps) {
   const router = useRouter();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const brandingConfig: BrandingSettings = branding ?? {
+    site_name: "SizeHub",
+    site_claim: "SizeSync",
+    logo_url: null,
+    logo_path: null,
+  };
 
-  // Close menu when clicking outside
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    const handler = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
+        setOpen(false);
       }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push('/');
+    router.push("/");
     router.refresh();
   };
 
-  const handleEditProfile = () => {
-    setIsMenuOpen(false);
-    router.push('/dashboard/profile/edit');
-  };
+  const initials = userName?.charAt(0)?.toUpperCase() ?? "S";
+  const logoAlt = `${brandingConfig.site_name} logo`;
 
   return (
-    <header className="animate-fade-in-down sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        {/* Logo and App Name */}
+    <header
+      className="sticky top-0 z-50 border-b border-border/60 backdrop-blur"
+      style={{ backgroundColor: 'var(--surface-elevated)' }}
+    >
+      <div className="mx-auto flex h-[100px] max-w-6xl items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-            <svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-            </svg>
+          <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-primary/10 text-primary">
+            {brandingConfig.logo_url ? (
+              <Image
+                src={brandingConfig.logo_url}
+                alt={logoAlt}
+                fill
+                className="object-contain"
+                sizes="48px"
+                priority
+              />
+            ) : (
+              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 6h14l-1 10h-3l-1 5-3-4-3 4-1-5H6L5 6z" />
+              </svg>
+            )}
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-            SizeHub
-          </h1>
+          <div className="space-y-0.5">
+            <h1 className="text-lg font-semibold leading-tight text-foreground">
+              {brandingConfig.site_name}
+            </h1>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/70">
+              {brandingConfig.site_claim}
+            </p>
+          </div>
         </div>
 
-        {/* Right Side: User Menu, Language, Theme */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* User Menu */}
+          <LanguageSwitcher />
+          <ThemeToggle />
+
           {userName && (
             <div className="relative" ref={menuRef}>
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-medium text-foreground transition-all hover:bg-muted"
+                onClick={() => setOpen((prev) => !prev)}
+                className="flex items-center gap-2 rounded-2xl border border-border/50 bg-background/70 px-3 py-2 text-sm font-medium text-foreground transition hover:border-primary/50 hover:bg-primary/5"
               >
                 {avatarUrl ? (
-                  <img
+                  <Image
                     src={avatarUrl}
                     alt={userName}
+                    width={32}
+                    height={32}
                     className="h-8 w-8 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                    {userName.charAt(0).toUpperCase()}
-                  </div>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    {initials}
+                  </span>
                 )}
                 <span className="hidden sm:inline">{userName}</span>
                 <svg
-                  className={`h-4 w-4 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`}
-                  fill="none"
+                  className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}
                   viewBox="0 0 24 24"
+                  fill="none"
                   stroke="currentColor"
-                  strokeWidth={2}
+                  strokeWidth={1.6}
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
                 </svg>
               </button>
 
-              {/* Dropdown Menu */}
-              {isMenuOpen && (
-                <div className="absolute right-0 mt-2 w-52 animate-fade-in rounded-xl border border-border bg-card shadow-lg">
-                  <div className="p-2">
-                    <a
-                      href="/dashboard/measurements"
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                    >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                      Moje Wymiary
-                    </a>
+              {open && (
+                <div className="absolute right-0 mt-3 w-56 rounded-2xl border border-border/40 bg-card/95 p-2 shadow-xl backdrop-blur">
+                  <div className="space-y-1">
                     <button
-                      onClick={handleEditProfile}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        router.push("/dashboard/measurements");
+                      }}
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-foreground transition hover:bg-primary/10"
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M8 18h12" />
+                      </svg>
+                      Moje wymiary
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        router.push("/dashboard/profile/edit");
+                      }}
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-foreground transition hover:bg-primary/10"
+                    >
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 6c-3.314 0-6 2.239-6 5h12c0-2.761-2.686-5-6-5z" />
                       </svg>
                       Edytuj profil
                     </button>
-                    {role === 'admin' && (
-                      <a
-                        href="/dashboard/admin"
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                    {role === "admin" && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpen(false);
+                          router.push("/dashboard/admin");
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-foreground transition hover:bg-primary/10"
                       >
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75h4.5v4.5h-4.5z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 9.75h-4.5v-4.5h3a1.5 1.5 0 011.5 1.5v3zm-10.5-4.5v4.5H4.5v-3a1.5 1.5 0 011.5-1.5h3zM4.5 14.25h4.5v4.5h-3a1.5 1.5 0 01-1.5-1.5v-3zm10.5 4.5v-4.5h4.5v3a1.5 1.5 0 01-1.5 1.5h-3z" />
                         </svg>
-                        Panel Admina
-                      </a>
+                        Panel administratora
+                      </button>
                     )}
                     <button
+                      type="button"
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-destructive transition hover:bg-destructive/10"
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 6h6M9 18h6M16 12l4-4m0 0l-4-4m4 4H8" />
                       </svg>
                       Wyloguj
                     </button>
@@ -139,9 +178,6 @@ export function GlobalHeader({ userName, role = 'free', avatarUrl }: GlobalHeade
               )}
             </div>
           )}
-
-          <LanguageSwitcher />
-          <ThemeToggle />
         </div>
       </div>
     </header>

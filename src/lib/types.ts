@@ -3,6 +3,138 @@
 // User role enum matching database
 export type UserRole = 'free' | 'premium' | 'premium_plus' | 'admin';
 
+export type BrandingSettings = {
+  site_name: string;
+  site_claim: string;
+  logo_url: string | null;
+  logo_path: string | null;
+};
+
+export type DashboardSizePreference = {
+  quick_category: string;
+  product_type: string | null;
+  size_label_id: string | null;
+};
+
+export type MissionStatus =
+  | 'locked'
+  | 'hidden'
+  | 'available'
+  | 'in_progress'
+  | 'claimable'
+  | 'completed'
+  | 'cooldown';
+
+export type Mission = {
+  id: string;
+  code: string;
+  category: string;
+  difficulty: string | null;
+  repeatable: boolean;
+  cooldown_days: number;
+  seasonal_start: string | null;
+  seasonal_end: string | null;
+  rules: Record<string, unknown>;
+  rewards: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type MissionTranslation = {
+  mission_id: string;
+  locale: string;
+  title: string;
+  summary: string;
+  reward_short: string | null;
+  cta_label: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type UserMissionState = {
+  id: string;
+  profile_id: string;
+  mission_id: string;
+  status: MissionStatus;
+  progress: Record<string, unknown>;
+  streak_counter: number;
+  attempts: number;
+  started_at: string | null;
+  completed_at: string | null;
+  next_eligible_at: string | null;
+  last_event_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type MissionProgressEvent = {
+  id: string;
+  profile_id: string;
+  mission_id: string;
+  event_type: string;
+  payload: Record<string, unknown>;
+  created_at: string;
+};
+
+export type MissionRewardLedger = {
+  id: string;
+  profile_id: string;
+  mission_id: string | null;
+  source: string;
+  xp: number;
+  rewards: Record<string, unknown>;
+  created_at: string;
+};
+
+export type ProfileProgression = {
+  profile_id: string;
+  xp: number;
+  level: number;
+  current_streak: number;
+  best_streak: number;
+  freezes_owned: number;
+  freezes_used: number;
+  last_active_date: string | null;
+  last_reward_claim_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TrustedCircleInvitationStatus = 'pending' | 'accepted' | 'revoked' | 'cancelled';
+
+export type TrustedCircleInvitation = {
+  id: string;
+  inviter_profile_id: string;
+  invitee_profile_id: string | null;
+  invitee_email: string;
+  status: TrustedCircleInvitationStatus;
+  token: string;
+  message: string | null;
+  created_at: string;
+  updated_at: string;
+  accepted_at: string | null;
+  revoked_at: string | null;
+};
+
+export type TrustedCircleMembership = {
+  id: string;
+  owner_profile_id: string;
+  member_profile_id: string;
+  created_at: string;
+};
+
+export type TrustedCirclePermission = {
+  id: string;
+  owner_profile_id: string;
+  member_profile_id: string;
+  category: string;
+  product_type: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 // Category enum matching database
 export type Category =
   | "tops"
@@ -76,6 +208,7 @@ export type SizeLabel = {
   source: SizeSource;
   recorded_at: string;
   created_at: string;
+  product_type?: string | null;
 };
 
 export type MeasurementHistory = {
@@ -156,6 +289,11 @@ export type GarmentType =
   // Other
   | 'other';
 
+export type BrandTypeMapping = {
+  brand_id: string;
+  garment_type: GarmentType;
+};
+
 // Size structures for different garment types
 export type FormalShirtSize = {
   collar_cm: number;
@@ -196,6 +334,9 @@ export type Garment = {
   name: string;
   brand_id: string | null;
   brand_name: string | null;
+  brands?: {
+    name: string | null;
+  } | null;
   size: FormalShirtSize | JeansSize | BraSize | ShoeSize | GenericSize | Record<string, any>;
   color: string | null;
   photo_url: string | null;

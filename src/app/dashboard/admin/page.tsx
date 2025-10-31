@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AdminUsersTable } from "@/components/admin-users-table";
+import { AdminBrandingForm } from "@/components/admin-branding-form";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,18 @@ export default async function AdminPage() {
     .select('id, display_name, email, role, created_at, owner_id')
     .order('created_at', { ascending: false });
 
+  const { data: brandingData } = await supabase
+    .from('branding_settings')
+    .select('site_name, site_claim, logo_url, logo_path')
+    .single();
+
+  const brandingSettings = {
+    site_name: brandingData?.site_name ?? 'SizeHub',
+    site_claim: brandingData?.site_claim ?? 'SizeSync',
+    logo_url: brandingData?.logo_url ?? null,
+    logo_path: brandingData?.logo_path ?? null,
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
@@ -54,7 +67,13 @@ export default async function AdminPage() {
           </p>
         </div>
 
-        <AdminUsersTable users={profiles || []} />
+        <div className="space-y-10">
+          <AdminBrandingForm initial={brandingSettings} />
+          <div>
+            <h2 className="mb-4 text-lg font-semibold text-foreground">Zarządzanie użytkownikami</h2>
+            <AdminUsersTable users={profiles || []} />
+          </div>
+        </div>
       </main>
     </div>
   );

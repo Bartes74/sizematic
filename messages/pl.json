@@ -33,7 +33,7 @@
     "upgradePlan": "Dowiedz się, co daje Premium"
   },
   "home": {
-    "welcome": "Witaj w SizeHub",
+    "welcome": "Witaj w GiftFit",
     "subtitle": "Twój osobisty asystent rozmiarów",
     "cta": "Rozpocznij",
     "demo": {
@@ -100,9 +100,35 @@
     "subtitle": "Mój Krąg",
     "hasAccessTo": "ma dostęp do:",
     "addPerson": "Dodaj osobę",
-    "limitReached": "Masz już {{count}} {{count, plural, one {osobę} few {osoby} other {osób}}} w Kręgu. W Premium możesz dodać kolejne 3.",
+    "limitReachedButton": "Limit osiągnięty",
+    "limitInfo": "Limit planu: {{used}}/{{limit}}",
+    "limitUnlimited": "Plan Premium+ (bez limitu)",
+    "emailLabel": "Adres e-mail",
+    "emailPlaceholder": "użytkownik@example.com",
+    "messagePlaceholder": "Wiadomość (opcjonalnie)",
+    "emailRequired": "Podaj adres e-mail.",
+    "inviteSent": "Zaproszenie wysłane.",
+    "inviteErrorGeneric": "Nie udało się wysłać zaproszenia.",
+    "pendingTitle": "Oczekujące zaproszenia",
+    "sentAt": "wysłano {{date}}",
+    "cancelInvite": "Anuluj",
+    "membersTitle": "Zaufane osoby",
+    "manage": "Zarządzaj",
+    "connectedSince": "w kręgu od {{date}}",
     "onlyYou": "tylko Ty",
-    "noPeople": "Nie udostępniasz jeszcze swoich rozmiarów nikomu"
+    "noPeople": "Nie udostępniasz jeszcze swoich rozmiarów nikomu",
+    "sharingWithMember": "Udostępniam tej osobie",
+    "theyShareWithMe": "Ta osoba udostępnia mi",
+    "wholeCategorySuffix": "(cała kategoria)",
+    "saveSettings": "Zapisz ustawienia",
+    "removeMember": "Usuń z kręgu",
+    "saving": "Zapisywanie...",
+    "removing": "Usuwanie...",
+    "refresh": "Odśwież",
+    "loadingShared": "Ładowanie danych...",
+    "noSharedSizes": "Brak udostępnionych rozmiarów.",
+    "permissionsUpdated": "Ustawienia zaktualizowane.",
+    "permissionsError": "Nie udało się zapisać ustawień."
   },
   "activity": {
     "title": "Ostatnia aktywność",
@@ -131,5 +157,125 @@
     "notesPlaceholder": "Opcjonalnie: posture, faza cyklu",
     "addMeasurement": "Dodaj pomiar",
     "saving": "Zapisywanie..."
+  },
+  "landing": {
+    "header": {
+      "login": "Zaloguj się"
+    },
+    "hero": {
+      "title": "Z GiftFit trafisz z rozmiarem za każdym razem!",
+      "body": "Koniec ze stresem przy wyborze prezentów! Znasz to uczucie, gdy chcesz kupić bliskiej osobie idealny sweter, wymarzone buty lub piękną bieliznę, ale paraliżuje Cię strach: \"Jaki rozmiar wybrać?\". Pytanie wprost psuje niespodziankę. Zgadywanie zbyt często kończy się zwrotem.\n\nGiftFit to aplikacja, która rozwiązuje ten problem raz na zawsze.",
+      "cta": "Dołącz do GiftFit!",
+      "supporting": "5 minut konfiguracji • Zero zgadywania",
+      "cardTitle": "Podarunki, które pasują",
+      "cardBody": "Klientki GiftFit oszczędzają średnio 3 godziny miesięcznie na wymianach prezentów i łączą się z ponad 10 milionami rozmiarów.",
+      "stats": {
+        "families": {
+          "label": "Rodziny",
+          "value": "25k+",
+          "description": "aktywnych profili"
+        },
+        "returns": {
+          "label": "Zwroty",
+          "value": "-68%",
+          "description": "mniej nietrafionych prezentów"
+        }
+      }
+    },
+    "features": {
+      "friction": {
+        "title": "Przestań zgadywać.",
+        "body": "Pożegnaj na zawsze stres i niezręczne wpadki związane ze źle dobranymi rozmiarami. GiftFit to Twoja osobista gwarancja udanego prezentu i spokoju ducha. Odkryj, jak łatwo możesz wybrać idealnie dopasowane ubrania, buty i akcesoria, które autentycznie zachwycą Twoich bliskich. Daj im poczuć, jak dobrze ich znasz, zachowując przy tym magię niespodzianki aż do samego końca. Z GiftFit każda okazja to czysta radość dawania, bez ryzyka i kłopotliwych zwrotów."
+      },
+      "catalog": {
+        "title": "Twój prywatny katalog rozmiarów.",
+        "body": "Wyobraź sobie komfort posiadania absolutnie wszystkich swoich wymiarów – od idealnej pary dżinsów, przez rozmiar buta sportowego, aż po obwód palca – w jednym, uporządkowanym miejscu, zawsze pod ręką. Zyskujesz dzięki temu niezrównaną pewność podczas zakupów online. Zapomnij o frustracji i straconym czasie na odsyłanie paczek – świadome zakupy pozwalają Ci minimalizować zwroty, oszczędzając pieniądze i nerwy. A co najważniejsze, Twoje dane są traktowane jak największa tajemnica. Gwarantujemy, że pozostają wyłącznie Twoje: prywatne, bezpieczne i dostępne tylko dla Ciebie."
+      },
+      "secret": {
+        "title": "Odkryj magię Secret Giver.",
+        "body": "Ta funkcja pozwala Ci dyskretnie sprawdzić jeden, konkretny rozmiar bliskiej osoby, dzięki czemu Twój prezent będzie idealnie dopasowany, a niespodzianka pozostanie sekretem. Jednocześnie zapewniamy Ci całkowitą kontrolę. Jeśli cenisz swoją prywatność ponad wszystko, możesz natychmiast zablokować tę opcję jednym kliknięciem. To idealna równowaga między radością obdarowywania a Twoim poczuciem bezpieczeństwa."
+      },
+      "share": {
+        "title": "Ułatw bliskim radość obdarowywania!",
+        "body": "Pożegnaj na zawsze nietrafione prezenty i wymuszone uśmiechy! Teraz możesz w prosty i bezpieczny sposób udostępnić swój profil zaufanemu kręgowi rodziny i przyjaciół. Najlepsze jest to, że zachowujesz absolutną kontrolę. To Ty decydujesz, kto dokładnie i co dokładnie może zobaczyć – na przykład Twój partner widzi rozmiar koszuli i buta, ale przyjaciółka tylko rozmiar pierścionka. Oni zyskują bezcenny spokój i pewność, że kupują podarunek, który autentycznie Cię zachwyci. A Ty? Cieszysz się wyłącznie trafionymi prezentami, które idealnie pasują za każdym razem."
+      }
+    },
+    "cta": {
+      "kicker": "Gotowy na idealne prezenty, za każdym razem?",
+      "heading": "Dołącz do GiftFit i na zawsze pożegnaj stres związany z nietrafionym rozmiarem.",
+      "body": "Odkryj radość dawania prezentów, które po prostu idealnie pasują. Zarejestruj się bezpłatnie i zaproś bliskich – zamieńcie wspólnie niepewność w czystą przyjemność obdarowywania.",
+      "button": "Dołącz do GiftFit teraz!"
+    },
+    "demoCredentials": {
+      "title": "Konta testowe:",
+      "admin": "Admin",
+      "demo": "Demo"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Zaloguj się",
+      "subtitle": "Witaj ponownie w GiftFit",
+      "emailLabel": "Email",
+      "emailPlaceholder": "jan@example.com",
+      "passwordLabel": "Hasło",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Zaloguj się",
+      "submitting": "Logowanie...",
+      "forgotLink": "Zapomniałeś hasła?",
+      "forgotTitle": "Zresetuj hasło",
+      "forgotSubtitle": "Podaj swój adres email, a wyślemy Ci link do resetowania hasła",
+      "forgotSubmit": "Wyślij link resetujący",
+      "forgotSubmitting": "Wysyłanie...",
+      "forgotBack": "← Powrót do logowania",
+      "forgotSuccessTitle": "Sprawdź swoją skrzynkę!",
+      "forgotSuccessBody": "Wysłaliśmy link do resetowania hasła na adres {{email}}",
+      "forgotSuccessBack": "← Powrót do logowania",
+      "testAccountsTitle": "Konta testowe:",
+      "adminLabel": "Admin",
+      "demoLabel": "Demo"
+    },
+    "register": {
+      "title": "Utwórz konto",
+      "subtitle": "Dołącz do GiftFit i zacznij zarządzać swoimi rozmiarami",
+      "displayNameLabel": "Imię (opcjonalne)",
+      "displayNamePlaceholder": "Jan Kowalski",
+      "emailLabel": "Email *",
+      "emailPlaceholder": "jan@example.com",
+      "passwordLabel": "Hasło *",
+      "confirmPasswordLabel": "Powtórz hasło *",
+      "submit": "Zarejestruj się",
+      "submitting": "Rejestracja...",
+      "successTitle": "Sprawdź swoją skrzynkę!",
+      "successBody": "Wysłaliśmy email na adres {{email}}. Kliknij link w wiadomości, aby potwierdzić konto i rozpocząć korzystanie z GiftFit."
+    },
+    "password": {
+      "strengthLabel": "Siła hasła:",
+      "strength": {
+        "weak": "Słabe",
+        "medium": "Średnie",
+        "strong": "Mocne",
+        "very-strong": "Bardzo mocne"
+      }
+    },
+    "errors": {
+      "invalidEmail": "Podaj poprawny adres email",
+      "passwordMismatch": "Hasła nie są identyczne",
+      "generic": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
+      "login": {
+        "emailNotConfirmed": "Potwierdź swój email przed zalogowaniem. Sprawdź skrzynkę pocztową.",
+        "invalidCredentials": "Nieprawidłowy email lub hasło"
+      },
+      "register": {
+        "emailTaken": "Ten adres email jest już zajęty.",
+        "generic": "Wystąpił błąd podczas rejestracji"
+      },
+      "password": {
+        "minLength": "Hasło musi mieć minimum 8 znaków",
+        "uppercase": "Hasło musi zawierać wielką literę",
+        "digit": "Hasło musi zawierać cyfrę",
+        "special": "Hasło musi zawierać znak specjalny (@$!%*?&#_-+=)"
+      }
+    }
   }
 }

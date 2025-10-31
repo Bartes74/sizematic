@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLocale } from '@/providers/locale-provider';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
 
 export function LoginForm() {
   const { t } = useLocale();
@@ -12,61 +12,70 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const errorMessage = errorKey ? t(errorKey) : null;
+
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrorKey(null);
     setLoading(true);
 
     try {
       const supabase = createClient();
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        throw signInError;
+        if (signInError.message?.includes('Email not confirmed')) {
+          setErrorKey('auth.errors.login.emailNotConfirmed');
+        } else if (signInError.message?.includes('Invalid login credentials')) {
+          setErrorKey('auth.errors.login.invalidCredentials');
+        } else {
+          setErrorKey('auth.errors.generic');
+        }
+        return;
       }
 
-      if (data.user) {
-        router.push('/dashboard');
-        router.refresh();
-      }
-    } catch (err: any) {
-      if (err.message.includes('Email not confirmed')) {
-        setError('Potwierdź swój email przed zalogowaniem. Sprawdź skrzynkę pocztową.');
-      } else if (err.message.includes('Invalid login credentials')) {
-        setError('Nieprawidłowy email lub hasło');
-      } else {
-        setError(err.message || 'Wystąpił błąd podczas logowania');
-      }
+      router.push('/dashboard');
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      setErrorKey('auth.errors.generic');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const handleForgotPassword = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrorKey(null);
+
+    if (!email || !email.includes('@')) {
+      setErrorKey('auth.errors.invalidEmail');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const supabase = createClient();
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
-      if (resetError) {
-        throw resetError;
+      if (error) {
+        throw error;
       }
 
       setResetEmailSent(true);
-    } catch (err: any) {
-      setError(err.message || 'Wystąpił błąd podczas wysyłania emaila');
+    } catch (error) {
+      console.error(error);
+      setErrorKey('auth.errors.generic');
     } finally {
       setLoading(false);
     }
@@ -82,9 +91,9 @@ export function LoginForm() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-foreground">Sprawdź swoją skrzynkę!</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('auth.login.forgotSuccessTitle')}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Wysłaliśmy link do resetowania hasła na adres <strong>{email}</strong>
+              {t('auth.login.forgotSuccessBody').replace('{{email}}', email)}
             </p>
             <button
               type="button"
@@ -94,7 +103,7 @@ export function LoginForm() {
               }}
               className="mt-6 text-sm font-medium text-primary hover:underline"
             >
-              ← Powrót do logowania
+              {t('auth.login.forgotSuccessBack')}
             </button>
           </div>
         </div>
@@ -104,39 +113,37 @@ export function LoginForm() {
     return (
       <div className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-xl">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Zresetuj hasło</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Podaj swój adres email, a wyślemy Ci link do resetowania hasła
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('auth.login.forgotTitle')}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{t('auth.login.forgotSubtitle')}</p>
         </div>
 
         <form onSubmit={handleForgotPassword} className="space-y-4">
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Email
+              {t('auth.login.emailLabel')}
             </label>
             <input
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
               className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-              placeholder="jan@example.com"
+              placeholder={t('auth.login.emailPlaceholder')}
             />
           </div>
 
-          {error && (
+          {errorMessage && (
             <div className="rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
-              {error}
+              {errorMessage}
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+            className="w-full rounded-xl bg-[#48A9A6] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#48A9A6]/30 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#48A9A6]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#48A9A6] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 hover:bg-[#3c8f8c]"
           >
-            {loading ? 'Wysyłanie...' : 'Wyślij link resetujący'}
+          {loading ? t('auth.login.forgotSubmitting') : t('auth.login.forgotSubmit')}
           </button>
 
           <button
@@ -144,7 +151,7 @@ export function LoginForm() {
             onClick={() => setShowForgotPassword(false)}
             className="w-full text-sm text-muted-foreground hover:text-foreground"
           >
-            ← Powrót do logowania
+            {t('auth.login.forgotBack')}
           </button>
         </form>
       </div>
@@ -154,45 +161,43 @@ export function LoginForm() {
   return (
     <div className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-xl">
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Zaloguj się</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Witaj ponownie w SizeHub
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('auth.login.title')}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{t('auth.login.subtitle')}</p>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-4">
-        {/* Email */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Email
+            {t('auth.login.emailLabel')}
           </label>
           <input
             type="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
             className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-            placeholder="jan@example.com"
+            placeholder={t('auth.login.emailPlaceholder')}
+            autoComplete="email"
           />
         </div>
 
-        {/* Password */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Hasło
+            {t('auth.login.passwordLabel')}
           </label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               className="w-full rounded-xl border border-input bg-background px-4 py-3 pr-12 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-              placeholder="••••••••"
+              placeholder={t('auth.login.passwordPlaceholder')}
+              autoComplete="current-password"
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() => setShowPassword((prev) => !prev)}
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               {showPassword ? (
@@ -210,39 +215,39 @@ export function LoginForm() {
 
           <button
             type="button"
-            onClick={() => setShowForgotPassword(true)}
+            onClick={() => {
+              setErrorKey(null);
+              setShowForgotPassword(true);
+            }}
             className="text-xs text-primary hover:underline"
           >
-            Zapomniałeś hasła?
+            {t('auth.login.forgotLink')}
           </button>
         </div>
 
-        {/* Error message */}
-        {error && (
+        {errorMessage && (
           <div className="rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
-            {error}
+            {errorMessage}
           </div>
         )}
 
-        {/* Submit button */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+          className="w-full rounded-xl bg-[#48A9A6] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#48A9A6]/30 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#48A9A6]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#48A9A6] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 hover:bg-[#3c8f8c]"
         >
-          {loading ? 'Logowanie...' : 'Zaloguj się'}
+          {loading ? t('auth.login.submitting') : t('auth.login.submit')}
         </button>
       </form>
 
-      {/* Demo credentials */}
       <div className="rounded-xl border border-border bg-muted/30 p-4">
-        <p className="text-xs font-medium text-muted-foreground">Konta testowe:</p>
+        <p className="text-xs font-medium text-muted-foreground">{t('auth.login.testAccountsTitle')}</p>
         <div className="mt-2 space-y-1 text-xs text-muted-foreground">
           <p>
-            <strong>Admin:</strong> admin@sizehub.local / Admin@123
+            <strong>{t('auth.login.adminLabel')}:</strong> admin@sizehub.local / Admin@123
           </p>
           <p>
-            <strong>Demo:</strong> demo@sizehub.local / Demo@123
+            <strong>{t('auth.login.demoLabel')}:</strong> demo@sizehub.local / Demo@123
           </p>
         </div>
       </div>

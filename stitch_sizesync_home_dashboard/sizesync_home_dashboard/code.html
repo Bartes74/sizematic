@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SizeSync Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary-accent": "#E63946",
+                    "background-light": "#F1FAEE",
+                    "background-dark": "#121212",
+                    "surface-light": "#FFFFFF",
+                    "surface-dark": "#1E1E1E",
+                    "text-light": "#1D3557",
+                    "text-dark": "#F1FAEE",
+                    "text-muted-light": "#457B9D",
+                    "text-muted-dark": "#A8DADC",
+                },
+                fontFamily: {
+                    "display": ["Playfair Display", "serif"],
+                    "body": ["Inter", "sans-serif"]
+                },
+                borderRadius: {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "1rem",
+                },
+            },
+        },
+    }
+    </script>
+<style>
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    .full-bleed-image::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 50%);
+        z-index: 1;
+        opacity: 0.8;
+        transition: opacity 0.5s ease-in-out;
+    }
+    .full-bleed-image:hover::after {
+        opacity: 1;
+    }
+    </style>
+</head>
+<body class="font-body bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+<div class="relative w-full">
+<header class="fixed top-0 left-0 z-50 flex w-full items-center justify-between p-6 md:p-8">
+<a class="text-xl font-bold tracking-wider uppercase" href="#">SizeSync</a>
+<button class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm transition-colors hover:bg-surface-light dark:hover:bg-surface-dark">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<main class="w-full">
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+<div class="group full-bleed-image relative flex h-screen min-h-[600px] cursor-pointer items-end justify-start overflow-hidden bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC9yulJE-sLwQiBonFVs3NXs2CJP0BZEpN9rE1-u9Q8w84fhIZdfvFuz5eoJ8GB-Lfy7ghN5EOWA9ZpS8AQUcjDQ3apRULbcCnkTWmhrnWuqwgXYmlLQYO2R4gxWeL2m7GPP2OJI-GmKeyHpjKkwDTvEraVVqKcBUuBOO3azLnR2CgfHbLMyhrl1r4hQgkEFIDm3GDiBU1Lzwhv37nsRKdh47wnQUHV67ezCH2_HKgdh-0Es-Yx2viAG0OskuEW0-61-soQPKU6NHg");'>
+<div class="relative z-10 p-8 md:p-12 text-white transition-transform duration-500 ease-in-out group-hover:translate-y-[-1rem]">
+<h2 class="font-display text-4xl md:text-5xl lg:text-6xl">Add Tops</h2>
+<p class="mt-2 text-base opacity-80">Log a new shirt, blouse, or sweater.</p>
+</div>
+</div>
+<div class="group full-bleed-image relative flex h-screen min-h-[600px] cursor-pointer items-end justify-start overflow-hidden bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCGI0A7gEEWWKIOIhOi9dtHZDg3Xw6-FGVSjSkbW8YQY2kmEsMS8dniBdz-XTbcQTAWnefbqu132M6E9yPkJSC--3m_IvkCq33Qo-TtpKQcU0VhlOf6ZJHpzoudRRjn2nQJ4KzysQHJsTa0iNmfwvKjQMzZgLpSVHAlKY_psimbrOECfKSUQMor4SBu-fqEcKNRotQiolNSpvr4-tOL0e0Oz8fzCKr7uN3xCPV3cxjxbzDW44GsE5Ke1ydvgTq_jW9HXtksxaUKN90");'>
+<div class="relative z-10 p-8 md:p-12 text-white transition-transform duration-500 ease-in-out group-hover:translate-y-[-1rem]">
+<h2 class="font-display text-4xl md:text-5xl lg:text-6xl">Add Bottoms</h2>
+<p class="mt-2 text-base opacity-80">Record jeans, trousers, and skirts.</p>
+</div>
+</div>
+<div class="group full-bleed-image relative flex h-screen min-h-[600px] cursor-pointer items-end justify-start overflow-hidden bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBj_-DEDUreeInr05l2fYH94N2b0zj2OxYp0aG1yhH-WMVnQDDrQyMKR219NdfidTftvbXNaKwuFF8BzqzibTG7agZNv4AyU9-CI7mHiidOQuL-BiwZt8_OVQtIaKEOsWail91oWi0pxSt4t5jfyx__6kpwGilGWFedZ3T05921kb9Cer9UV-DWDYnkQmHXntIGI2DGig8UA8q1_f6meCNmWk5T7YS8-53jqJb4vdHeJCuQaxeMcdR5bMXGYnD1qTfWNIL3rdqYc64");'>
+<div class="relative z-10 p-8 md:p-12 text-white transition-transform duration-500 ease-in-out group-hover:translate-y-[-1rem]">
+<h2 class="font-display text-4xl md:text-5xl lg:text-6xl">Add Shoes</h2>
+<p class="mt-2 text-base opacity-80">Keep track of your footwear collection.</p>
+</div>
+</div>
+</section>
+<section class="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-background-light dark:bg-background-dark py-20 md:py-32">
+<div class="absolute inset-0 z-0">
+<div class="absolute left-[-10%] top-[10%] h-72 w-72 rounded-full bg-primary-accent/10 blur-3xl animate-[spin_20s_linear_infinite]"></div>
+<div class="absolute bottom-[5%] right-[-5%] h-96 w-96 rounded-full bg-primary-accent/10 blur-3xl animate-[spin_30s_linear_infinite_reverse]"></div>
+</div>
+<div class="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
+<p class="text-sm font-semibold uppercase tracking-widest text-primary-accent">Featured Story</p>
+<h2 class="font-display mt-4 text-5xl md:text-7xl">The Jean Genius Mission</h2>
+<p class="mt-8 max-w-2xl text-lg leading-relaxed text-text-muted-light dark:text-text-muted-dark">Embark on a quest to perfect your profile. Add your favorite jean sizes and unlock personalized fit recommendations. A small step for your data, a giant leap for your wardrobe.</p>
+<button class="mt-12 inline-flex items-center gap-2 rounded-full bg-primary-accent px-10 py-4 text-base font-bold text-white shadow-lg shadow-primary-accent/30 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+<span>Start Mission</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</section>
+<section class="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-cover bg-center bg-fixed p-8 md:p-16" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD0O1uTouYPFCFBSmq7qSmn_muJkcMgje02CuMcC53zJCRotHfhFEibqU2t2ZP5An0JIarWFyJnxznm7JB8Ywt8vlLJfyQl9Iur-oGxfI5K9vqcgYeXmMSX8MTXie8hvQYUMpRlez_WWhZnCrYVmNZ1zaUpGL6RPg66nd4uMprZABriXAJi3AZOD9O1xMgpB3I9doabM2NCTUzAMfGwxvO2UYmCpe8upB63KzQRaj5ggifsO91iwy8y-R3ZVFUedcbQh1_Rc342xDo")'>
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+<div class="relative z-10 flex flex-col items-center gap-12 text-center text-white">
+<div class="max-w-3xl">
+<h2 class="font-display text-5xl md:text-7xl">Your Style, Distilled.</h2>
+<p class="mt-6 text-lg leading-relaxed opacity-90">Share a beautifully crafted infographic of your size profile. A simple link for friends and family to know exactly what fits you, perfectly.</p>
+</div>
+<div class="flex w-full max-w-md scale-90 flex-col gap-4 rounded-xl border border-white/20 bg-white/10 p-6 shadow-2xl transition-transform duration-500 hover:scale-95 md:scale-100 md:hover:scale-105">
+<div class="flex items-center gap-4">
+<div class="size-16 rounded-full bg-cover bg-center ring-2 ring-primary-accent" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBhKm2LwtoB2rggDNOCUs92v9h56hcFcbVHKz-MBPrxZcmFrbC6MSy4CwhiJ5rUnWk5Hy9nS3mEz7oqram0qbE0mlKuU6DqDOPs7ZtpyKFF74yod2Ahe1y5PLSmdjLkuqQpgjhRgnkQnuk_UWR1d4Yn97c-Yykv9f5z_M5Mv1Ewi1ezYWX0jkg4paAkVk4Sxl95nq3C8ViVu0CawDN2G8HQVApf-WZUNMamhlM-dKCXfiMjB5DoCwQ2r_ySNj11dyvfcf5odh__TOs");'></div>
+<div>
+<h3 class="text-left text-xl font-bold">Alex Doe</h3>
+<p class="text-left text-sm text-white/70">Size Profile</p>
+</div>
+</div>
+<div class="my-4 h-px w-full bg-white/20"></div>
+<div class="grid grid-cols-2 gap-x-6 gap-y-4 text-left">
+<div>
+<p class="text-xs uppercase tracking-wider text-white/70">Tops</p>
+<p class="text-lg font-semibold">Medium (M)</p>
+</div>
+<div>
+<p class="text-xs uppercase tracking-wider text-white/70">Jeans</p>
+<p class="text-lg font-semibold">32W x 32L</p>
+</div>
+<div>
+<p class="text-xs uppercase tracking-wider text-white/70">Shoes</p>
+<p class="text-lg font-semibold">10 US</p>
+</div>
+<div>
+<p class="text-xs uppercase tracking-wider text-white/70">Dress Shirt</p>
+<p class="text-lg font-semibold">15.5" / 34-35</p>
+</div>
+</div>
+<button class="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-white py-3 font-bold text-gray-900 transition-colors hover:bg-gray-200">
+<span class="material-symbols-outlined">ios_share</span>
+<span>Generate Sharable Link</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+</div>
+
+</body></html>

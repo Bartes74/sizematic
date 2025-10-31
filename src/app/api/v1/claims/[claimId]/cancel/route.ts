@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse, type RouteHandlerContext } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
@@ -7,11 +7,9 @@ type CancelPayload = {
   message?: string | null;
 };
 
-export async function POST(
-  request: NextRequest,
-  context: RouteHandlerContext<{ claimId: string }>
-) {
-  const claimId = context.params.claimId;
+export async function POST(request: NextRequest, context: unknown) {
+  const { params } = context as { params: { claimId: string } };
+  const { claimId } = params;
 
   try {
     const supabase = await createClient();

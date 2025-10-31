@@ -74,19 +74,37 @@ if (!profile) {
   process.exit(1);
 }
 
-const measurementPayload = {
-  profile_id: profile.id,
-  category: 'tops',
-  label: 'Chest',
-  value_cm: 92,
-  notes: 'Baseline value'
-};
+const { data: existingMeasurements, error: listMeasurementsError } = await supabase
+  .from('measurements')
+  .select('id')
+  .eq('profile_id', profile.id)
+  .limit(1);
 
-const { error: insertMeasurementError } = await supabase.from('measurements').insert(measurementPayload);
-
-if (insertMeasurementError && insertMeasurementError.code !== '23505') {
-  console.error('Failed to insert measurement:', insertMeasurementError);
+if (listMeasurementsError) {
+  console.error('Failed to verify existing measurements:', listMeasurementsError);
   process.exit(1);
+}
+
+if ((existingMeasurements ?? []).length === 0) {
+  const measurementPayload = {
+    profile_id: profile.id,
+    category: 'tops',
+    values: {
+      chest: 92,
+      waist: 76
+    },
+    source: 'measurement',
+    notes: 'Baseline value'
+  };
+
+  const { error: insertMeasurementError } = await supabase
+    .from('measurements')
+    .insert(measurementPayload);
+
+  if (insertMeasurementError) {
+    console.error('Failed to insert measurement:', insertMeasurementError);
+    process.exit(1);
+  }
 }
 
 console.log('Demo user and measurement ensured.');

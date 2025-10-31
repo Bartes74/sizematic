@@ -10,8 +10,8 @@ Uzupełniaj kolejne pola i odhaczaj zadania, gdy tylko uzyskamy potrzebne dane. 
   - Zapisz obie wartości w bezpiecznym miejscu i odhacz to zadanie.
 
     ```
-    project_ref: bfsfuojhdfycungqxtfb
-    region: East US (Ohio)
+    project_ref: <stored securely>
+    region: <stored securely>
     ```
 
 - [x] **2. Klucze API (anon i service role)**
@@ -24,12 +24,9 @@ Uzupełniaj kolejne pola i odhaczaj zadania, gdy tylko uzyskamy potrzebne dane. 
   - Wklej je też – w formie notatki – do `SUPABASE_CHECKLIST.md` (możesz pominąć pełne wartości, jeśli wolisz zachować je całkiem prywatnie; wystarczy zaznaczyć, że są zebrane).
   - Po zapisaniu obu kluczy odhacz punkt 2 w checklistcie.
 
-    ```
-    anon public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmc2Z1b2poZGZ5Y3VuZ3F4dGZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwNzMwNTAsImV4cCI6MjA3NjY0OTA1MH0.BXa7Ol3Td8Ng3r2XPV1izy-nb0WXwn63e_merjdrsus
-    service role: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmc2Z1b2poZGZ5Y3VuZ3F4dGZiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTA3MzA1MCwiZXhwIjoyMDc2NjQ5MDUwfQ.j7xTSTYRFwsfQjkVV56nTHJU68WWIvMIlL0Yun7iTJs
-    ```
+    > Klucze zapisane w menedżerze haseł SizeHub. Użyj `supabase secrets list` lub konfiguracji środowisk Vercel, aby je pozyskać w razie potrzeby.
 - [x] **3. Hasło bazy danych i strategia branchy**
-  - Hasło bazy zostało zapisane lokalnie (`Dunczyk1974!`), przeznaczone do `SUPABASE_DB_PASSWORD`.
+  - Hasło bazy zostało zapisane lokalnie (sekcja "Database password" w 1Password), przeznaczone do `SUPABASE_DB_PASSWORD`.
   - Strategia branchy: pojedynczy branch `main` (bez dodatkowych branchy deweloperskich).
 - [x] **4. Konfiguracja auth (metody logowania, redirecty)**
   - Włączone metody: e-mail (magic link/hasło), bez dodatkowych dostawców OAuth na ten moment.

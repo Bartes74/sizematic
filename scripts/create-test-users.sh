@@ -1,50 +1,69 @@
 #!/bin/bash
 
-# Script to create test users in Supabase
-# These users need to be created via API because password hashing is handled by GoTrue
+# Script to create local test users in Supabase.
+# Credentials are read from the environment instead of being hard-coded.
 
-SUPABASE_URL="http://127.0.0.1:54321"
-SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU"
+set -euo pipefail
 
-echo "Creating Admin user (admin@sizehub.local)..."
-curl -X POST "${SUPABASE_URL}/auth/v1/admin/users" \
-  -H "apikey: ${SERVICE_ROLE_KEY}" \
-  -H "Authorization: Bearer ${SERVICE_ROLE_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@sizehub.local",
-    "password": "Admin@123",
-    "email_confirm": true,
-    "user_metadata": {
-      "display_name": "Administrator"
-    }
-  }'
+SUPABASE_URL="${SUPABASE_URL:-http://127.0.0.1:54321}"
+SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-${SERVICE_ROLE_KEY:-}}"
 
-echo -e "\n\nCreating Demo user (demo@sizehub.local)..."
-curl -X POST "${SUPABASE_URL}/auth/v1/admin/users" \
-  -H "apikey: ${SERVICE_ROLE_KEY}" \
-  -H "Authorization: Bearer ${SERVICE_ROLE_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "demo@sizehub.local",
-    "password": "Demo@123",
-    "email_confirm": true,
-    "user_metadata": {
-      "display_name": "Demo User"
-    }
-  }'
+if [[ -z "${SERVICE_ROLE_KEY}" ]]; then
+  echo "❌ Missing service role key. Export SUPABASE_SERVICE_ROLE_KEY before running this script." >&2
+  exit 1
+fi
 
-echo -e "\n\nUpdating user roles..."
-docker exec supabase_db_ezdlbipecmcykybkshkz psql -U postgres -d postgres -c "
-UPDATE public.profiles
-SET role = 'admin'::public.user_role
-WHERE email = 'admin@sizehub.local';
+if ! command -v jq >/dev/null 2>&1; then
+  echo "❌ This script requires jq. Install it (e.g. brew install jq) and retry." >&2
+  exit 1
+fi
 
-UPDATE public.profiles
-SET role = 'free'::public.user_role
-WHERE email = 'demo@sizehub.local';
-" > /dev/null 2>&1
+ADMIN_EMAIL="${ADMIN_EMAIL:-admin@sizehub.local}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-Admin@123}"
+DEMO_EMAIL="${DEMO_EMAIL:-demo@sizehub.local}"
+DEMO_PASSWORD="${DEMO_PASSWORD:-Demo@123}"
 
-echo -e "\n✅ Test users created successfully!"
-echo "👤 Admin: admin@sizehub.local / Admin@123"
-echo "👤 Demo: demo@sizehub.local / Demo@123"
+create_user() {
+  local email="$1"
+  local password="$2"
+  local display_name="$3"
+
+  echo "➡️ Ensuring user ${email} exists..."
+  curl -sS -X POST "${SUPABASE_URL}/auth/v1/admin/users" \
+    -H "apikey: ${SERVICE_ROLE_KEY}" \
+    -H "Authorization: Bearer ${SERVICE_ROLE_KEY}" \
+    -H "Content-Type: application/json" \
+    -d "{
+      \"email\": \"${email}\",
+      \"password\": \"${password}\",
+      \"email_confirm\": true,
+      \"user_metadata\": {
+        \"display_name\": \"${display_name}\"
+      }
+    }" | jq -r '.user.id // empty' >/dev/null || true
+}
+
+set_role() {
+  local email="$1"
+  local role="$2"
+
+  echo "➡️ Setting role ${role} for ${email}..."
+
+  curl -sS -X PATCH "${SUPABASE_URL}/rest/v1/profiles?email=eq.${email}" \
+    -H "apikey: ${SERVICE_ROLE_KEY}" \
+    -H "Authorization: Bearer ${SERVICE_ROLE_KEY}" \
+    -H "Content-Type: application/json" \
+    -H "Prefer: return=minimal" \
+    -d "{\"role\": \"${role}\"}" >/dev/null
+}
+
+create_user "${ADMIN_EMAIL}" "${ADMIN_PASSWORD}" "Administrator"
+create_user "${DEMO_EMAIL}" "${DEMO_PASSWORD}" "Demo User"
+
+set_role "${ADMIN_EMAIL}" "admin"
+set_role "${DEMO_EMAIL}" "free"
+
+echo ""
+echo "✅ Test users ready."
+echo "👤 Admin: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}"
+echo "👤 Demo:  ${DEMO_EMAIL} / ${DEMO_PASSWORD}"

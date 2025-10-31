@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse, type RouteHandlerContext } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import type { SizeMatchConfidence } from "@/lib/types";
@@ -19,11 +19,9 @@ const ALLOWED_FIELDS = new Set([
   "size_confidence",
 ]);
 
-export async function PATCH(
-  request: NextRequest,
-  context: RouteHandlerContext<{ itemId: string }>
-) {
-  const itemId = context.params.itemId;
+export async function PATCH(request: NextRequest, context: unknown) {
+  const { params } = context as { params: { itemId: string } };
+  const { itemId } = params;
 
   try {
     const body = (await request.json()) as UpdatePayload;
@@ -78,7 +76,14 @@ export async function PATCH(
 
     const payload: UpdatePayload = {};
     for (const key of Object.keys(body) as Array<keyof UpdatePayload>) {
-      payload[key] = body[key] ?? null;
+      if (key === "size_confidence") {
+        payload.size_confidence = body.size_confidence;
+      } else {
+        payload[key] = (body[key] ?? null) as UpdatePayload[Exclude<
+          keyof UpdatePayload,
+          "size_confidence"
+        >];
+      }
     }
 
     if (payload.matched_size && !payload.size_confidence) {

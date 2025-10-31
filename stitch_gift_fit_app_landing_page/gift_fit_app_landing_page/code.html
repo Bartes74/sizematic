@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gift Fit - The Perfect Gift, Every Time.</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#48A9A6",
+                        "secondary": "#E47272",
+                        "background-light": "#F9F9F9",
+                        "background-dark": "#1A1A1A",
+                        "text-light": "#333333",
+                        "text-dark": "#EAEAEA",
+                        "subtle-gray": "#EAEAEA"
+                    },
+                    fontFamily: {
+                        "display": ["Poppins", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<div class="relative flex min-h-screen w-full flex-col">
+<!-- Header/Navigation Bar -->
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-subtle-gray/60 dark:border-text-light/10 bg-background-light/80 dark:bg-background-dark/80 px-6 sm:px-10 md:px-20 py-4 backdrop-blur-sm">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<svg fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19.49 5.51a1 1 0 0 0-1.42 0L3.51 20.07a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19.49 6.93a1 1 0 0 0 0-1.42ZM20.91 4.09a1 1 0 0 0-1.42 0l-3.53 3.54 1.41 1.41 3.54-3.53a1 1 0 0 0 0-1.42ZM3.51 3.51a1 1 0 0 0 0 1.42L7.05 8.47l1.41-1.41L4.93 3.51a1 1 0 0 0-1.42 0Z"></path>
+<path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8Z"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold tracking-tight">Gift Fit</h2>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide hover:opacity-90 transition-opacity">
+<span class="truncate">Join GiftFit today!</span>
+</button>
+</header>
+<main class="flex-grow">
+<!-- Hero Section -->
+<section class="px-6 sm:px-10 md:px-20 py-16 sm:py-24 @container">
+<div class="mx-auto max-w-5xl">
+<div class="flex flex-col-reverse gap-10 lg:flex-row lg:items-center lg:gap-16">
+<div class="flex flex-col gap-6 text-center lg:text-left lg:w-1/2">
+<div class="flex flex-col gap-2">
+<h1 class="text-4xl font-black leading-tight tracking-tighter sm:text-5xl lg:text-6xl">
+                                    The Perfect Gift, Every Time.
+                                </h1>
+<h2 class="text-lg font-medium text-text-light/80 dark:text-text-dark/80 sm:text-xl">
+                                    Niespodzianka w idealnym rozmiarze! GiftFit eliminates the guesswork of gift-giving, ensuring your presents are always the perfect fit.
+                                </h2>
+</div>
+<button class="self-center lg:self-start flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:opacity-90 transition-opacity">
+<span class="truncate">Join GiftFit today!</span>
+</button>
+</div>
+<div class="w-full lg:w-1/2">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl" data-alt="Illustration of a person happily unwrapping a perfectly sized sweater from a gift box" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB_liqSZeSnGwZB1_Ay27IGYbGh9i6ItR6f5cQEJuVnF7mMv5Q_T7-0Igg22jn2lerPTAQIG1lxlho2lhToR19Au2avEntTFGz7x91hovBF35pYqBOtdd3zSxVitURax_5D3tG8Lj-AuCXSzz1gVx3RWCYjztVtmWEsMaXYbpsUuFSGkmY-0sRtsEkQt-WYrtGCixTMlAJTQ600OboL8ps2N8iiSQSQIX30PUYG5CyxezF9AcdnYMwsvqBxYtvlPmBia2pD6TMq5oM");'></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Feature Sections -->
+<div class="px-6 sm:px-10 md:px-20 py-16 sm:py-24 space-y-20 sm:space-y-28">
+<div class="mx-auto max-w-5xl">
+<!-- Problem Section -->
+<div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+<div class="w-full lg:w-1/2">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-secondary/10 dark:bg-secondary/20 flex items-center justify-center p-8">
+<span class="material-symbols-outlined text-secondary" style="font-size: 120px;">sentiment_dissatisfied</span>
+</div>
+</div>
+<div class="flex flex-col gap-4 lg:w-1/2">
+<h3 class="text-3xl font-bold tracking-tight sm:text-4xl">Stop Guessing, Start Gifting.</h3>
+<p class="text-base text-text-light/80 dark:text-text-dark/80 sm:text-lg">
+                                Tired of the awkwardness that comes with giving a gift that's the wrong size? We solve the common problem of buying ill-fitting clothes, shoes, and accessories for your loved ones.
+                            </p>
+</div>
+</div>
+</div>
+<div class="mx-auto max-w-5xl">
+<!-- "Secret Giver" Feature -->
+<div class="flex flex-col lg:flex-row-reverse items-center gap-10 lg:gap-16">
+<div class="w-full lg:w-1/2">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center p-8">
+<span class="material-symbols-outlined text-primary" style="font-size: 120px;">visibility_off</span>
+</div>
+</div>
+<div class="flex flex-col gap-4 lg:w-1/2">
+<h3 class="text-3xl font-bold tracking-tight sm:text-4xl">How Secret Giver Works.</h3>
+<p class="text-base text-text-light/80 dark:text-text-dark/80 sm:text-lg">
+                                Discreetly find friends' sizes for the perfect surprise. Connect with your friends on GiftFit, select the person you're gifting, and seamlessly view their size profile without them ever knowing you looked.
+                            </p>
+</div>
+</div>
+</div>
+<div class="mx-auto max-w-5xl">
+<!-- "Size Catalog" Feature -->
+<div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+<div class="w-full lg:w-1/2">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-secondary/10 dark:bg-secondary/20 flex items-center justify-center p-8">
+<span class="material-symbols-outlined text-secondary" style="font-size: 120px;">style</span>
+</div>
+</div>
+<div class="flex flex-col gap-4 lg:w-1/2">
+<h3 class="text-3xl font-bold tracking-tight sm:text-4xl">Your Private Size Catalog.</h3>
+<p class="text-base text-text-light/80 dark:text-text-dark/80 sm:text-lg">
+                                Securely store your own sizes for clothing, shoes, hats, and more. Make it easy for others to get you the perfect gift, eliminating returns and exchanges for good. Your data is always private and secure.
+                            </p>
+</div>
+</div>
+</div>
+<div class="mx-auto max-w-5xl">
+<!-- "Help Others" Feature -->
+<div class="flex flex-col lg:flex-row-reverse items-center gap-10 lg:gap-16">
+<div class="w-full lg:w-1/2">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center p-8">
+<span class="material-symbols-outlined text-primary" style="font-size: 120px;">share</span>
+</div>
+</div>
+<div class="flex flex-col gap-4 lg:w-1/2">
+<h3 class="text-3xl font-bold tracking-tight sm:text-4xl">Help Others Get Your Size!</h3>
+<p class="text-base text-text-light/80 dark:text-text-dark/80 sm:text-lg">
+                                Share your size profile with friends and family using robust privacy controls. You decide who sees what, so they can gift with confidence and you get presents you'll love and actually use.
+                            </p>
+</div>
+</div>
+</div>
+</div>
+<!-- CTA Section -->
+<section class="px-6 sm:px-10 md:px-20 py-16 sm:py-24">
+<div class="mx-auto max-w-5xl">
+<div class="flex flex-col items-center justify-center gap-6 text-center bg-primary/10 dark:bg-primary/20 px-4 py-10 rounded-xl sm:px-10 sm:py-20">
+<div class="flex flex-col gap-2">
+<h3 class="text-3xl font-bold tracking-tight sm:text-4xl">Ready to Find the Perfect Fit?</h3>
+<p class="text-base font-normal leading-normal max-w-2xl mx-auto text-text-light/80 dark:text-text-dark/80 sm:text-lg">
+                                Join our community and transform your gift-giving experience from a guess to a guarantee. Sign up for free today!
+                            </p>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:opacity-90 transition-opacity">
+<span class="truncate">Join GiftFit today!</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="flex flex-col gap-8 px-6 sm:px-10 md:px-20 py-12 text-center bg-subtle-gray/40 dark:bg-text-light/5">
+<div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+<a class="text-text-light/70 dark:text-text-dark/70 text-base font-normal leading-normal hover:text-primary dark:hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-text-light/70 dark:text-text-dark/70 text-base font-normal leading-normal hover:text-primary dark:hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="text-text-light/70 dark:text-text-dark/70 text-base font-normal leading-normal hover:text-primary dark:hover:text-primary transition-colors" href="#">Contact Us</a>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="flex items-center gap-2">
+<div class="size-6 text-primary">
+<svg fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19.49 5.51a1 1 0 0 0-1.42 0L3.51 20.07a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19.49 6.93a1 1 0 0 0 0-1.42ZM20.91 4.09a1 1 0 0 0-1.42 0l-3.53 3.54 1.41 1.41 3.54-3.53a1 1 0 0 0 0-1.42ZM3.51 3.51a1 1 0 0 0 0 1.42L7.05 8.47l1.41-1.41L4.93 3.51a1 1 0 0 0-1.42 0Z"></path>
+<path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8Z"></path>
+</svg>
+</div>
+<h4 class="font-bold">Gift Fit</h4>
+</div>
+<p class="text-text-light/70 dark:text-text-dark/70 text-sm font-normal leading-normal">© 2024 Gift Fit. All rights reserved.</p>
+</div>
+</footer>
+</div>
+</body></html>
