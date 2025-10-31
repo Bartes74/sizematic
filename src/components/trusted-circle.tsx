@@ -110,7 +110,7 @@ export function TrustedCircle() {
   const usedSlots = members.length + pendingInvites.length;
   const limitLabel = limit === null
     ? t('circle.limitUnlimited')
-    : t('circle.limitInfo');
+    : `${t('circle.limitInfo')} ${usedSlots}/${limit}`;
 
   const { data: sharedData, error: sharedError, isLoading: sharedLoading, mutate: refreshShared } = useSWR<SharedData>(
     activeMember ? `/api/v1/trusted-circle/members/${activeMember.profile.id}/shared` : null,
@@ -291,6 +291,7 @@ export function TrustedCircle() {
             {members.map((member) => {
               const displayName = member.profile.display_name ?? member.profile.email ?? 'GiftFit user';
               const connectedAt = new Date(member.connected_at).toLocaleDateString();
+              const connectedLabel = `${t('circle.connectedSince')} ${connectedAt}`;
               return (
                 <li key={member.profile.id}>
                   <button
@@ -307,9 +308,7 @@ export function TrustedCircle() {
                       />
                       <span>
                         <span className="block font-medium text-foreground">{displayName}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {t('circle.connectedSince', { date: connectedAt })}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{connectedLabel}</span>
                       </span>
                     </span>
                     <span className="rounded-full border border-primary/40 px-3 py-1 text-xs font-medium text-primary">
@@ -433,7 +432,7 @@ function TrustedCircleMemberDialog({
                 {member.profile.display_name ?? member.profile.email}
               </h3>
               <p className="text-xs text-muted-foreground">
-                {t('circle.connectedSince', { date: new Date(member.connected_at).toLocaleDateString() })}
+                {`${t('circle.connectedSince')} ${new Date(member.connected_at).toLocaleDateString()}`}
               </p>
             </div>
           </div>
