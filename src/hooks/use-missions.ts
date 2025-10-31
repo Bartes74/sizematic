@@ -19,6 +19,7 @@ async function fetcher(url: string) {
 export function useMissions() {
   const { data, error, isLoading, mutate } = useSWR<MissionsResponse>('/api/v1/missions', fetcher, {
     revalidateOnFocus: true,
+    shouldRetryOnError: true,
   });
 
   return {

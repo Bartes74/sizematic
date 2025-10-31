@@ -802,7 +802,7 @@ function QuickSizeModal({ categoryId, initialProductTypeId, profileId, brands, b
           headers: {
             'Content-Type': 'application/json',
           },
-          credentials: 'same-origin',
+          credentials: 'include',
           body: JSON.stringify({
             type: 'ITEM_CREATED',
             payload: {
@@ -820,6 +820,7 @@ function QuickSizeModal({ categoryId, initialProductTypeId, profileId, brands, b
       }
 
       onSaved();
+      onClose();
     } catch (err: any) {
       setError(err.message ?? 'Nie udało się zapisać rozmiaru');
     } finally {

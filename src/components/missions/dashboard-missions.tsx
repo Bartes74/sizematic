@@ -50,7 +50,7 @@ function formatProgress(progress?: Record<string, unknown> | null): string | nul
 }
 
 export function DashboardMissions() {
-  const { missions, isLoading } = useMissions();
+  const { missions, isLoading, error } = useMissions();
 
   const highlight = missions
     .filter((mission) => mission.status !== 'hidden' && mission.status !== 'locked')
@@ -76,7 +76,7 @@ export function DashboardMissions() {
         </Link>
       </div>
 
-      {isLoading ? (
+      {isLoading && !error ? (
         <div className="grid gap-4 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
@@ -84,6 +84,11 @@ export function DashboardMissions() {
               className="h-32 animate-pulse rounded-3xl bg-border/20"
             />
           ))}
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border/60 bg-background/60 px-6 py-10 text-center">
+          <p className="text-base font-semibold text-foreground">Nie udało się wczytać misji</p>
+          <p className="max-w-md text-sm text-muted-foreground">Spróbuj odświeżyć stronę. Jeśli problem będzie się powtarzał, skontaktuj się z zespołem GiftFit.</p>
         </div>
       ) : highlight.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border/60 bg-background/60 px-6 py-10 text-center">
