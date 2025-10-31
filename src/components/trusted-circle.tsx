@@ -60,8 +60,10 @@ function TrustedCircleAvatar({
   size?: AvatarSize;
   className?: string;
 }) {
-  const fallbackSource = name?.trim() || email?.trim() || '?';
-  const fallback = fallbackSource.charAt(0).toUpperCase() || '?';
+  const candidateName = typeof name === 'string' ? name.trim() : '';
+  const candidateEmail = typeof email === 'string' ? email.trim() : '';
+  const fallbackSource = candidateName || candidateEmail || '?';
+  const fallback = fallbackSource.slice(0, 1).toUpperCase() || '?';
 
   return (
     <div
