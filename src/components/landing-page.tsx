@@ -50,18 +50,6 @@ export function LandingPage({ branding }: LandingPageProps) {
   }, [modalMode]);
 
   const heroParagraphs = t('landing.hero.body').split('\n\n');
-  const stats = [
-    {
-      label: t('landing.hero.stats.families.label'),
-      value: t('landing.hero.stats.families.value'),
-      description: t('landing.hero.stats.families.description'),
-    },
-    {
-      label: t('landing.hero.stats.returns.label'),
-      value: t('landing.hero.stats.returns.value'),
-      description: t('landing.hero.stats.returns.description'),
-    },
-  ];
 
   const isDark = mounted ? (theme === 'system' ? resolvedTheme === 'dark' : theme === 'dark') : false;
 
@@ -137,27 +125,15 @@ export function LandingPage({ branding }: LandingPageProps) {
             </div>
           </div>
           <div className="relative flex items-center justify-center">
-            <div className="h-full w-full max-w-md rounded-[2.5rem] border border-border/40 bg-gradient-to-br from-surface-light via-background-light to-surface-light p-10 shadow-xl shadow-primary/10 dark:from-surface-dark dark:via-[#0f1a23] dark:to-surface-dark">
-              <div className="space-y-6 text-center text-foreground">
-                <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-primary/15 text-primary shadow-inner shadow-primary/20">
-                  <svg className="h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8V7a2 2 0 00-2-2h-3l-2-2h-4L8 5H5a2 2 0 00-2 2v1" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 11h18v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 11v9" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-semibold">{t('landing.hero.cardTitle')}</h2>
-                <p className="text-sm text-muted-foreground">{t('landing.hero.cardBody')}</p>
-                <div className="grid grid-cols-2 gap-4 text-left text-sm font-semibold">
-                  {stats.map((stat) => (
-                    <div key={stat.label} className="rounded-2xl border border-border/60 bg-background/70 p-4">
-                      <p className="text-xs uppercase tracking-widest text-muted-foreground/80">{stat.label}</p>
-                      <p className="mt-2 text-2xl font-bold text-foreground">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <div className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-border/40 shadow-xl shadow-primary/10 dark:shadow-primary/20 aspect-[3/4]">
+              <Image
+                src="/giftfit.jpg"
+                alt={t('landing.hero.cardTitle')}
+                fill
+                className="object-cover"
+                priority
+                sizes="(min-width: 1024px) 360px, 80vw"
+              />
             </div>
           </div>
         </section>
