@@ -3,19 +3,13 @@
 import { type ReactNode, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  QUICK_CATEGORY_CONFIGS,
-  PRODUCT_TYPE_MAP,
-  CATEGORY_LABEL_MAP,
-  getQuickCategoryConfig,
-} from '@/data/product-tree';
+import { QUICK_CATEGORY_CONFIGS, CATEGORY_LABEL_MAP } from '@/data/product-tree';
 import type {
   Measurement,
   SizeLabel,
   DashboardSizePreference,
   Brand,
   BrandTypeMapping,
-  GarmentType,
   Category,
   QuickCategoryId,
 } from '@/lib/types';
@@ -77,14 +71,6 @@ function parseSizeLabelParts(label: string): { value: string; unit: string | nul
   }
 
   return { value: normalized, unit: null };
-}
-
-function formatMeasurementKey(key: string) {
-  return key
-    .split('_')
-    .map((part) => (part ? part.slice(0, 1).toUpperCase() + part.slice(1) : ''))
-    .filter(Boolean)
-    .join(' ');
 }
 
 function buildBrandMap(brandMappings: BrandTypeMapping[]): Map<string, Set<string>> {
@@ -175,7 +161,7 @@ export function SizesDirectory({
             ([, value]) => value !== undefined && value !== null
           );
           if (entries.length > 0) {
-            const [key, rawValue] = entries[0] as [string, number];
+            const [, rawValue] = entries[0] as [string, number];
             const formattedValue = Number.isFinite(rawValue)
               ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(rawValue)
               : String(rawValue ?? '');

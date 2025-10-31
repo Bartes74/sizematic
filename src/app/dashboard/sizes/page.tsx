@@ -5,7 +5,6 @@ import type {
   Brand,
   BrandTypeMapping,
   DashboardSizePreference,
-  Garment,
   Measurement,
   SizeLabel,
 } from '@/lib/types';

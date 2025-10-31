@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { PRODUCT_TYPE_MAP, QUICK_CATEGORY_CONFIGS, getQuickCategoryConfig } from '@/data/product-tree';
 import type { QuickCategoryId } from '@/data/product-tree';
+import type { Category } from '@/lib/types';
 import type {
   Brand,
   DashboardSizePreference,
@@ -278,7 +279,7 @@ export function QuickSizePreferencesModal({
     const map = new Map<string, SizeLabel[]>();
     categories.forEach((category) => {
       const labels = sizeLabels.filter((label) =>
-        category.supabaseCategories.includes(label.category as QuickCategoryId)
+        category.supabaseCategories.includes(label.category as Category)
       );
       map.set(category.id, labels);
     });
