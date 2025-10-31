@@ -125,7 +125,7 @@ export function LandingPage({ branding }: LandingPageProps) {
             </div>
           </div>
           <div className="relative flex items-center justify-center">
-            <div className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-border/40 shadow-xl shadow-primary/10 dark:shadow-primary/20 aspect-[3/4]">
+            <div className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-border/40 shadow-xl shadow-primary/10 dark:shadow-primary/20 aspect-square">
               <Image
                 src="/giftfit.jpg"
                 alt={t('landing.hero.cardTitle')}
@@ -175,7 +175,7 @@ export function LandingPage({ branding }: LandingPageProps) {
 
         <section
           className="rounded-3xl border border-primary/30 px-8 py-12 text-center shadow-lg shadow-primary/20 backdrop-blur sm:px-12"
-          style={{ backgroundColor: isDark ? '#213635' : '#E6F0F0' }}
+          style={{ backgroundColor: isDark ? '#800080' : '#E6F0F0' }}
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             {t('landing.cta.kicker')}
