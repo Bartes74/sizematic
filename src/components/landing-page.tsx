@@ -124,7 +124,7 @@ export function LandingPage({ branding }: LandingPageProps) {
           <div className="relative flex items-center justify-center">
             <div className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-border/40 shadow-xl shadow-primary/10 dark:shadow-primary/20 aspect-square">
               <Image
-                src="/przestan_zgadywac.jpg"
+                src="/giftfit.jpg"
                 alt={t('landing.hero.cardTitle')}
                 fill
                 className="object-cover"
