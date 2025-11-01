@@ -30,7 +30,7 @@ export async function sendTrustedCircleInviteEmail(payload: TrustedCircleInviteE
     <p>Cześć,</p>
     <p><strong>${payload.inviterName}</strong> zaprasza Cię do swojego Kręgu Zaufanych w GiftFit.</p>
     <p>Aby zaakceptować zaproszenie, kliknij poniższy przycisk:</p>
-    <p><a href="${payload.acceptUrl}" style="display:inline-block;padding:12px 20px;border-radius:8px;background:#0686ef;color:#ffffff;text-decoration:none;">Dołącz do Kręgu</a></p>
+    <p><a href="${payload.acceptUrl}" style="display:inline-block;padding:12px 20px;border-radius:8px;background:#48A9A6;color:#ffffff;text-decoration:none;">Dołącz do Kręgu</a></p>
     <p>Jeśli nie masz jeszcze konta, zarejestruj się w GiftFit, a następnie otwórz ponownie link.</p>
     <p>Do zobaczenia!<br/>Zespół GiftFit</p>
   `;

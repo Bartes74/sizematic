@@ -11,27 +11,27 @@
   --color-popover: #ffffff;
   --color-popover-foreground: #0d151c;
 
-  --color-primary: #0686ef;
-  --color-primary-foreground: #f5fbff;
+  --color-primary: #48a9a6;
+  --color-primary-foreground: #f2fdfc;
 
-  --color-secondary: #0c6fd1;
-  --color-secondary-foreground: #e7f3ff;
+  --color-secondary: #3c8f8c;
+  --color-secondary-foreground: #def4f3;
 
   --color-muted: #e9f0f5;
   --color-muted-foreground: #47779e;
 
-  --color-accent: #0c6fd1;
-  --color-accent-foreground: #e7f0fe;
+  --color-accent: #48a9a6;
+  --color-accent-foreground: #f2fdfc;
 
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
 
   --color-border: #d4e0ec;
   --color-input: #d4e0ec;
-  --color-ring: #0686ef;
+  --color-ring: #48a9a6;
 
   --surface-elevated: #ffffff;
-  --surface-highlight: rgba(6, 134, 239, 0.08);
+  --surface-highlight: rgba(72, 169, 166, 0.12);
   --surface-interactive: #ffffff;
   --surface-muted: #edf4fa;
 
@@ -55,27 +55,27 @@
   --color-popover: #1c2732;
   --color-popover-foreground: #e1e1e1;
 
-  --color-primary: #0686ef;
-  --color-primary-foreground: #031019;
+  --color-primary: #48a9a6;
+  --color-primary-foreground: #031412;
 
-  --color-secondary: #0a5dc0;
-  --color-secondary-foreground: #d8e9ff;
+  --color-secondary: #3c8f8c;
+  --color-secondary-foreground: #d8f3f1;
 
   --color-muted: #142330;
   --color-muted-foreground: #94a3b8;
 
-  --color-accent: #0a5dc0;
-  --color-accent-foreground: #d8e9ff;
+  --color-accent: #48a9a6;
+  --color-accent-foreground: #d8f3f1;
 
   --color-destructive: #f87171;
   --color-destructive-foreground: #0f1a23;
 
   --color-border: #334155;
   --color-input: #334155;
-  --color-ring: #0686ef;
+  --color-ring: #48a9a6;
 
   --surface-elevated: rgba(28, 39, 50, 0.78);
-  --surface-highlight: rgba(6, 134, 239, 0.12);
+  --surface-highlight: rgba(72, 169, 166, 0.18);
   --surface-interactive: #1c2732;
   --surface-muted: #142330;
 
@@ -153,8 +153,8 @@ body {
 .interactive-tile:hover,
 .data-gap-card:hover,
 .scroller-card:hover {
-  border-color: rgba(6, 134, 239, 0.45);
-  box-shadow: 0 8px 25px rgba(6, 134, 239, 0.14);
+  border-color: rgba(72, 169, 166, 0.45);
+  box-shadow: 0 8px 25px rgba(72, 169, 166, 0.18);
 }
 
 .arrow-button {
@@ -170,11 +170,11 @@ body {
 }
 
 .wishlist-card {
-  background-color: rgba(6, 134, 239, 0.08);
+  background-color: rgba(72, 169, 166, 0.1);
 }
 
 .dark .wishlist-card {
-  background-color: rgba(6, 134, 239, 0.14);
+  background-color: rgba(72, 169, 166, 0.18);
 }
 
 .event-card {
