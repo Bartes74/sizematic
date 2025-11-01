@@ -23,6 +23,7 @@ const featureImages: Partial<Record<(typeof featureConfigs)[number]['id'], strin
   friction: '/przestan_zgadywac.jpg',
   catalog: '/katalog.jpg',
   secret: '/secret_giver.jpg',
+  share: '/dziel_sie.jpg',
 };
 
 const toneStyles: Record<'rose' | 'sky', string> = {
