@@ -6,7 +6,7 @@ import { MarketingShell } from '@/components/marketing/marketing-shell';
 import { getBrandingSettings } from '@/lib/branding';
 
 function getTermsContent() {
-  const filePath = path.join(process.cwd(), 'Regulamin świadczenia usług.md');
+  const filePath = path.join(process.cwd(), 'content', 'terms.md');
   return fs.readFileSync(filePath, 'utf-8');
 }
 

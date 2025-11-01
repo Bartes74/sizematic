@@ -6,7 +6,7 @@ import { MarketingShell } from '@/components/marketing/marketing-shell';
 import { getBrandingSettings } from '@/lib/branding';
 
 function getPrivacyContent() {
-  const filePath = path.join(process.cwd(), 'Polityka Prywatności GiftFit.md');
+  const filePath = path.join(process.cwd(), 'content', 'privacy.md');
   return fs.readFileSync(filePath, 'utf-8');
 }
 
