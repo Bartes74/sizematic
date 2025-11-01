@@ -163,11 +163,17 @@ export type BodyMeasurements = {
   // Lower body
   hips_cm: number | null;
   inseam_cm: number | null;
+  torso_girth_cm: number | null;
+  thigh_cm: number | null;
   // Extremities
   head_cm: number | null;
   hand_cm: number | null;
+  hand_length_cm: number | null;
   foot_left_cm: number | null;
   foot_right_cm: number | null;
+  foot_width_cm: number | null;
+  wrist_cm: number | null;
+  finger_circumference_mm: number | null;
   // Metadata
   notes: string | null;
   last_updated: string;

@@ -20,7 +20,17 @@ import type {
   Brand,
   BrandTypeMapping,
   GarmentType,
+  BodyMeasurements,
 } from '@/lib/types';
+import {
+  BODY_MEASUREMENT_DEFINITIONS,
+  type BodyMeasurementDefinition,
+  createBodyMeasurementUpdate,
+  getBodyMeasurementValue,
+  isBodyMeasurementComplete,
+  isDefinitionRequired,
+} from '@/data/body-measurements';
+import { createClient as createSupabaseClient } from '@/lib/supabase/client';
 
 type HomePageProps = {
   measurements: Measurement[];
@@ -54,12 +64,7 @@ type HomePageProps = {
       incoming_permissions: { category: string; product_type: string | null }[];
     }>;
   };
-};
-
-type DataGapCard = {
-  id: string;
-  title: string;
-  description: string;
+  bodyMeasurements?: BodyMeasurements | null;
 };
 
 type CalendarEvent = {
@@ -121,6 +126,140 @@ function ModalShell({ onClose, children, maxWidth = 'max-w-2xl' }: ModalShellPro
         <div className="mt-4">{children}</div>
       </div>
     </div>
+  );
+}
+
+type BodyMeasurementQuickModalProps = {
+  definition: BodyMeasurementDefinition;
+  profileId: string;
+  bodyMeasurements: BodyMeasurements | null;
+  hasExistingRecord: boolean;
+  onSuccess: () => void;
+  onCancel: () => void;
+};
+
+function BodyMeasurementQuickModal({
+  definition,
+  profileId,
+  bodyMeasurements,
+  hasExistingRecord,
+  onSuccess,
+  onCancel,
+}: BodyMeasurementQuickModalProps) {
+  const [value, setValue] = useState(() => {
+    const stored = getBodyMeasurementValue(definition, bodyMeasurements);
+    return stored != null ? stored.toString() : '';
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const raw = value.trim();
+      if (!raw) {
+        throw new Error('Podaj wartość dla tego pomiaru.');
+      }
+
+      const numeric = Number(raw.replace(',', '.'));
+      if (Number.isNaN(numeric) || numeric <= 0) {
+        throw new Error('Wprowadź dodatnią liczbę (możesz użyć przecinka lub kropki).');
+      }
+
+      const updates = createBodyMeasurementUpdate(definition, numeric);
+      const supabase = createSupabaseClient();
+
+      if (hasExistingRecord) {
+        const { error: updateError } = await supabase
+          .from('body_measurements')
+          .update(updates)
+          .eq('profile_id', profileId);
+
+        if (updateError) {
+          throw updateError;
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from('body_measurements')
+          .insert({ profile_id: profileId, ...updates });
+
+        if (insertError) {
+          throw insertError;
+        }
+      }
+
+      onSuccess();
+    } catch (submissionError: any) {
+      setError(submissionError.message || 'Nie udało się zapisać pomiaru.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-3">
+        <h2 className="text-2xl font-semibold text-foreground">{definition.label}</h2>
+        <p className="text-sm text-muted-foreground">Po co? {definition.purpose}</p>
+      </div>
+
+      <div className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] p-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Jak mierzyć?</p>
+        <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+          {definition.how.map((step, index) => (
+            <li key={index} className="flex gap-2">
+              <span className="text-primary">•</span>
+              <span>{step}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-foreground">
+          Wprowadź wartość ({definition.unit})
+        </label>
+        <div className="relative">
+          <input
+            type="number"
+            step={definition.unit === 'mm' ? 1 : 0.1}
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+            placeholder={definition.unit === 'mm' ? 'np. 55' : 'np. 92.5'}
+            className="w-full rounded-xl border border-input bg-background px-4 py-3 pr-12 text-sm font-medium text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+          />
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+            {definition.unit}
+          </span>
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex-1 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-black/10 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? 'Zapisywanie...' : 'Zapisz pomiar'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 rounded-full border border-border/60 px-6 py-3 text-sm font-semibold text-muted-foreground transition hover:border-primary/50 hover:text-primary"
+        >
+          Anuluj
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -307,11 +446,15 @@ export function HomePage({
   brandMappings = [],
   profileId,
   trustedCircleInitial,
+  bodyMeasurements: bodyMeasurementsProp = null,
 }: HomePageProps) {
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
   const [activeQuickTile, setActiveQuickTile] = useState<{ categoryId: QuickCategoryId; productTypeId?: string | null } | null>(null);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [activeBodyMeasurementDefinition, setActiveBodyMeasurementDefinition] = useState<BodyMeasurementDefinition | null>(null);
+
+  const bodyMeasurements = bodyMeasurementsProp ?? null;
 
   const sizeLabelsById = useMemo(() => {
     const map = new Map<string, SizeLabel>();
@@ -453,36 +596,25 @@ export function HomePage({
     });
   }, [labelsByCategory, measurementByCategory, preferenceMap, sizeLabelsById]);
 
-  const dataGaps: DataGapCard[] = useMemo(() => {
-    const gaps: DataGapCard[] = [
-      {
-        id: 'waist',
-        title: "What's your waist?",
-        description: 'Dodaj obwód talii, aby dopasować spodnie lepiej.',
-      },
-      {
-        id: 'blazer',
-        title: 'Missing Blazer Size',
-        description: 'Pomóż nam dobrać idealny rozmiar marynarki.',
-      },
-      {
-        id: 'brands',
-        title: 'Ulubione marki?',
-        description: 'Dodaj marki, które lubisz, by otrzymać lepsze sugestie.',
-      },
-    ];
+  const measurementDefinitions = useMemo(() => BODY_MEASUREMENT_DEFINITIONS, []);
 
-    const hasFootwear = garments.some((g) => g.category === 'footwear');
-    if (!hasFootwear) {
-      gaps.push({
-        id: 'foot_length',
-        title: 'Pomiar stopy',
-        description: 'Uzupełnij długość stopy, by dobrać sportowe modele.',
-      });
-    }
+  const requiredDefinitions = useMemo(
+    () => measurementDefinitions.filter((definition) => isDefinitionRequired(definition)),
+    [measurementDefinitions]
+  );
 
-    return gaps;
-  }, [garments]);
+  const totalRequiredDefinitions = requiredDefinitions.length;
+
+  const missingMeasurements = useMemo(
+    () =>
+      requiredDefinitions.filter(
+        (definition) => !isBodyMeasurementComplete(definition, bodyMeasurements)
+      ),
+    [requiredDefinitions, bodyMeasurements]
+  );
+
+  const shouldShowDataGaps = missingMeasurements.length > 0;
+  const hasBodyMeasurementsRecord = Boolean(bodyMeasurements);
 
   const calendarItems: CalendarEvent[] = useMemo(() => {
     return [
@@ -618,20 +750,34 @@ export function HomePage({
             ))}
           </div>
         </div>
-        <SectionCard>
-          <h2 className="pb-4 text-lg font-semibold text-foreground sm:text-xl">Fill in Your Data Gaps</h2>
-          <div className="grid gap-3 md:grid-cols-3">
-            {dataGaps.map((gap) => (
-              <div
-                key={gap.id}
-                className="data-gap-card rounded-[26px] border-dashed border-border/60 px-6 py-5 text-sm transition"
-              >
-                <h3 className="font-semibold">{gap.title}</h3>
-                <p className="mt-2 text-muted-foreground">{gap.description}</p>
+        {shouldShowDataGaps ? (
+          <SectionCard>
+            <div className="flex items-center justify-between gap-3 pb-2">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground sm:text-xl">Uzupełnij wymiary ciała</h2>
+                <p className="text-sm text-muted-foreground">
+                  Zacznij od najważniejszych pomiarów, aby dopasowania i rekomendacje były jeszcze trafniejsze.
+                </p>
               </div>
-            ))}
-          </div>
-        </SectionCard>
+              <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                {missingMeasurements.length} / {totalRequiredDefinitions}
+              </span>
+            </div>
+            <div className="grid gap-3 pt-2 md:grid-cols-3">
+              {missingMeasurements.map((definition) => (
+                <button
+                  type="button"
+                  key={definition.id}
+                  onClick={() => setActiveBodyMeasurementDefinition(definition)}
+                  className="data-gap-card flex h-full flex-col rounded-[26px] border border-dashed border-border/60 bg-[var(--surface-interactive)] px-6 py-5 text-left text-sm transition hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+                >
+                  <h3 className="text-base font-semibold text-foreground">{definition.label}</h3>
+                  <p className="mt-3 text-xs text-muted-foreground">Po co? {definition.purpose}</p>
+                </button>
+              ))}
+            </div>
+          </SectionCard>
+        ) : null}
 
         <section className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="flex flex-col gap-6">
@@ -712,6 +858,22 @@ export function HomePage({
           </div>
         </section>
       </main>
+
+      {activeBodyMeasurementDefinition && (
+        <ModalShell onClose={() => setActiveBodyMeasurementDefinition(null)} maxWidth="max-w-xl">
+          <BodyMeasurementQuickModal
+            definition={activeBodyMeasurementDefinition}
+            profileId={profileId}
+            bodyMeasurements={bodyMeasurements}
+            hasExistingRecord={hasBodyMeasurementsRecord}
+            onSuccess={() => {
+              setActiveBodyMeasurementDefinition(null);
+              router.refresh();
+            }}
+            onCancel={() => setActiveBodyMeasurementDefinition(null)}
+          />
+        </ModalShell>
+      )}
 
       {activeQuickTile && (
         <ModalShell onClose={() => setActiveQuickTile(null)}>

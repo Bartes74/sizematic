@@ -10,6 +10,7 @@ import type {
   Measurement,
   SizeLabel,
   UserRole,
+  BodyMeasurements,
 } from "@/lib/types";
 import { redirect } from "next/navigation";
 import { getTrustedCircleSnapshot } from "@/server/trusted-circle";
@@ -48,6 +49,7 @@ export default async function Home() {
     logo_path: null,
   };
   let trustedCircleInitial: Awaited<ReturnType<typeof getTrustedCircleSnapshot>> | null = null;
+  let bodyMeasurements: BodyMeasurements | null = null;
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -108,6 +110,14 @@ export default async function Home() {
 
   brandMappings = (brandMappingsData ?? []) as BrandTypeMapping[];
 
+  const { data: bodyMeasurementsData } = await supabase
+    .from('body_measurements')
+    .select('*')
+    .eq('profile_id', profile.id)
+    .maybeSingle();
+
+  bodyMeasurements = bodyMeasurementsData as BodyMeasurements | null;
+
   const { data: brandingData } = await supabase
     .from("branding_settings")
     .select("site_name, site_claim, logo_url, logo_path")
@@ -142,6 +152,7 @@ export default async function Home() {
       brandMappings={brandMappings}
       profileId={profile.id}
       trustedCircleInitial={trustedCircleInitial ?? undefined}
+      bodyMeasurements={bodyMeasurements}
     />
   );
 }
