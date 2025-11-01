@@ -3,6 +3,18 @@ import {defaultLocale, locales} from './config';
 import type {AbstractIntlMessages} from 'next-intl';
 import {getRequestConfig} from 'next-intl/server';
 import {notFound} from 'next/navigation';
+import {headers, cookies} from 'next/headers';
+
+const LOCALE_COOKIE = 'NEXT_LOCALE';
+
+function normalizeLocale(value: string | undefined | null): Locale | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.toLowerCase();
+  return locales.includes(normalized as Locale) ? (normalized as Locale) : null;
+}
 
 async function loadMessages(locale: Locale): Promise<AbstractIntlMessages | null> {
   try {
@@ -15,13 +27,14 @@ async function loadMessages(locale: Locale): Promise<AbstractIntlMessages | null
 }
 
 export default getRequestConfig(async ({locale}) => {
-  const resolvedLocale = locales.includes(locale as Locale)
-    ? (locale as Locale)
-    : defaultLocale;
+  const requestHeaders = await headers();
+  const cookieStore = await cookies();
 
-  if (resolvedLocale !== locale && process.env.NODE_ENV === 'development') {
-    console.warn(`Unsupported locale "${locale}" requested, falling back to ${defaultLocale}.`);
-  }
+  const headerLocale = normalizeLocale(requestHeaders.get('x-next-intl-locale'));
+  const cookieLocale = normalizeLocale(cookieStore.get(LOCALE_COOKIE)?.value);
+  const inferredLocale = normalizeLocale(locale);
+
+  const resolvedLocale = cookieLocale ?? headerLocale ?? inferredLocale ?? defaultLocale;
 
   const messages = await loadMessages(resolvedLocale);
   if (!messages) {

@@ -32,7 +32,7 @@ function TrustedCircleAcceptContent() {
       setStatus('loading');
       setMessage('Akceptuję zaproszenie...');
       try {
-        const response = await fetch(`/api/v1/trusted-circle/invitations/${token}`, {
+        const response = await fetch(`/api/v1/trusted-circle/invitations/by-token/${token}`, {
           method: 'POST',
         });
         const payload = await response.json().catch(() => null);

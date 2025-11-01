@@ -57,7 +57,7 @@ export function GlobalHeader({
     >
       <div className="mx-auto flex h-[100px] max-w-6xl items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-3">
-          <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-primary/10 text-primary">
+          <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden">
             {brandingConfig.logo_url ? (
               <Image
                 src={brandingConfig.logo_url}
@@ -68,7 +68,7 @@ export function GlobalHeader({
                 priority
               />
             ) : (
-              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
+              <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 6h14l-1 10h-3l-1 5-3-4-3 4-1-5H6L5 6z" />
               </svg>
             )}
