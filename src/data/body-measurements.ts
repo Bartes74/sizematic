@@ -30,7 +30,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
     unit: 'cm',
     fields: ['height_cm'],
   },
-    {
+  {
     id: 'chest',
     label: 'Obwód klatki piersiowej',
     purpose: 'T-shirty, bluzy, swetry, kurtki, marynarki.',
@@ -53,6 +53,18 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
     ],
     unit: 'cm',
     fields: ['waist_natural_cm'],
+  },
+  {
+    id: 'waist_pants',
+    label: 'Obwód pasa (do spodni)',
+    purpose: 'Jeansy, chinosy, spodnie garniturowe – dopasowanie w miejscu, w którym faktycznie je nosisz.',
+    how: [
+      'Stań swobodnie i zlokalizuj linię, na której zwykle nosisz spodnie.',
+      'Owiń taśmę poziomo wokół ciała, pilnując by nie opadała z tyłu.',
+      'Nie wciągaj brzucha; pozostaw niewielki luz odpowiadający Twoim preferencjom komfortu.',
+    ],
+    unit: 'cm',
+    fields: ['waist_pants_cm'],
   },
   {
     id: 'hips',
@@ -318,4 +330,3 @@ export function isDefinitionRequired(definition: BodyMeasurementDefinition): boo
   }
   return definition.required;
 }
-
