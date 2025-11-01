@@ -39,6 +39,7 @@ export function useLocale() {
 
     try {
       router.replace(href);
+      router.refresh();
     } catch (error) {
       if (process.env.NODE_ENV !== 'production') {
         console.error('Failed to switch locale', error);
