@@ -206,6 +206,22 @@
       "title": "Konta testowe:",
       "admin": "Admin",
       "demo": "Demo"
+    },
+    "footer": {
+      "privacy": "Polityka prywatności",
+      "terms": "Regulamin świadczenia usług",
+      "contact": "Kontakt"
+    },
+    "contact": {
+      "title": "Skontaktuj się z nami",
+      "subtitle": "Napisz do nas, a odezwiemy się tak szybko, jak to możliwe.",
+      "nameLabel": "Imię",
+      "emailLabel": "Adres e-mail",
+      "messageLabel": "Wiadomość",
+      "send": "Wyślij wiadomość",
+      "sending": "Wysyłanie...",
+      "success": "Dziękujemy! Twoja wiadomość została wysłana.",
+      "error": "Nie udało się wysłać wiadomości"
     }
   },
   "auth": {

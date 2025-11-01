@@ -206,6 +206,22 @@
       "title": "Test accounts:",
       "admin": "Admin",
       "demo": "Demo"
+    },
+    "footer": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact"
+    },
+    "contact": {
+      "title": "Get in touch",
+      "subtitle": "Send us a message – we will reply as soon as possible.",
+      "nameLabel": "Name",
+      "emailLabel": "Email address",
+      "messageLabel": "Message",
+      "send": "Send message",
+      "sending": "Sending...",
+      "success": "Thank you! Your message has been sent.",
+      "error": "We could not send your message"
     }
   },
   "auth": {

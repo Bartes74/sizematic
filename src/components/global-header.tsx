@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -56,7 +57,7 @@ export function GlobalHeader({
       style={{ backgroundColor: 'var(--surface-elevated)' }}
     >
       <div className="mx-auto flex h-[100px] max-w-6xl items-center justify-between px-4 lg:px-6">
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3" aria-label={brandingConfig.site_name}>
           {brandingConfig.logo_url ? (
             <img
               src={brandingConfig.logo_url}
@@ -71,11 +72,11 @@ export function GlobalHeader({
             <h1 className="text-lg font-semibold leading-tight text-foreground">
               {brandingConfig.site_name}
             </h1>
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/70">
+            <p className="text-xs font-semibold uppercase text-muted-foreground/70">
               {brandingConfig.site_claim}
             </p>
           </div>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
