@@ -159,7 +159,11 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
                         <span className="text-xs text-muted-foreground">(kobiety)</span>
                       )}
                     </label>
-                    <p className="mt-1 text-xs text-muted-foreground">Po co? {definition.purpose}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      <span className="font-semibold text-foreground">Po co?</span>
+                      <br />
+                      {definition.purpose}
+                    </p>
                   </div>
                   <button
                     type="button"

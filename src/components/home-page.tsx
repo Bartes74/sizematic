@@ -203,7 +203,11 @@ function BodyMeasurementQuickModal({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-3">
         <h2 className="text-2xl font-semibold text-foreground">{definition.label}</h2>
-        <p className="text-sm text-muted-foreground">Po co? {definition.purpose}</p>
+        <p className="text-sm text-muted-foreground">
+          <span className="font-semibold text-foreground">Po co?</span>
+          <br />
+          {definition.purpose}
+        </p>
       </div>
 
       <div className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] p-4">
@@ -772,7 +776,11 @@ export function HomePage({
                   className="data-gap-card flex h-full flex-col rounded-[26px] border border-dashed border-border/60 bg-[var(--surface-interactive)] px-6 py-5 text-left text-sm transition hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
                 >
                   <h3 className="text-base font-semibold text-foreground">{definition.label}</h3>
-                  <p className="mt-3 text-xs text-muted-foreground">Po co? {definition.purpose}</p>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  <span className="font-semibold text-foreground">Po co?</span>
+                  <br />
+                  {definition.purpose}
+                </p>
                 </button>
               ))}
             </div>
