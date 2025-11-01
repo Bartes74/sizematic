@@ -249,18 +249,18 @@ function BodyMeasurementQuickModal({
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <button
-          type="submit"
-          disabled={loading}
-          className="flex-1 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-black/10 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? 'Zapisywanie...' : 'Zapisz pomiar'}
-        </button>
-        <button
           type="button"
           onClick={onCancel}
           className="flex-1 rounded-full border border-border/60 px-6 py-3 text-sm font-semibold text-muted-foreground transition hover:border-primary/50 hover:text-primary"
         >
           Anuluj
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex-1 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-black/10 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? 'Zapisywanie...' : 'Zapisz pomiar'}
         </button>
       </div>
     </form>

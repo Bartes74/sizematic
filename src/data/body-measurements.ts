@@ -330,4 +330,3 @@ export function isDefinitionRequired(definition: BodyMeasurementDefinition): boo
   }
   return definition.required;
 }
-
