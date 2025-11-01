@@ -67,9 +67,7 @@ export function GlobalHeader({
               priority
             />
           ) : (
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-lg font-semibold text-primary">
-              {initials}
-            </span>
+            <span className="text-lg font-semibold text-primary">{initials}</span>
           )}
           <div className="space-y-0.5">
             <h1 className="text-lg font-semibold leading-tight text-foreground">
@@ -89,7 +87,7 @@ export function GlobalHeader({
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setOpen((prev) => !prev)}
-                className="flex items-center gap-2 rounded-2xl border border-border/50 bg-background/70 px-3 py-2 text-sm font-medium text-foreground transition hover:border-primary/50 hover:bg-primary/5"
+                className="flex cursor-pointer items-center gap-2 rounded-2xl border border-border/50 bg-background/70 px-3 py-2 text-sm font-medium text-foreground transition hover:border-primary/50 hover:bg-primary/5"
               >
                 {avatarUrl ? (
                   <Image
