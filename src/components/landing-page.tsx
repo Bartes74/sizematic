@@ -146,15 +146,8 @@ export function LandingPage({ branding }: LandingPageProps) {
 
         <div className="grid gap-10">
           {featureConfigs.map((feature, index) => {
-            const isEven = index % 2 === 0;
-            const title =
-              feature.id === 'gifts'
-                ? 'Prezenty, które zawsze pasują'
-                : t(`landing.features.${feature.id}.title`);
-            const description =
-              feature.id === 'gifts'
-                ? 'Pożegnaj na zawsze zakłopotanie przy zmianie rozmiaru. To coś zupełnie naturalnego. Z GiftFit zyskujesz pełną dyskrecję i gwarancję idealnego dopasowania każdego prezentu. Wystarczy, że zaktualizujesz swój profil, kiedy tylko poczujesz taką potrzebę – bez tłumaczenia i oceniania. Odkryj komfort otrzymywania podarunków, które pasują idealnie od pierwszej chwili. To czysta radość i pewność siebie, bez żadnych niezręcznych pytań.'
-                : t(`landing.features.${feature.id}.body`);
+            const title = t(`landing.features.${feature.id}.title`);
+            const description = t(`landing.features.${feature.id}.body`);
             const isImageLeft = index % 2 === 0;
             return (
               <section
