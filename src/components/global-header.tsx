@@ -58,13 +58,11 @@ export function GlobalHeader({
       <div className="mx-auto flex h-[100px] max-w-6xl items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-3">
           {brandingConfig.logo_url ? (
-            <Image
+            <img
               src={brandingConfig.logo_url}
               alt={logoAlt}
-              width={56}
-              height={56}
               className="h-14 w-auto object-contain"
-              priority
+              loading="lazy"
             />
           ) : (
             <span className="text-lg font-semibold text-primary">{initials}</span>

@@ -68,22 +68,18 @@ export function LandingPage({ branding }: LandingPageProps) {
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur dark:bg-background/60">
         <div className="mx-auto flex h-[100px] max-w-6xl items-center justify-between px-4 lg:px-6">
           <div className="flex items-center gap-3">
-            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-primary/15 text-primary">
-              {branding.logo_url ? (
-                <Image
-                  src={branding.logo_url}
-                  alt={`${branding.site_name} logo`}
-                  fill
-                  className="object-contain"
-                  sizes="40px"
-                  priority
-                />
-              ) : (
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16l-1 11H9l-1 3-2-3H5L4 7z" />
-                </svg>
-              )}
-            </div>
+            {branding.logo_url ? (
+              <img
+                src={branding.logo_url}
+                alt={`${branding.site_name} logo`}
+                className="h-10 w-auto object-contain"
+                loading="lazy"
+              />
+            ) : (
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16l-1 11H9l-1 3-2-3H5L4 7z" />
+              </svg>
+            )}
             <div>
               <p className="text-lg font-semibold leading-tight text-foreground">{branding.site_name}</p>
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/70">
