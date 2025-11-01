@@ -600,7 +600,10 @@ export function HomePage({
     });
   }, [labelsByCategory, measurementByCategory, preferenceMap, sizeLabelsById]);
 
-  const measurementDefinitions = useMemo(() => BODY_MEASUREMENT_DEFINITIONS, []);
+  const measurementDefinitions = useMemo(
+    () => BODY_MEASUREMENT_DEFINITIONS ?? [],
+    []
+  );
 
   const requiredDefinitions = useMemo(
     () => measurementDefinitions.filter((definition) => isDefinitionRequired(definition)),
