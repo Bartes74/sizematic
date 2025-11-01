@@ -15,13 +15,15 @@ type ModalMode = 'none' | 'login' | 'register';
 const featureConfigs = [
   { id: 'friction', tone: 'rose' as const },
   { id: 'catalog', tone: 'rose' as const },
+  { id: 'gifts', tone: 'sky' as const },
   { id: 'secret', tone: 'sky' as const },
-  { id: 'share', tone: 'sky' as const },
+  { id: 'share', tone: 'rose' as const },
 ] as const;
 
 const featureImages: Partial<Record<(typeof featureConfigs)[number]['id'], string>> = {
   friction: '/przestan_zgadywac.jpg',
   catalog: '/katalog.jpg',
+  gifts: '/dopasowanie.jpg',
   secret: '/secret_giver.jpg',
   share: '/dziel_sie.jpg',
 };
@@ -145,13 +147,20 @@ export function LandingPage({ branding }: LandingPageProps) {
         <div className="grid gap-10">
           {featureConfigs.map((feature, index) => {
             const isEven = index % 2 === 0;
-            const title = t(`landing.features.${feature.id}.title`);
-            const description = t(`landing.features.${feature.id}.body`);
+            const title =
+              feature.id === 'gifts'
+                ? 'Prezenty, które zawsze pasują'
+                : t(`landing.features.${feature.id}.title`);
+            const description =
+              feature.id === 'gifts'
+                ? 'Pożegnaj na zawsze zakłopotanie przy zmianie rozmiaru. To coś zupełnie naturalnego. Z GiftFit zyskujesz pełną dyskrecję i gwarancję idealnego dopasowania każdego prezentu. Wystarczy, że zaktualizujesz swój profil, kiedy tylko poczujesz taką potrzebę – bez tłumaczenia i oceniania. Odkryj komfort otrzymywania podarunków, które pasują idealnie od pierwszej chwili. To czysta radość i pewność siebie, bez żadnych niezręcznych pytań.'
+                : t(`landing.features.${feature.id}.body`);
+            const isImageLeft = index % 2 === 0;
             return (
               <section
                 key={feature.id}
                 className={`flex flex-col items-center gap-10 lg:gap-16 ${
-                  isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                  isImageLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'
                 }`}
               >
                 <div
