@@ -15,7 +15,7 @@ export function LanguageSwitcher() {
             key={loc}
             onClick={() => setLocale(loc)}
             className={`
-              relative px-3 py-1 rounded-full text-sm font-medium transition-all duration-300
+              cursor-pointer relative px-3 py-1 rounded-full text-sm font-medium transition-all duration-300
               ${
                 isActive
                   ? 'bg-background text-foreground shadow-sm'

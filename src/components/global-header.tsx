@@ -57,22 +57,20 @@ export function GlobalHeader({
     >
       <div className="mx-auto flex h-[100px] max-w-6xl items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-3">
-          <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden">
-            {brandingConfig.logo_url ? (
-              <Image
-                src={brandingConfig.logo_url}
-                alt={logoAlt}
-                fill
-                className="object-contain"
-                sizes="48px"
-                priority
-              />
-            ) : (
-              <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 6h14l-1 10h-3l-1 5-3-4-3 4-1-5H6L5 6z" />
-              </svg>
-            )}
-          </div>
+          {brandingConfig.logo_url ? (
+            <Image
+              src={brandingConfig.logo_url}
+              alt={logoAlt}
+              width={56}
+              height={56}
+              className="h-14 w-auto object-contain"
+              priority
+            />
+          ) : (
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-lg font-semibold text-primary">
+              {initials}
+            </span>
+          )}
           <div className="space-y-0.5">
             <h1 className="text-lg font-semibold leading-tight text-foreground">
               {brandingConfig.site_name}
