@@ -1,6 +1,8 @@
 import { MarketingShell } from '@/components/marketing/marketing-shell';
 import { getBrandingSettings } from '@/lib/branding';
 
+const ACCENT = '#48A9A6';
+
 const FACTS = [
   { label: 'Wersja', value: '1.0' },
   { label: 'Data wejścia w życie', value: '[dd.mm.rrrr]' },
@@ -19,7 +21,10 @@ export default async function PrivacyPage() {
       <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
         <section className="rounded-3xl border border-border/40 bg-card/85 p-8 shadow-xl shadow-black/5 backdrop-blur sm:p-12">
           <header className="mb-12 space-y-6 text-center sm:text-left">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-5 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+            <div
+              className="inline-flex items-center gap-2 rounded-full border px-5 py-2 text-sm font-semibold uppercase tracking-[0.2em]"
+              style={{ borderColor: `${ACCENT}4d`, backgroundColor: `${ACCENT}1a`, color: ACCENT }}
+            >
               GiftFit
             </div>
             <div className="space-y-4">
@@ -251,7 +256,11 @@ function BulletList({ items }: { items: string[] }) {
     <ul className="space-y-3 text-muted-foreground">
       {items.map((item, index) => (
         <li key={index} className="flex gap-3 rounded-2xl bg-background/70 p-3">
-          <span className="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-primary" aria-hidden="true" />
+          <span
+            className="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full"
+            aria-hidden="true"
+            style={{ backgroundColor: ACCENT }}
+          />
           <span className="leading-relaxed">{item}</span>
         </li>
       ))}
@@ -264,7 +273,10 @@ function NumberedList({ items }: { items: string[] }) {
     <ol className="space-y-3 text-muted-foreground">
       {items.map((item, index) => (
         <li key={item} className="flex gap-3 rounded-2xl bg-background/70 p-3">
-          <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
+          <span
+            className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+            style={{ backgroundColor: `${ACCENT}26`, color: ACCENT }}
+          >
             {index + 1}
           </span>
           <span className="leading-relaxed">{item}</span>
@@ -284,7 +296,10 @@ function SubHeading({ title }: { title: string }) {
 
 function InfoBox({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-primary/30 bg-primary/10 p-5 text-sm text-primary">
+    <div
+      className="rounded-2xl p-5 text-sm"
+      style={{ borderColor: `${ACCENT}4d`, backgroundColor: `${ACCENT}1a`, color: ACCENT, borderWidth: 1, borderStyle: 'solid' }}
+    >
       {children}
     </div>
   );
