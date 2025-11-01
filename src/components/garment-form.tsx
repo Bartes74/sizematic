@@ -1,9 +1,20 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import type { Brand, Category, GarmentType } from '@/lib/types';
+import type { BodyMeasurements, Brand, Category, GarmentType } from '@/lib/types';
+import {
+  PRODUCT_TYPES,
+  type ProductFieldDefinition,
+  type ProductTypeDefinition,
+  type QuickCategoryId,
+} from '@/data/product-tree';
+import {
+  createBodyMeasurementUpdate,
+  getBodyMeasurementDefinition,
+  getBodyMeasurementValue,
+} from '@/data/body-measurements';
 
 type BrandMapping = {
   brand_id: string;
@@ -15,496 +26,422 @@ type GarmentFormProps = {
   category: Category;
   brands: Brand[];
   brandMappings: BrandMapping[];
+  bodyMeasurements: BodyMeasurements | null;
 };
 
-type GarmentTypeOption = {
-  id: GarmentType;
-  name: string;
-  description: string;
+const CATEGORY_TO_QUICK: Record<Category, QuickCategoryId[]> = {
+  tops: ['tops'],
+  bottoms: ['bottoms'],
+  footwear: ['footwear'],
+  outerwear: ['outerwear'],
+  headwear: ['lingerie'],
+  accessories: ['accessories', 'jewelry'],
+  kids: ['tops'],
 };
 
-const GARMENT_TYPES: Record<Category, GarmentTypeOption[]> = {
-  tops: [
-    { id: 'tshirt', name: 'Koszulka', description: 'T-shirt, koszulka polo' },
-    { id: 'shirt_casual', name: 'Koszula casualowa', description: 'Koszula nieformalna' },
-    { id: 'shirt_formal', name: 'Koszula formalna', description: 'Koszula biznesowa z kołnierzykiem' },
-    { id: 'sweater', name: 'Sweter', description: 'Sweter, pulower' },
-    { id: 'hoodie', name: 'Bluza', description: 'Bluza z kapturem lub bez' },
-  ],
-  bottoms: [
-    { id: 'jeans', name: 'Jeansy', description: 'Dżinsy, spodnie jeansowe' },
-    { id: 'pants_casual', name: 'Spodnie casualowe', description: 'Spodnie codzienne, chinosy' },
-    { id: 'pants_formal', name: 'Spodnie garniturowe', description: 'Spodnie wizytowe' },
-    { id: 'shorts', name: 'Szorty', description: 'Krótkie spodenki' },
-    { id: 'skirt', name: 'Spódnica', description: 'Różne rodzaje spódnic' },
-  ],
-  footwear: [
-    { id: 'sneakers', name: 'Sneakersy', description: 'Buty sportowe, tenisówki' },
-    { id: 'dress_shoes', name: 'Buty wizytowe', description: 'Eleganckie obuwie' },
-    { id: 'boots', name: 'Kozaki/Botki', description: 'Wysokie buty' },
-    { id: 'sandals', name: 'Sandały', description: 'Otwarte obuwie' },
-  ],
-  outerwear: [
-    { id: 'jacket', name: 'Kurtka', description: 'Kurtka przejściowa' },
-    { id: 'coat', name: 'Płaszcz/Parka', description: 'Płaszcz zimowy, jesienny lub parka' },
-    { id: 'blazer', name: 'Marynarka', description: 'Żakiet, marynarka garniturowa' },
-  ],
-  headwear: [
-    { id: 'bra', name: 'Biustonosz', description: 'Stanik, biustonosz' },
-    { id: 'underwear', name: 'Majtki', description: 'Bielizna dolna' },
-    { id: 'socks', name: 'Skarpety', description: 'Skarpetki, podkolanówki' },
-  ],
-  accessories: [
-    { id: 'belt', name: 'Pasek', description: 'Pasek do spodni' },
-    { id: 'scarf', name: 'Szalik', description: 'Szal, szalik' },
-    { id: 'gloves', name: 'Rękawiczki', description: 'Rękawice' },
-    { id: 'cap', name: 'Czapka z daszkiem', description: 'Baseball cap' },
-    { id: 'hat', name: 'Kapelusz/Czapka', description: 'Kapelusz, czapka zimowa, dziana' },
-    { id: 'jewelry', name: 'Biżuteria (ogólna)', description: 'Różne rodzaje biżuterii' },
-    { id: 'necklace', name: 'Naszyjnik', description: 'Naszyjniki, łańcuszki' },
-    { id: 'bracelet', name: 'Bransoletka', description: 'Bransoletki na rękę' },
-    { id: 'ring', name: 'Pierścionek', description: 'Pierścionki, obrączki' },
-    { id: 'earrings', name: 'Kolczyki', description: 'Kolczyki, nausznice' },
-  ],
-  kids: [
-    { id: 'tshirt', name: 'Koszulka dziecięca', description: 'T-shirt dla dzieci' },
-    { id: 'pants_casual', name: 'Spodnie dziecięce', description: 'Spodnie dla dzieci' },
-  ],
+const QUICK_CATEGORY_LABEL: Record<QuickCategoryId, string> = {
+  outerwear: 'Odzież wierzchnia',
+  tops: 'Góra',
+  bottoms: 'Dół',
+  lingerie: 'Bielizna',
+  jewelry: 'Biżuteria',
+  accessories: 'Akcesoria',
+  footwear: 'Buty',
 };
 
-const FIT_TYPES = ['Slim Fit', 'Tapered Fit', 'Regular Fit', 'Classic Fit'];
-
-// Function to filter brands based on garment type using database mappings
 function filterBrandsForGarmentType(
   brands: Brand[],
-  garmentType: GarmentType | '',
+  garmentType: GarmentType | null,
   brandMappings: BrandMapping[]
 ): Brand[] {
-  if (!garmentType) return brands;
+  if (!garmentType) {
+    return brands;
+  }
 
-  // Get brand IDs that are mapped to this garment type
   const mappedBrandIds = new Set(
     brandMappings
-      .filter(mapping => mapping.garment_type === garmentType)
-      .map(mapping => mapping.brand_id)
+      .filter((mapping) => mapping.garment_type === garmentType)
+      .map((mapping) => mapping.brand_id)
   );
 
-  // Filter brands to only those that are mapped to this garment type
-  const filtered = brands.filter(brand => mappedBrandIds.has(brand.id));
+  if (mappedBrandIds.size === 0) {
+    return brands;
+  }
 
-  // If no brands match the filter, return all brands to avoid empty dropdown
+  const filtered = brands.filter((brand) => mappedBrandIds.has(brand.id));
   return filtered.length > 0 ? filtered : brands;
 }
 
-export function GarmentForm({ profileId, category, brands, brandMappings }: GarmentFormProps) {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+function normalizeNumericValue(value: string): number {
+  return parseFloat(value.replace(',', '.'));
+}
 
-  const [garmentType, setGarmentType] = useState<GarmentType | ''>('');
-  const [selectedBrandId, setSelectedBrandId] = useState<string>('');
+function hasFilledValue(value: string | undefined): boolean {
+  return value !== undefined && value.trim().length > 0;
+}
+
+function getPrimaryGarmentType(definition: ProductTypeDefinition | null): GarmentType | null {
+  return definition?.garmentTypes[0] ?? null;
+}
+
+export function GarmentForm({
+  profileId,
+  category,
+  brands,
+  brandMappings,
+  bodyMeasurements,
+}: GarmentFormProps) {
+  const router = useRouter();
+  const [selectedProductTypeId, setSelectedProductTypeId] = useState<string>('');
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+  const [selectedBrandId, setSelectedBrandId] = useState('');
   const [customBrandName, setCustomBrandName] = useState('');
   const [notes, setNotes] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Filter brands based on selected garment type using database mappings
-  const filteredBrands = useMemo(() => {
-    return filterBrandsForGarmentType(brands, garmentType, brandMappings);
-  }, [brands, garmentType, brandMappings]);
+  const quickCategories = useMemo<QuickCategoryId[]>(
+    () => CATEGORY_TO_QUICK[category] ?? ['tops'],
+    [category]
+  );
 
-  // Size fields - different for each garment type
-  const [genericSize, setGenericSize] = useState('');
-  const [collarCm, setCollarCm] = useState('');
-  const [fitType, setFitType] = useState('Regular Fit');
-  const [waistInch, setWaistInch] = useState('');
-  const [lengthInch, setLengthInch] = useState('');
-  const [shoeEU, setShoeEU] = useState('');
-  const [shoeUS, setShoeUS] = useState('');
-  const [shoeUK, setShoeUK] = useState('');
-  const [footLengthCm, setFootLengthCm] = useState('');
-  // Ring-specific fields
-  const [ringSizeMm, setRingSizeMm] = useState('');
-  const [ringSide, setRingSide] = useState<'left' | 'right'>('left');
-  const [ringBodyPart, setRingBodyPart] = useState<'hand' | 'foot'>('hand');
-  const [ringFinger, setRingFinger] = useState<'thumb' | 'index' | 'middle' | 'ring' | 'pinky'>('ring');
+  const productTypeOptions = useMemo(() =>
+    PRODUCT_TYPES.filter(
+      (definition) =>
+        quickCategories.includes(definition.category) &&
+        definition.supabaseCategories.includes(category)
+    ),
+  [category, quickCategories]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  useEffect(() => {
+    if (productTypeOptions.length === 0) {
+      setSelectedProductTypeId('');
+      return;
+    }
+
+    if (!selectedProductTypeId || !productTypeOptions.some((type) => type.id === selectedProductTypeId)) {
+      setSelectedProductTypeId(productTypeOptions[0].id);
+    }
+  }, [productTypeOptions, selectedProductTypeId]);
+
+  const selectedProductType = useMemo<ProductTypeDefinition | null>(() => {
+    return productTypeOptions.find((type) => type.id === selectedProductTypeId) ?? null;
+  }, [productTypeOptions, selectedProductTypeId]);
+
+  useEffect(() => {
+    if (!selectedProductType) {
+      setFieldValues({});
+      setSelectedBrandId('');
+      setCustomBrandName('');
+      return;
+    }
+
+    const initialValues: Record<string, string> = {};
+
+    selectedProductType.fields.forEach((field) => {
+      if (field.type === 'measurement' && field.measurementId) {
+        const definition = getBodyMeasurementDefinition(field.measurementId);
+        if (definition) {
+          const existingValue = getBodyMeasurementValue(definition, bodyMeasurements);
+          if (existingValue !== null) {
+            initialValues[field.id] = existingValue.toString();
+          }
+        }
+      } else if (field.type === 'select' && field.options?.length) {
+        initialValues[field.id] = field.options[0];
+      }
+    });
+
+    setFieldValues(initialValues);
+    setSelectedBrandId('');
+    setCustomBrandName('');
+  }, [selectedProductType, bodyMeasurements]);
+
+  const primaryGarmentType = getPrimaryGarmentType(selectedProductType);
+
+  const filteredBrands = useMemo(
+    () => filterBrandsForGarmentType(brands, primaryGarmentType, brandMappings),
+    [brands, brandMappings, primaryGarmentType]
+  );
+
+  const handleFieldChange = (fieldId: string, value: string) => {
+    setFieldValues((prev) => ({ ...prev, [fieldId]: value }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError(null);
 
+    if (!selectedProductType) {
+      setError('Proszę wybrać typ produktu.');
+      return;
+    }
+
     try {
-      if (!garmentType) {
-        throw new Error('Proszę wybrać typ ubrania');
+      setIsLoading(true);
+
+      selectedProductType.fields.forEach((field) => {
+        const value = fieldValues[field.id];
+        if (field.required && !hasFilledValue(value)) {
+          throw new Error(`Proszę uzupełnić pole: ${field.label}`);
+        }
+      });
+
+      const sizeValues: Record<string, number | string> = {};
+      const sizeLabels: Record<string, string> = {};
+      const sizeUnits: Record<string, string> = {};
+      const measurementUpdates: Record<string, number> = {};
+
+      let hasAnyValue = false;
+
+      selectedProductType.fields.forEach((field) => {
+        const rawValue = fieldValues[field.id];
+        if (!hasFilledValue(rawValue)) {
+          return;
+        }
+
+        hasAnyValue = true;
+        const trimmed = rawValue!.trim();
+        sizeLabels[field.storageKey] = field.label;
+        if (field.unit) {
+          sizeUnits[field.storageKey] = field.unit;
+        }
+
+        if (field.type === 'measurement' || field.type === 'number') {
+          const numericValue = normalizeNumericValue(trimmed);
+          if (Number.isNaN(numericValue)) {
+            throw new Error(`Niepoprawna wartość w polu: ${field.label}`);
+          }
+
+          sizeValues[field.storageKey] = numericValue;
+
+          if (field.type === 'measurement' && field.measurementId) {
+            const definition = getBodyMeasurementDefinition(field.measurementId);
+            if (definition) {
+              const updateFragment = createBodyMeasurementUpdate(definition, numericValue);
+              Object.entries(updateFragment).forEach(([key, value]) => {
+                if (typeof value === 'number') {
+                  const typedKey = key as keyof BodyMeasurements;
+                  const current = bodyMeasurements?.[typedKey];
+                  if (typeof current !== 'number' || Math.abs(current - value) > 0.001) {
+                    measurementUpdates[typedKey as string] = value;
+                  }
+                }
+              });
+            }
+          }
+        } else if (field.type === 'select' || field.type === 'text') {
+          sizeValues[field.storageKey] = trimmed;
+        }
+      });
+
+      if (!hasAnyValue) {
+        throw new Error('Podaj przynajmniej jeden parametr rozmiaru.');
       }
 
-      // Build size object based on garment type
-      let size: any = {};
-
-      if (garmentType === 'shirt_formal') {
-        if (!collarCm || !fitType) {
-          throw new Error('Proszę podać rozmiar kołnierzyka i krój');
-        }
-        size = {
-          collar_cm: parseFloat(collarCm),
-          fit_type: fitType,
-        };
-      } else if (garmentType === 'jeans') {
-        if (!waistInch || !lengthInch) {
-          throw new Error('Proszę podać rozmiar pasa i długość');
-        }
-        size = {
-          waist_inch: parseFloat(waistInch),
-          length_inch: parseFloat(lengthInch),
-        };
-      } else if (garmentType === 'sneakers' || garmentType === 'dress_shoes' || garmentType === 'boots' || garmentType === 'sandals') {
-        if (!shoeEU && !shoeUS && !shoeUK) {
-          throw new Error('Proszę podać rozmiar buta (EU, US lub UK)');
-        }
-        size = {
-          size_eu: shoeEU ? parseFloat(shoeEU) : null,
-          size_us: shoeUS ? parseFloat(shoeUS) : null,
-          size_uk: shoeUK ? parseFloat(shoeUK) : null,
-          foot_length_cm: footLengthCm ? parseFloat(footLengthCm) : null,
-        };
-      } else if (garmentType === 'ring') {
-        // Ring with finger specification
-        if (!ringSizeMm.trim()) {
-          throw new Error('Proszę podać rozmiar pierścionka');
-        }
-        size = {
-          size_mm: parseFloat(ringSizeMm),
-          side: ringSide,
-          body_part: ringBodyPart,
-          finger: ringFinger,
-        };
-      } else {
-        // Generic size (S/M/L/XL or numeric)
-        if (!genericSize.trim()) {
-          throw new Error('Proszę podać rozmiar');
-        }
-        size = {
-          size: genericSize.trim(),
-        };
-      }
+      const sizePayload = {
+        product_type_id: selectedProductType.id,
+        product_type_label: selectedProductType.label,
+        values: sizeValues,
+        labels: sizeLabels,
+        units: sizeUnits,
+      };
 
       const supabase = createClient();
 
+      if (Object.keys(measurementUpdates).length > 0) {
+        if (bodyMeasurements) {
+          const { error: measurementError } = await supabase
+            .from('body_measurements')
+            .update(measurementUpdates)
+            .eq('profile_id', profileId);
+
+          if (measurementError) {
+            throw measurementError;
+          }
+        } else {
+          const { error: measurementError } = await supabase
+            .from('body_measurements')
+            .insert({ profile_id: profileId, ...measurementUpdates });
+
+          if (measurementError) {
+            throw measurementError;
+          }
+        }
+      }
+
+      const garmentTypeForInsert = (primaryGarmentType ?? 'other') as GarmentType;
+
       const garmentData = {
         profile_id: profileId,
-        type: garmentType,
+        type: garmentTypeForInsert,
         category,
-        size,
+        size: sizePayload,
         brand_id: selectedBrandId || null,
         brand_name: selectedBrandId ? null : (customBrandName.trim() || null),
         notes: notes.trim() || null,
       };
 
-      const { error: insertError } = await supabase
-        .from('garments')
-        .insert(garmentData);
+      const { error: insertError } = await supabase.from('garments').insert(garmentData);
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        throw insertError;
+      }
 
-      // Redirect back to dashboard
       router.push('/dashboard');
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || 'Wystąpił błąd podczas zapisywania przedmiotu');
+    } catch (submitError: any) {
+      setError(submitError.message ?? 'Wystąpił błąd podczas zapisywania rozmiaru.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const renderSizeFields = () => {
-    if (!garmentType) return null;
+  const renderField = (field: ProductFieldDefinition) => {
+    const value = fieldValues[field.id] ?? '';
+    const isRequired = Boolean(field.required);
 
-    switch (garmentType) {
-      case 'shirt_formal':
-        return (
-          <>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Rozmiar kołnierzyka (cm) <span className="text-destructive">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.5"
-                value={collarCm}
-                onChange={(e) => setCollarCm(e.target.value)}
-                placeholder="np. 39, 40, 41"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-              <p className="text-xs text-muted-foreground">
-                Zmierz obwód szyi lub sprawdź metkę w koszuli
-              </p>
-            </div>
+    const labelContent = (
+      <label className="flex items-center justify-between text-sm font-medium text-foreground">
+        <span>
+          {field.label}
+          {isRequired ? <span className="ml-1 text-destructive">*</span> : null}
+        </span>
+        {field.unit ? <span className="text-xs text-muted-foreground">{field.unit}</span> : null}
+      </label>
+    );
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Krój <span className="text-destructive">*</span>
-              </label>
-              <select
-                value={fitType}
-                onChange={(e) => setFitType(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                {FIT_TYPES.map((fit) => (
-                  <option key={fit} value={fit}>
-                    {fit}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </>
-        );
-
-      case 'jeans':
-        return (
-          <>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Rozmiar pasa (cale) <span className="text-destructive">*</span>
-              </label>
-              <input
-                type="number"
-                step="1"
-                value={waistInch}
-                onChange={(e) => setWaistInch(e.target.value)}
-                placeholder="np. 30, 32, 34"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Długość (cale) <span className="text-destructive">*</span>
-              </label>
-              <input
-                type="number"
-                step="1"
-                value={lengthInch}
-                onChange={(e) => setLengthInch(e.target.value)}
-                placeholder="np. 30, 32, 34"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-              <p className="text-xs text-muted-foreground">
-                Rozmiar jeansów podawany jako np. 32/34 (pas/długość)
-              </p>
-            </div>
-          </>
-        );
-
-      case 'sneakers':
-      case 'dress_shoes':
-      case 'boots':
-      case 'sandals':
-        return (
-          <>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Rozmiar EU
-                </label>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={shoeEU}
-                  onChange={(e) => setShoeEU(e.target.value)}
-                  placeholder="np. 42"
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Rozmiar US
-                </label>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={shoeUS}
-                  onChange={(e) => setShoeUS(e.target.value)}
-                  placeholder="np. 9"
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Rozmiar UK
-                </label>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={shoeUK}
-                  onChange={(e) => setShoeUK(e.target.value)}
-                  placeholder="np. 8"
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Długość stopy (cm) (opcjonalnie)
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                value={footLengthCm}
-                onChange={(e) => setFootLengthCm(e.target.value)}
-                placeholder="np. 26.5"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-              <p className="text-xs text-muted-foreground">
-                Podaj co najmniej jeden rozmiar (EU, US lub UK)
-              </p>
-            </div>
-          </>
-        );
-
-      case 'ring':
-        return (
-          <>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Rozmiar (mm) <span className="text-destructive">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.5"
-                value={ringSizeMm}
-                onChange={(e) => setRingSizeMm(e.target.value)}
-                placeholder="np. 16.5, 17.0, 18.5"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-              <p className="text-xs text-muted-foreground">
-                Średnica wewnętrzna pierścionka w milimetrach
-              </p>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Strona <span className="text-destructive">*</span>
-                </label>
-                <select
-                  value={ringSide}
-                  onChange={(e) => setRingSide(e.target.value as 'left' | 'right')}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="left">Lewa</option>
-                  <option value="right">Prawa</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Część ciała <span className="text-destructive">*</span>
-                </label>
-                <select
-                  value={ringBodyPart}
-                  onChange={(e) => setRingBodyPart(e.target.value as 'hand' | 'foot')}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="hand">Dłoń</option>
-                  <option value="foot">Stopa</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Palec <span className="text-destructive">*</span>
-              </label>
-              <select
-                value={ringFinger}
-                onChange={(e) => setRingFinger(e.target.value as 'thumb' | 'index' | 'middle' | 'ring' | 'pinky')}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="thumb">Kciuk</option>
-                <option value="index">Wskazujący</option>
-                <option value="middle">Środkowy</option>
-                <option value="ring">Serdeczny</option>
-                <option value="pinky">Mały</option>
-              </select>
-            </div>
-          </>
-        );
-
-      default:
-        return (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Rozmiar <span className="text-destructive">*</span>
-            </label>
-            <input
-              type="text"
-              value={genericSize}
-              onChange={(e) => setGenericSize(e.target.value)}
-              placeholder="np. M, L, XL, 42, 48"
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-            <p className="text-xs text-muted-foreground">
-              Wpisz rozmiar dokładnie tak, jak widnieje na metce
-            </p>
-          </div>
-        );
+    if (field.type === 'select') {
+      return (
+        <div className="space-y-2">
+          {labelContent}
+          <select
+            value={value}
+            onChange={(event) => handleFieldChange(field.id, event.target.value)}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            {(field.options ?? []).map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          {field.helpText ? (
+            <p className="text-xs text-muted-foreground">{field.helpText}</p>
+          ) : null}
+        </div>
+      );
     }
+
+    if (field.type === 'measurement' || field.type === 'number') {
+      const step = field.step ?? (field.unit === 'mm' ? 1 : 0.1);
+      return (
+        <div className="space-y-2">
+          {labelContent}
+          <div className="relative">
+            <input
+              type="number"
+              inputMode="decimal"
+              step={step}
+              value={value}
+              onChange={(event) => handleFieldChange(field.id, event.target.value)}
+              placeholder={field.unit === 'mm' ? 'np. 55' : 'np. 92.5'}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+            {field.unit ? (
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                {field.unit}
+              </span>
+            ) : null}
+          </div>
+          {field.helpText ? (
+            <p className="text-xs text-muted-foreground">{field.helpText}</p>
+          ) : null}
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-2">
+        {labelContent}
+        <input
+          type="text"
+          value={value}
+          onChange={(event) => handleFieldChange(field.id, event.target.value)}
+          placeholder={field.placeholder}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        />
+        {field.helpText ? (
+          <p className="text-xs text-muted-foreground">{field.helpText}</p>
+        ) : null}
+      </div>
+    );
   };
+
+  const productTypeCards = (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {productTypeOptions.map((type) => {
+        const isSelected = type.id === selectedProductTypeId;
+        return (
+          <button
+            key={type.id}
+            type="button"
+            onClick={() => setSelectedProductTypeId(type.id)}
+            className={`rounded-2xl border px-4 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+              isSelected
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border bg-card hover:border-primary/40 hover:bg-primary/5'
+            }`}
+          >
+            <span className="text-sm font-semibold text-foreground">{type.label}</span>
+            <span className="mt-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {QUICK_CATEGORY_LABEL[type.category]}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="space-y-6">
-          {/* Garment type selection */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Typ ubrania <span className="text-destructive">*</span>
-            </label>
-            <select
-              value={garmentType}
-              onChange={(e) => {
-                setGarmentType(e.target.value as GarmentType);
-                // Reset size fields when changing type
-                setGenericSize('');
-                setCollarCm('');
-                setWaistInch('');
-                setLengthInch('');
-                setShoeEU('');
-                setShoeUS('');
-                setShoeUK('');
-                setFootLengthCm('');
-              }}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            >
-              <option value="">Wybierz typ...</option>
-              {GARMENT_TYPES[category].map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name} - {type.description}
-                </option>
-              ))}
-            </select>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-foreground">
+                Typ produktu <span className="text-destructive">*</span>
+              </label>
+              {selectedProductType ? (
+                <span className="text-xs font-medium uppercase text-muted-foreground">
+                  {QUICK_CATEGORY_LABEL[selectedProductType.category]}
+                </span>
+              ) : null}
+            </div>
+            {productTypeOptions.length > 0 ? (
+              productTypeCards
+            ) : (
+              <p className="rounded-lg border border-dashed border-border bg-muted/10 p-4 text-sm text-muted-foreground">
+                W tej kategorii nie zdefiniowano jeszcze produktów. Wróć i wybierz inną kategorię.
+              </p>
+            )}
           </div>
 
-          {/* Brand selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Marka (opcjonalnie)
-            </label>
+            <label className="text-sm font-medium text-foreground">Marka (opcjonalnie)</label>
             <select
               value={selectedBrandId}
-              onChange={(e) => {
-                setSelectedBrandId(e.target.value);
-                if (e.target.value) {
+              onChange={(event) => {
+                setSelectedBrandId(event.target.value);
+                if (event.target.value) {
                   setCustomBrandName('');
                 }
               }}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              disabled={!garmentType}
+              disabled={!selectedProductType}
             >
               <option value="">
-                {!garmentType ? 'Najpierw wybierz typ ubrania' : 'Nie wybrano marki'}
+                {!selectedProductType ? 'Najpierw wybierz typ produktu' : 'Nie wybrano marki'}
               </option>
               {filteredBrands.map((brand) => (
                 <option key={brand.id} value={brand.id}>
@@ -512,68 +449,74 @@ export function GarmentForm({ profileId, category, brands, brandMappings }: Garm
                 </option>
               ))}
             </select>
-            {garmentType && filteredBrands.length < brands.length && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Pokazano marki popularne dla wybranego typu ubrania ({filteredBrands.length} z {brands.length})
+            {selectedProductType && filteredBrands.length < brands.length ? (
+              <p className="text-xs text-muted-foreground">
+                Pokazano marki popularne dla tego typu produktu ({filteredBrands.length} z {brands.length})
               </p>
-            )}
-
-            {!selectedBrandId && (
-              <div className="mt-3">
-                <input
-                  type="text"
-                  value={customBrandName}
-                  onChange={(e) => setCustomBrandName(e.target.value)}
-                  placeholder="Lub wpisz nazwę marki (np. Zara, Reserved, Mango...)"
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-            )}
+            ) : null}
+            {!selectedBrandId ? (
+              <input
+                type="text"
+                value={customBrandName}
+                onChange={(event) => setCustomBrandName(event.target.value)}
+                placeholder="Lub wpisz nazwę marki (np. Zara, Reserved, Mango...)"
+                className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            ) : null}
           </div>
 
-          {/* Size fields - dynamic based on garment type */}
-          {renderSizeFields()}
+          {selectedProductType ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-foreground">Parametry rozmiaru</h2>
+                <span className="text-xs text-muted-foreground">
+                  Wypełnij dowolną liczbę pól — potrzebny jest co najmniej jeden parametr.
+                </span>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {selectedProductType.fields.map((field) => (
+                  <div key={field.id}>{renderField(field)}</div>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
-          {/* Notes */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Notatki (opcjonalnie)
-            </label>
+            <label className="text-sm font-medium text-foreground">Notatki (opcjonalnie)</label>
             <textarea
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(event) => setNotes(event.target.value)}
               rows={3}
-              placeholder="np. 'Dobrze dopasowany', 'Trochę luźny', 'Idealny'..."
+              placeholder="np. 'Idealnie dopasowany', 'Lekko luźny', 'Do skrócenia'"
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>
       </div>
 
-      {/* Error message */}
-      {error && (
+      {error ? (
         <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
           {error}
         </div>
-      )}
+      ) : null}
 
-      {/* Submit button */}
-      <div className="flex gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex-1 rounded-lg border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+          className="flex-1 rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-muted"
         >
           Anuluj
         </button>
         <button
           type="submit"
-          disabled={isLoading}
-          className="flex-1 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLoading || !selectedProductType}
+          className="flex-1 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isLoading ? 'Zapisywanie...' : 'Zapisz przedmiot'}
+          {isLoading ? 'Zapisywanie…' : 'Zapisz rozmiar'}
         </button>
       </div>
     </form>
   );
 }
+

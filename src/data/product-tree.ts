@@ -1,13 +1,9 @@
 import type { Category, GarmentType } from '@/lib/types';
+import type { ProductFieldDefinition, ProductTypeDefinition, QuickCategoryId } from './product-types';
+import { PRODUCT_TYPES } from './product-types';
 
-export type QuickCategoryId =
-  | 'outerwear'
-  | 'tops'
-  | 'bottoms'
-  | 'lingerie'
-  | 'jewelry'
-  | 'accessories'
-  | 'footwear';
+export type { QuickCategoryId, ProductTypeDefinition, ProductFieldDefinition } from './product-types';
+export { PRODUCT_TYPES } from './product-types';
 
 export type QuickProductTypeConfig = {
   id: string;
@@ -22,121 +18,72 @@ export type QuickCategoryConfig = {
   productTypes: QuickProductTypeConfig[];
 };
 
-export const QUICK_CATEGORY_CONFIGS: QuickCategoryConfig[] = [
-  {
-    id: 'outerwear',
-    label: 'Okrycia',
-    supabaseCategories: ['outerwear'],
-    productTypes: [
-      { id: 'kurtka_puchowa', label: 'Kurtka / puchówka', garmentTypes: ['jacket'] },
-      { id: 'plaszcz_parka', label: 'Płaszcz / parka / trencz', garmentTypes: ['coat'] },
-      { id: 'ramoneska', label: 'Kurtka skórzana / ramoneska', garmentTypes: ['jacket'] },
-      { id: 'narzutka', label: 'Marynarka casual / narzutka', garmentTypes: ['blazer'] },
-    ],
-  },
-  {
-    id: 'tops',
-    label: 'Góra',
-    supabaseCategories: ['tops'],
-    productTypes: [
-      { id: 'tshirt', label: 'T-shirt / longsleeve', garmentTypes: ['tshirt'] },
-      { id: 'polo', label: 'Koszulka polo', garmentTypes: ['tshirt'] },
-      { id: 'bluza', label: 'Bluza', garmentTypes: ['hoodie'] },
-      { id: 'sweter', label: 'Sweter / kardigan', garmentTypes: ['sweater'] },
-      { id: 'koszula', label: 'Koszula', garmentTypes: ['shirt_casual', 'shirt_formal'] },
-      { id: 'marynarka_garniturowa', label: 'Marynarka garniturowa', garmentTypes: ['blazer'] },
-      { id: 'zakiet', label: 'Żakiet biurowy', garmentTypes: ['blazer'] },
-      { id: 'pizama_gora', label: 'Góra od piżamy', garmentTypes: ['other'] },
-    ],
-  },
-  {
-    id: 'bottoms',
-    label: 'Dół',
-    supabaseCategories: ['bottoms'],
-    productTypes: [
-      { id: 'jeans', label: 'Jeansy', garmentTypes: ['jeans'] },
-      { id: 'spodnie_materialowe', label: 'Spodnie materiałowe', garmentTypes: ['pants_casual', 'pants_formal'] },
-      { id: 'spodnie_dresowe', label: 'Spodnie dresowe / joggery', garmentTypes: ['pants_casual'] },
-      { id: 'legginsy', label: 'Legginsy', garmentTypes: ['pants_casual'] },
-      { id: 'kombinezon', label: 'Kombinezon / jumpsuit', garmentTypes: ['other'] },
-      { id: 'spodnie_garnitur', label: 'Spodnie od garnituru', garmentTypes: ['pants_formal'] },
-      { id: 'pizama_dol', label: 'Dół piżamy', garmentTypes: ['other'] },
-      { id: 'spodnie_robocze', label: 'Spodnie robocze/techniczne', garmentTypes: ['other'] },
-      { id: 'shorty', label: 'Shorty / krótkie spodenki', garmentTypes: ['shorts'] },
-      { id: 'spodnica', label: 'Spódnica', garmentTypes: ['skirt'] },
-      { id: 'sukienka', label: 'Sukienka', garmentTypes: ['other'] },
-    ],
-  },
-  {
-    id: 'lingerie',
-    label: 'Bielizna',
-    supabaseCategories: ['headwear'],
-    productTypes: [
-      { id: 'biustonosz', label: 'Biustonosz', garmentTypes: ['bra'] },
-      { id: 'majtki', label: 'Majtki / bokserki / slipy', garmentTypes: ['underwear'] },
-      { id: 'rajstopy', label: 'Rajstopy / pończochy', garmentTypes: ['socks'] },
-      { id: 'pizama', label: 'Piżama', garmentTypes: ['other'] },
-      { id: 'stroj_kapielowy_jednoczesciowy', label: 'Strój kąpielowy jednoczęściowy', garmentTypes: ['other'] },
-      { id: 'stroj_kapielowy_dwuczesciowy', label: 'Strój kąpielowy dwuczęściowy', garmentTypes: ['other'] },
-    ],
-  },
-  {
-    id: 'jewelry',
-    label: 'Biżuteria',
-    supabaseCategories: ['accessories'],
-    productTypes: [
-      { id: 'pierscionek', label: 'Pierścionek', garmentTypes: ['ring'] },
-      { id: 'bransoletka', label: 'Bransoletka', garmentTypes: ['bracelet'] },
-      { id: 'naszyjnik', label: 'Naszyjnik / łańcuszek', garmentTypes: ['necklace'] },
-      { id: 'kolczyki', label: 'Kolczyki', garmentTypes: ['earrings'] },
-      { id: 'zegarek', label: 'Zegarek / smartwatch', garmentTypes: ['bracelet', 'other'] },
-    ],
-  },
-  {
-    id: 'accessories',
-    label: 'Akcesoria',
-    supabaseCategories: ['accessories'],
-    productTypes: [
-      { id: 'pasek', label: 'Pasek', garmentTypes: ['belt'] },
-      { id: 'rekawiczki', label: 'Rękawiczki', garmentTypes: ['gloves'] },
-      { id: 'czapka_zimowa', label: 'Czapka zimowa', garmentTypes: ['hat'] },
-      { id: 'czapka_daszek', label: 'Czapka z daszkiem', garmentTypes: ['cap'] },
-      { id: 'kapelusz', label: 'Kapelusz', garmentTypes: ['hat'] },
-      { id: 'szalik', label: 'Szalik / komin', garmentTypes: ['scarf'] },
-      { id: 'okulary', label: 'Okulary', garmentTypes: ['other'] },
-    ],
-  },
-  {
-    id: 'footwear',
-    label: 'Buty',
-    supabaseCategories: ['footwear'],
-    productTypes: [
-      { id: 'szpilki', label: 'Szpilki', garmentTypes: ['dress_shoes'] },
-      { id: 'botki', label: 'Botki', garmentTypes: ['boots'] },
-      { id: 'baleriny', label: 'Baleriny', garmentTypes: ['dress_shoes'] },
-      { id: 'sneakersy', label: 'Sneakersy', garmentTypes: ['sneakers'] },
-      { id: 'oksfordy', label: 'Oksfordy', garmentTypes: ['dress_shoes'] },
-      { id: 'derby', label: 'Derby', garmentTypes: ['dress_shoes'] },
-      { id: 'loafers', label: 'Loafersy / mokasyny', garmentTypes: ['dress_shoes'] },
-    ],
-  },
-];
+const CATEGORY_LABELS: Record<QuickCategoryId, string> = {
+  outerwear: 'Okrycia',
+  tops: 'Góra',
+  bottoms: 'Dół',
+  lingerie: 'Bielizna',
+  jewelry: 'Biżuteria',
+  accessories: 'Akcesoria',
+  footwear: 'Buty',
+};
 
-export const PRODUCT_TYPE_MAP = QUICK_CATEGORY_CONFIGS.reduce<Record<string, QuickProductTypeConfig>>(
-  (acc, category) => {
-    category.productTypes.forEach((type) => {
-      acc[type.id] = type;
+type CategoryAccumulator = {
+  supabaseCategories: Set<Category>;
+  productTypes: QuickProductTypeConfig[];
+};
+
+const categoryAccumulator = new Map<QuickCategoryId, CategoryAccumulator>();
+
+function registerProductType(definition: ProductTypeDefinition) {
+  const existing = categoryAccumulator.get(definition.category);
+  if (!existing) {
+    categoryAccumulator.set(definition.category, {
+      supabaseCategories: new Set(definition.supabaseCategories),
+      productTypes: [
+        {
+          id: definition.id,
+          label: definition.label,
+          garmentTypes: definition.garmentTypes,
+        },
+      ],
     });
+    return;
+  }
+
+  definition.supabaseCategories.forEach((cat) => existing.supabaseCategories.add(cat));
+  existing.productTypes.push({
+    id: definition.id,
+    label: definition.label,
+    garmentTypes: definition.garmentTypes,
+  });
+}
+
+PRODUCT_TYPES.forEach(registerProductType);
+
+export const QUICK_CATEGORY_CONFIGS: QuickCategoryConfig[] = Array.from(categoryAccumulator.entries())
+  .sort(([a], [b]) => {
+    const order = ['outerwear', 'tops', 'bottoms', 'lingerie', 'jewelry', 'accessories', 'footwear'];
+    return order.indexOf(a) - order.indexOf(b);
+  })
+  .map(([id, data]) => ({
+    id,
+    label: CATEGORY_LABELS[id],
+    supabaseCategories: Array.from(data.supabaseCategories),
+    productTypes: data.productTypes,
+  }));
+
+export const PRODUCT_TYPE_MAP = PRODUCT_TYPES.reduce<Record<string, ProductTypeDefinition>>(
+  (acc, definition) => {
+    acc[definition.id] = definition;
     return acc;
   },
   {}
 );
 
-export const PRODUCT_TYPE_CATEGORY_MAP = QUICK_CATEGORY_CONFIGS.reduce<Record<string, QuickCategoryId>>(
-  (acc, category) => {
-    category.productTypes.forEach((type) => {
-      acc[type.id] = category.id;
-    });
+export const PRODUCT_TYPE_CATEGORY_MAP = PRODUCT_TYPES.reduce<Record<string, QuickCategoryId>>(
+  (acc, definition) => {
+    acc[definition.id] = definition.category;
     return acc;
   },
   {} as Record<string, QuickCategoryId>
@@ -155,7 +102,7 @@ export const CATEGORY_LABEL_MAP = QUICK_CATEGORY_CONFIGS.reduce<Record<QuickCate
 export function getQuickCategoryConfig(id: QuickCategoryId): QuickCategoryConfig {
   const config = QUICK_CATEGORY_CONFIGS.find((category) => category.id === id);
   if (!config) {
-    throw new Error(`Unknown quick category: ${id}`);
+    throw new Error(`Nieznana kategoria: ${id}`);
   }
   return config;
 }
@@ -164,7 +111,10 @@ export function resolveCategoryLabel(id: string): string {
   return CATEGORY_LABEL_MAP[id as QuickCategoryId] ?? id;
 }
 
-export function resolveProductTypeLabel(categoryId: string, productTypeId: string | null | undefined): string | null {
+export function resolveProductTypeLabel(
+  categoryId: string,
+  productTypeId: string | null | undefined
+): string | null {
   if (!productTypeId) {
     return null;
   }
@@ -175,6 +125,5 @@ export function resolveProductTypeLabel(categoryId: string, productTypeId: strin
     return type.label;
   }
 
-  const fallback = PRODUCT_TYPE_MAP[productTypeId];
-  return fallback?.label ?? productTypeId;
+  return PRODUCT_TYPE_MAP[productTypeId]?.label ?? productTypeId;
 }

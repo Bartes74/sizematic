@@ -61,7 +61,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
     how: [
       'Stań swobodnie i zlokalizuj linię, na której zwykle nosisz spodnie.',
       'Owiń taśmę poziomo wokół ciała, pilnując by nie opadała z tyłu.',
-      'Nie wciągaj brzucha; pozostaw niewielki luz odpowiadający Twoim preferencjom komfortu.',
+      'Nie wciągaj brzucha; pozostaw niewielki luz odpowiadający preferencjom komfortu.',
     ],
     unit: 'cm',
     fields: ['waist_pants_cm'],
@@ -145,7 +145,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   {
     id: 'torso_girth',
     label: 'Długość tułowia (torso girth)',
-    purpose: 'Jumpsuity/kombinezony, stroje jednoczęściowe.',
+    purpose: 'Kombinezony, stroje jednoczęściowe, stroje kąpielowe.',
     how: [
       'Przyłóż początek taśmy w dołku szyi (przód).',
       'Poprowadź taśmę między nogami do punktu na karku (zamknij pętlę).',
@@ -156,7 +156,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'inseam',
-    label: 'Długość wewnętrzna nogawki (inseam)',
+    label: 'Długość wewnętrzna nogawki',
     purpose: 'Wszystkie spodnie/jeansy (długość).',
     how: [
       'Stań prosto, boso.',
@@ -271,6 +271,14 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
     fields: ['head_cm'],
   },
 ];
+
+const BODY_MEASUREMENT_DEFINITION_MAP = new Map(
+  BODY_MEASUREMENT_DEFINITIONS.map((definition) => [definition.id, definition])
+);
+
+export function getBodyMeasurementDefinition(id: string): BodyMeasurementDefinition | undefined {
+  return BODY_MEASUREMENT_DEFINITION_MAP.get(id);
+}
 
 export function getBodyMeasurementValue(
   definition: BodyMeasurementDefinition,

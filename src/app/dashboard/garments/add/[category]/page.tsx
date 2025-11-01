@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { GarmentForm } from "@/components/garment-form";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import type { Category } from "@/lib/types";
+import type { BodyMeasurements, Category } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +56,12 @@ export default async function AddGarmentByCategoryPage({
     .from('brand_garment_types')
     .select('brand_id, garment_type');
 
+  const { data: bodyMeasurements } = await supabase
+    .from('body_measurements')
+    .select('*')
+    .eq('profile_id', profile.id)
+    .maybeSingle();
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
@@ -86,6 +92,7 @@ export default async function AddGarmentByCategoryPage({
           category={category as Category}
           brands={brands || []}
           brandMappings={brandMappings || []}
+          bodyMeasurements={(bodyMeasurements as BodyMeasurements) || null}
         />
       </main>
     </div>
