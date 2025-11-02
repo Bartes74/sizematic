@@ -642,6 +642,11 @@ export function HomePage({
   const quickSizeTiles = useMemo(() => {
     return QUICK_CATEGORY_CONFIGS.map((config) => {
       const preference = preferenceMap.get(config.id);
+      const preferenceProductType =
+        preference?.productType &&
+        config.productTypes.some((type) => type.id === preference.productType)
+          ? preference.productType
+          : null;
       const labelsForCategory = config.supabaseCategories.flatMap(
         (supCategory) => labelsByCategory.get(supCategory) ?? []
       );
@@ -650,9 +655,9 @@ export function HomePage({
       if (preference?.sizeLabelId) {
         selectedLabel = sizeLabelsById.get(preference.sizeLabelId) ?? null;
       }
-      if (!selectedLabel && preference?.productType) {
+      if (!selectedLabel && preferenceProductType) {
         selectedLabel =
-          labelsForCategory.find((label) => label.product_type === preference.productType) ?? null;
+          labelsForCategory.find((label) => label.product_type === preferenceProductType) ?? null;
       }
       if (!selectedLabel) {
         selectedLabel =
@@ -670,7 +675,7 @@ export function HomePage({
       let sizeValue = '--';
       let sizeUnit: string | null = null;
       let productTypeLabel = 'Dodaj rozmiar';
-      let productTypeId: string | null = preference?.productType ?? null;
+      let productTypeId: string | null = preferenceProductType;
       let sizeLabelId: string | null = null;
 
       if (selectedLabel) {
@@ -684,8 +689,8 @@ export function HomePage({
       } else {
         let garmentCandidate: Garment | null = null;
 
-        if (preference?.productType) {
-          const productGarments = garmentsByProductType.get(preference.productType);
+        if (preferenceProductType) {
+          const productGarments = garmentsByProductType.get(preferenceProductType);
           if (productGarments?.length) {
             garmentCandidate = productGarments[0];
           }
