@@ -151,21 +151,23 @@ export function GarmentForm({
       return;
     }
 
+    const isSelectedValid =
+      selectedProductTypeId &&
+      productTypeOptions.some((type) => type.id === selectedProductTypeId);
+
+    if (isSelectedValid) {
+      return;
+    }
+
     if (
       initialProductTypeId &&
-      selectedProductTypeId !== initialProductTypeId &&
       productTypeOptions.some((type) => type.id === initialProductTypeId)
     ) {
       setSelectedProductTypeId(initialProductTypeId);
       return;
     }
 
-    if (
-      !selectedProductTypeId ||
-      !productTypeOptions.some((type) => type.id === selectedProductTypeId)
-    ) {
-      setSelectedProductTypeId(productTypeOptions[0].id);
-    }
+    setSelectedProductTypeId(productTypeOptions[0].id);
   }, [productTypeOptions, initialProductTypeId, selectedProductTypeId]);
 
   const selectedProductType = useMemo<ProductTypeDefinition | null>(() => {
