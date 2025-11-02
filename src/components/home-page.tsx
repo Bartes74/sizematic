@@ -159,7 +159,15 @@ function formatGarmentQuickValue(garment: Garment): { value: string; unit: strin
     });
 
     if (orderedKeys.length > 0) {
-      const firstKey = orderedKeys[0];
+      const preferredOrder = [
+        'ring_size',
+        'size_label',
+        'finger_circumference_mm',
+        'waist_pants_cm',
+        'waist_cm',
+        'hips_cm',
+      ];
+      const firstKey = preferredOrder.find((key) => orderedKeys.includes(key)) ?? orderedKeys[0];
       const rawValue = values[firstKey];
       let displayValue = '';
 

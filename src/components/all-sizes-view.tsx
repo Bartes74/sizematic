@@ -67,6 +67,10 @@ function formatGarmentSize(garment: Garment): string {
     const labels = (size.labels ?? {}) as Record<string, string>;
     const units = (size.units ?? {}) as Record<string, string>;
 
+    if (values.ring_size) {
+      return String(values.ring_size);
+    }
+
     if (values.size_label) {
       return String(values.size_label);
     }
