@@ -19,7 +19,6 @@ import {
 } from '@/data/product-tree';
 import type { QuickCategoryId } from '@/data/product-tree';
 import { QuickSizePreferencesModal } from '@/components/quick-size-modals';
-import { RecentActivity } from '@/components/recent-activity';
 import type {
   Measurement,
   Garment,
@@ -234,12 +233,6 @@ function formatGarmentQuickValue(garment: Garment): { value: string; unit: strin
   const fallback = formatLegacyGarmentValue(garment);
   return { value: fallback || '--', unit: null };
 }
-
-type ActivityItem = {
-  id: string;
-  icon: ReactNode;
-  description: string;
-};
 
 function SectionCard({
   children,
@@ -1172,48 +1165,6 @@ export function HomePage({
     [editingEventId, eventDate, eventNotes, eventTitle, isRecurring, participants, profileId, resetEventForm, router]
   );
 
-  const activityItems: ActivityItem[] = useMemo(() => {
-    const list: ActivityItem[] = [];
-
-    if (measurements.length) {
-      const latest = measurements[0];
-      list.push({
-        id: `measurement-${latest.id}`,
-        icon: (
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h10m-6 5h10" />
-          </svg>
-        ),
-        description: `Zaktualizowano pomiar dla kategorii ${latest.category}.`,
-      });
-    }
-
-    if (garments.length) {
-      const garment = garments[0];
-      list.push({
-        id: `garment-${garment.id}`,
-        icon: (
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 3h12l2 7h-4l-2 11-3-6-3 6-2-11H4l2-7z" />
-          </svg>
-        ),
-        description: `Dodano ${garment.name} do garderoby.`,
-      });
-    }
-
-    list.push({
-      id: 'share',
-      icon: (
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 12a4 4 0 118 0 4 4 0 11-8 0zm8 0l7.5-4.33M12 12l7.5 4.33" />
-        </svg>
-      ),
-      description: 'Udostępnij swój profil, by ułatwić zakupy innym.',
-    });
-
-    return list.slice(0, 4);
-  }, [measurements, garments]);
-
   return (
     <div className="relative min-h-screen bg-background text-foreground">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-surface-elevated via-background to-background dark:from-[#08142a] dark:via-[#071225] dark:to-[#071225]" />
@@ -1407,26 +1358,6 @@ export function HomePage({
             </div>
           )}
         </SectionCard>
-
-        <section className="grid gap-6">
-          <div className="flex flex-col gap-6">
-            <SectionCard>
-              <h2 className="pb-4 text-lg font-semibold text-foreground sm:text-xl">Ostatnia aktywność</h2>
-              <div className="space-y-3">
-                {activityItems.map((item) => (
-                  <div key={item.id} className="list-chip flex items-center gap-3 rounded-2xl p-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                      {item.icon}
-                    </div>
-                    <p className="text-sm text-foreground">{item.description}</p>
-                  </div>
-                ))}
-              </div>
-            </SectionCard>
-
-            <RecentActivity />
-          </div>
-        </section>
 
       </main>
 
