@@ -1333,6 +1333,8 @@ export function HomePage({
           </div>
         </section>
 
+      </main>
+
       {isAddEventOpen ? (
         <ModalShell onClose={handleCloseEventModal} maxWidth="max-w-2xl">
           <form onSubmit={handleEventSubmit} className="space-y-6">

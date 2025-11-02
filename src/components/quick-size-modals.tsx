@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { PRODUCT_TYPE_MAP, QUICK_CATEGORY_CONFIGS, getQuickCategoryConfig } from '@/data/product-tree';
 import type { QuickCategoryId } from '@/data/product-tree';
-import type { Category } from '@/lib/types';
 import type {
   Brand,
   DashboardSizePreference,
@@ -248,22 +247,32 @@ export function QuickSizePreferencesModal({
   const supabase = createClient();
   const [selectedCategory, setSelectedCategory] = useState<QuickCategoryId>('outerwear');
   const [selectedProductType, setSelectedProductType] = useState<string | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const categories = QUICK_CATEGORY_CONFIGS;
 
-  const sizeOptionsByCategory = useMemo(() => {
-    const map = new Map<string, SizeLabel[]>();
-    categories.forEach((category) => {
-      const labels = sizeLabels.filter((label) =>
-        category.supabaseCategories.includes(label.category as Category)
-      );
-      map.set(category.id, labels);
+  const latestSizeLabelByProductType = useMemo(() => {
+    const map = new Map<string, { label: string; createdAtMs: number }>();
+
+    sizeLabels.forEach((label) => {
+      if (!label.product_type) {
+        return;
+      }
+
+      const timestamp = label.created_at ?? label.recorded_at ?? '';
+      const createdAtMs = timestamp ? new Date(timestamp).getTime() : 0;
+      const existing = map.get(label.product_type);
+      if (!existing || createdAtMs > existing.createdAtMs) {
+        map.set(label.product_type, {
+          label: label.label,
+          createdAtMs,
+        });
+      }
     });
+
     return map;
-  }, [categories, sizeLabels]);
+  }, [sizeLabels]);
 
   useEffect(() => {
     const preference = sizePreferences.find(
@@ -271,7 +280,6 @@ export function QuickSizePreferencesModal({
     );
 
     setSelectedProductType(preference?.product_type ?? null);
-    setSelectedSize(preference?.size_label_id ?? null);
   }, [selectedCategory, sizePreferences]);
 
   const handleSave = async () => {
@@ -279,37 +287,55 @@ export function QuickSizePreferencesModal({
     setError(null);
 
     try {
-      const updatePayload = {
-        profile_id: profileId,
-        quick_category: selectedCategory,
-        product_type: selectedProductType,
-        size_label_id: selectedSize,
-      };
+      if (!selectedProductType) {
+        const { error: deleteError } = await supabase
+          .from('dashboard_size_preferences')
+          .delete()
+          .eq('profile_id', profileId)
+          .eq('quick_category', selectedCategory);
 
-      const { error: upsertError } = await supabase
-        .from('dashboard_size_preferences')
-        .upsert(updatePayload, { onConflict: 'profile_id,quick_category' });
+        if (deleteError) {
+          throw deleteError;
+        }
+      } else {
+        const { error: upsertError } = await supabase
+          .from('dashboard_size_preferences')
+          .upsert(
+            {
+              profile_id: profileId,
+              quick_category: selectedCategory,
+              product_type: selectedProductType,
+              size_label_id: null,
+            },
+            { onConflict: 'profile_id,quick_category' }
+          );
 
-      if (upsertError) throw upsertError;
+        if (upsertError) {
+          throw upsertError;
+        }
+      }
 
       onSaved();
       onClose();
-    } catch (err: any) {
-      setError(err.message ?? 'Nie udało się zapisać ustawień');
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'message' in err) {
+        setError(String((err as { message?: unknown }).message) || 'Nie udało się zapisać ustawień');
+      } else {
+        setError('Nie udało się zapisać ustawień');
+      }
     } finally {
       setIsSaving(false);
     }
   };
 
   const selectedCategoryConfig = categories.find((c) => c.id === selectedCategory)!;
-  const labelsForCategory = sizeOptionsByCategory.get(selectedCategory) ?? [];
 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-foreground">Konfiguruj skróty rozmiarów</h3>
+        <h3 className="text-xl font-semibold text-foreground">Wybierz ulubione produkty</h3>
         <p className="text-sm text-muted-foreground">
-          Wybierz produkt i metkę, która ma pojawiać się na kafelku na dashboardzie.
+          Wybierz produkty, których rozmiary będą zawsze widoczne na kafelkach w dashboardzie.
         </p>
       </div>
 
@@ -348,46 +374,32 @@ export function QuickSizePreferencesModal({
                     : 'border-border bg-background hover:border-[#48A9A6]/40'
                 }`}
               >
-                {type.label}
+                <span className="flex items-center justify-between gap-3">
+                  <span className="font-semibold text-foreground">{type.label}</span>
+                  {latestSizeLabelByProductType.has(type.id) ? (
+                    <span className="text-xs text-muted-foreground">
+                      Ostatnio zapisane: {latestSizeLabelByProductType.get(type.id)?.label}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Brak zapisanych rozmiarów</span>
+                  )}
+                </span>
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="flex-1 space-y-3">
-          <h4 className="text-sm font-semibold text-foreground">Metka rozmiaru</h4>
-          <div className="space-y-2">
-            {labelsForCategory.length === 0 ? (
-              <p className="text-xs text-muted-foreground">
-                Dodaj najpierw metkę w tej kategorii, aby przypisać skrót.
-              </p>
-            ) : (
-              labelsForCategory.map((label) => (
-                <button
-                  key={label.id}
-                  type="button"
-                  onClick={() => setSelectedSize(label.id)}
-                  className={`flex w-full items-start justify-between rounded-xl border px-4 py-2 text-left text-sm transition ${
-                    selectedSize === label.id
-                      ? 'border-[#48A9A6] bg-[#48A9A6]/10 text-[#256c69]'
-                      : 'border-border bg-background hover:border-[#48A9A6]/40'
-                  }`}
-                >
-                  <span>
-                    <span className="block font-semibold text-foreground">{label.label}</span>
-                    {label.brand_name ? (
-                      <span className="block text-xs text-muted-foreground">{label.brand_name}</span>
-                    ) : null}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {label.product_type ? PRODUCT_TYPE_MAP[label.product_type]?.label : 'Ogólny'}
-                  </span>
-                </button>
-              ))
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={() => setSelectedProductType(null)}
+            className="mt-3 inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-[#48A9A6]/50 hover:text-[#256c69]"
+          >
+            Usuń wybór (pokaż ostatni rozmiar)
+          </button>
         </div>
       </div>
+
+      <p className="text-xs text-muted-foreground">
+        Brak wybranego typu oznacza, że kafelek pokaże ostatnio zapisany rozmiar w danej kategorii.
+      </p>
 
       {error ? (
         <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
