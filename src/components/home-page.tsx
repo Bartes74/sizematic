@@ -569,14 +569,6 @@ export function HomePage({
     return map;
   }, [sizeLabels]);
 
-  const sizeLabelsById = useMemo(() => {
-    const map = new Map<string, SizeLabel>();
-    sizeLabels.forEach((label) => {
-      map.set(label.id, label);
-    });
-    return map;
-  }, [sizeLabels]);
-
   const labelsByProductType = useMemo(() => {
     const map = new Map<string, SizeLabel[]>();
     sizeLabels.forEach((label) => {
