@@ -611,13 +611,6 @@ export function HomePage({
       updateEventScrollState();
     });
   }, [updateEventScrollState]);
-  const createEmptyParticipant = useCallback((): EventParticipant => ({
-    id: Math.random().toString(36).slice(2),
-    firstName: '',
-    lastName: '',
-    phone: '',
-    email: '',
-  }), []);
   const resetEventForm = useCallback(() => {
     setEventTitle('');
     setEventDate('');
