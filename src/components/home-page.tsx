@@ -510,6 +510,7 @@ export function HomePage({
   trustedCircleInitial,
   bodyMeasurements: bodyMeasurementsProp = null,
 }: HomePageProps) {
+  void _measurements;
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
   const [preferencesOpen, setPreferencesOpen] = useState(false);
