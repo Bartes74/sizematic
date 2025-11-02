@@ -116,8 +116,11 @@ const DEFAULT_GIFTING_EVENTS: GiftCalendarSeedEvent[] = [
   { id: 'wigilia', title: 'Wigilia Bożego Narodzenia', month: 12, day: 24 },
   { id: 'boze-narodzenie', title: 'Boże Narodzenie', month: 12, day: 25 },
   { id: 'walentynki', title: 'Walentynki', month: 2, day: 14 },
+  { id: 'dzien-kobiet', title: 'Dzień Kobiet', month: 3, day: 8 },
   { id: 'dzien-matki', title: 'Dzień Matki', month: 5, day: 26 },
   { id: 'dzien-dziecka', title: 'Dzień Dziecka', month: 6, day: 1 },
+  { id: 'dzien-ojca', title: 'Dzień Ojca', month: 6, day: 23 },
+  { id: 'dzien-chlopaka', title: 'Dzień Chłopaka', month: 9, day: 30 },
   { id: 'dzien-babci', title: 'Dzień Babci', month: 1, day: 21 },
   { id: 'dzien-dziadka', title: 'Dzień Dziadka', month: 1, day: 22 },
 ];
