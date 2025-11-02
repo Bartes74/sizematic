@@ -359,8 +359,7 @@ export function GarmentForm({
 
     if (field.type === 'radio') {
       return (
-        <div className="space-y-2">
-          {labelContent}
+        <fieldset className="space-y-2 border-0 p-0">
           <div className="flex flex-wrap gap-2">
             {(field.options ?? []).map((option) => {
               const id = `${field.id}-${option}`;
@@ -388,7 +387,7 @@ export function GarmentForm({
               );
             })}
           </div>
-        </div>
+        </fieldset>
       );
     }
 

@@ -880,7 +880,6 @@ const JEWELRY_TYPES: ProductTypeDefinition[] = [
       {
         id: 'hand_orientation',
         storageKey: 'hand_orientation',
-        label: 'Ręka',
         type: 'radio',
         options: HAND_ORIENTATION_OPTIONS,
         required: true,
@@ -888,16 +887,14 @@ const JEWELRY_TYPES: ProductTypeDefinition[] = [
       {
         id: 'body_part',
         storageKey: 'body_part',
-        label: 'Część ciała',
-        type: 'select',
+        type: 'radio',
         options: BODY_PART_OPTIONS,
         required: true,
       },
       {
         id: 'finger',
         storageKey: 'finger',
-        label: 'Palec',
-        type: 'select',
+        type: 'radio',
         options: FINGER_OPTIONS,
         required: true,
       },
