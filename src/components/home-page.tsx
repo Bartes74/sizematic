@@ -21,7 +21,6 @@ import {
 import type { QuickCategoryId } from '@/data/product-tree';
 import { TrustedCircle } from '@/components/trusted-circle';
 import { QuickSizePreferencesModal } from '@/components/quick-size-modals';
-import { GiftsAndOccasions } from '@/components/gifts-and-occasions';
 import { RecentActivity } from '@/components/recent-activity';
 import type {
   Measurement,
@@ -90,6 +89,14 @@ type EventParticipant = {
   lastName: string;
   phone: string;
   email: string;
+};
+
+type DashboardEvent = {
+  id: string;
+  date: string;
+  title: string;
+  isRecurring: boolean;
+  participants: EventParticipant[];
 };
 
 type TrustedMemberContact = {
@@ -594,6 +601,30 @@ export function HomePage({
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
   const [eventDate, setEventDate] = useState('');
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [events, setEvents] = useState<DashboardEvent[]>(() => [
+    {
+      id: 'event-1',
+      date: '2025-10-28',
+      title: 'Ślub przyjaciela',
+      isRecurring: false,
+      participants: [],
+    },
+    {
+      id: 'event-2',
+      date: '2025-11-12',
+      title: 'Weekendowy wypad',
+      isRecurring: false,
+      participants: [],
+    },
+    {
+      id: 'event-3',
+      date: '2025-12-01',
+      title: 'Firmowa kolacja świąteczna',
+      isRecurring: false,
+      participants: [],
+    },
+  ]);
   const createEmptyParticipant = useCallback((): EventParticipant => ({
     id: Math.random().toString(36).slice(2),
     firstName: '',
@@ -607,6 +638,7 @@ export function HomePage({
   const resetEventForm = useCallback(() => {
     setEventTitle('');
     setEventDate('');
+    setIsRecurring(false);
     setParticipants([createEmptyParticipant()]);
   }, [createEmptyParticipant]);
 
@@ -864,40 +896,60 @@ export function HomePage({
   const hasBodyMeasurementsRecord = Boolean(bodyMeasurements);
 
   const calendarItems: CalendarEvent[] = useMemo(() => {
-    const baseEvents = [
-      { id: 'event-1', date: '2025-10-28', title: 'Ślub przyjaciela' },
-      { id: 'event-2', date: '2025-11-12', title: 'Weekendowy wypad' },
-      { id: 'event-3', date: '2025-12-01', title: 'Firmowa kolacja świąteczna' },
-    ];
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return baseEvents.map((event) => {
-      const eventDate = new Date(event.date + 'T00:00:00');
-      const diffTime = eventDate.getTime() - today.getTime();
-      const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    return events
+      .map((event) => {
+        let eventDate = new Date(event.date + 'T00:00:00');
+        if (Number.isNaN(eventDate.getTime())) {
+          return null;
+        }
 
-      const formattedDate = eventDate.toLocaleDateString('pl-PL', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
+        if (event.isRecurring) {
+          const adjusted = new Date(eventDate);
+          adjusted.setFullYear(today.getFullYear());
+          if (adjusted < today) {
+            adjusted.setFullYear(today.getFullYear() + 1);
+          }
+          eventDate = adjusted;
+        }
 
-      return {
-        id: event.id,
-        date: formattedDate,
-        title: event.title,
-        context: `Za ${diffDays} dni`,
-      } satisfies CalendarEvent;
-    });
-  }, []);
+        if (eventDate < today) {
+          return null;
+        }
+
+        const diffTime = eventDate.getTime() - today.getTime();
+        const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+        const formattedDate = eventDate.toLocaleDateString('pl-PL', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+
+        const contextLabel = diffDays === 0 ? 'Dziś' : `Za ${diffDays} dni`;
+
+        return {
+          sortKey: eventDate.getTime(),
+          item: {
+            id: event.id,
+            date: formattedDate,
+            title: event.title,
+            context: contextLabel,
+          } satisfies CalendarEvent,
+        };
+      })
+      .filter((entry): entry is { sortKey: number; item: CalendarEvent } => Boolean(entry))
+      .sort((a, b) => a.sortKey - b.sortKey)
+      .map((entry) => entry.item);
+  }, [events]);
 
   const trustedMembers = useMemo(() => {
     return (trustedCircleInitial?.members ?? []).map((member) => {
       const profile = member.profile;
       const rawDisplayName = profile.display_name?.trim() ?? '';
-      const [firstNameRaw, ...rest] = rawDisplayName.split(' ');
+      const [firstNameRaw, ...rest] = rawDisplayName.split(/\s+/);
       const computedFirstName = firstNameRaw?.trim() || rawDisplayName || 'Kontakt';
       const computedLastName = rest.join(' ').trim();
 
@@ -957,17 +1009,36 @@ export function HomePage({
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      // TODO: Persist event to backend when data model is ready.
-      console.log('Planned event', {
-        title: eventTitle,
-        date: eventDate,
-        participants,
-      });
+      const sanitizedParticipants = participants
+        .map((participant) => ({
+          ...participant,
+          firstName: participant.firstName.trim(),
+          lastName: participant.lastName.trim(),
+          phone: participant.phone.trim(),
+          email: participant.email.trim(),
+        }))
+        .filter((participant) =>
+          participant.firstName ||
+          participant.lastName ||
+          participant.email ||
+          participant.phone
+        );
+
+      setEvents((prev) => [
+        ...prev,
+        {
+          id: `event-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`,
+          date: eventDate,
+          title: eventTitle.trim(),
+          isRecurring,
+          participants: sanitizedParticipants,
+        },
+      ]);
 
       setIsAddEventOpen(false);
       resetEventForm();
     },
-    [eventDate, eventTitle, participants, resetEventForm]
+    [eventDate, eventTitle, isRecurring, participants, resetEventForm]
   );
 
   const wishlistItems: WishlistItem[] = useMemo(() => {
@@ -1175,7 +1246,7 @@ export function HomePage({
           </div>
         </SectionCard>
 
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <section className="grid gap-6">
           <div className="flex flex-col gap-6">
             <SectionCard>
               <h2 className="pb-4 text-lg font-semibold text-foreground sm:text-xl">Ostatnia aktywność</h2>
@@ -1193,8 +1264,6 @@ export function HomePage({
 
             <RecentActivity />
           </div>
-
-          <GiftsAndOccasions />
         </section>
 
       {isAddEventOpen ? (
@@ -1234,6 +1303,16 @@ export function HomePage({
                 />
               </div>
             </div>
+
+            <label className="flex items-center gap-3 rounded-2xl border border-border/60 bg-[var(--surface-interactive)] px-4 py-3 text-sm font-medium text-foreground">
+              <input
+                type="checkbox"
+                checked={isRecurring}
+                onChange={(event) => setIsRecurring(event.target.checked)}
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary/40"
+              />
+              Wydarzenie cykliczne (np. urodziny, imieniny)
+            </label>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
