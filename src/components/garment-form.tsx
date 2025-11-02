@@ -29,6 +29,7 @@ type GarmentFormProps = {
   brandMappings: BrandMapping[];
   bodyMeasurements: BodyMeasurements | null;
   initialProductTypeId?: string | null;
+  extraQuickCategories?: QuickCategoryId[];
 };
 
 const CATEGORY_TO_QUICK: Record<Category, QuickCategoryId[]> = {
@@ -93,6 +94,7 @@ export function GarmentForm({
   brandMappings,
   bodyMeasurements,
   initialProductTypeId,
+  extraQuickCategories = [],
 }: GarmentFormProps) {
   const router = useRouter();
   const [selectedProductTypeId, setSelectedProductTypeId] = useState<string>(
@@ -110,19 +112,38 @@ export function GarmentForm({
     [category]
   );
 
+  const allowedQuickCategories = useMemo(() => {
+    const categories = new Set<QuickCategoryId>(baseQuickCategories);
+    extraQuickCategories.forEach((quickCategory) => {
+      categories.add(quickCategory);
+    });
+
+    if (initialProductTypeId) {
+      const initialCategory = PRODUCT_TYPE_CATEGORY_MAP[initialProductTypeId];
+      if (initialCategory) {
+        categories.add(initialCategory);
+      }
+    }
+
+    if (selectedProductTypeId) {
+      const selectedCategory = PRODUCT_TYPE_CATEGORY_MAP[selectedProductTypeId];
+      if (selectedCategory) {
+        categories.add(selectedCategory);
+      }
+    }
+
+    return Array.from(categories);
+  }, [baseQuickCategories, extraQuickCategories, initialProductTypeId, selectedProductTypeId]);
+
   const productTypeOptions = useMemo(() => {
     return PRODUCT_TYPES.filter((definition) => {
       if (!definition.supabaseCategories.includes(category)) {
         return false;
       }
 
-      const inBaseCategory = baseQuickCategories.includes(definition.category as QuickCategoryId);
-      const isInitial = Boolean(initialProductTypeId && definition.id === initialProductTypeId);
-      const isSelected = Boolean(selectedProductTypeId && definition.id === selectedProductTypeId);
-
-      return inBaseCategory || isInitial || isSelected;
+      return allowedQuickCategories.includes(definition.category as QuickCategoryId);
     });
-  }, [category, baseQuickCategories, initialProductTypeId, selectedProductTypeId]);
+  }, [category, allowedQuickCategories]);
 
   useEffect(() => {
     if (productTypeOptions.length === 0) {

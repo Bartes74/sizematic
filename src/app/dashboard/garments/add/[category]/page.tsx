@@ -3,6 +3,8 @@ import { GarmentForm } from "@/components/garment-form";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { BodyMeasurements, Category } from "@/lib/types";
+import { QUICK_CATEGORY_CONFIGS } from "@/data/product-tree";
+import type { QuickCategoryId } from "@/data/product-tree";
 
 export const dynamic = "force-dynamic";
 
@@ -21,11 +23,23 @@ export default async function AddGarmentByCategoryPage({
   searchParams,
 }: {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ productType?: string }>;
+  searchParams: Promise<{ productType?: string; quickCategory?: string }>;
 }) {
   const { category } = await params;
   const resolvedSearchParams = await searchParams;
   const productType = resolvedSearchParams?.productType ?? null;
+  const quickCategoryParam = resolvedSearchParams?.quickCategory ?? null;
+  const validQuickCategories = new Set<QuickCategoryId>(
+    QUICK_CATEGORY_CONFIGS.map((item) => item.id)
+  );
+  const quickCategoryList: QuickCategoryId[] = quickCategoryParam
+    ? quickCategoryParam
+        .split(',')
+        .map((item) => item.trim())
+        .filter((item): item is QuickCategoryId =>
+          Boolean(item) && validQuickCategories.has(item as QuickCategoryId)
+        )
+    : [];
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -98,6 +112,7 @@ export default async function AddGarmentByCategoryPage({
           brandMappings={brandMappings || []}
           bodyMeasurements={(bodyMeasurements as BodyMeasurements) || null}
           initialProductTypeId={productType ?? null}
+          extraQuickCategories={quickCategoryList as any}
         />
       </main>
     </div>

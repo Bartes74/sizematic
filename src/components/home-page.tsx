@@ -713,14 +713,6 @@ export function HomePage({
           }
         }
 
-        if (!garmentCandidate) {
-          const fallbackCategory = config.supabaseCategories[0];
-          const list = fallbackCategory ? garmentsByCategory.get(fallbackCategory) : undefined;
-          if (list?.length) {
-            garmentCandidate = list[0];
-          }
-        }
-
         if (garmentCandidate) {
           const garmentProductTypeId = resolveGarmentProductTypeId(garmentCandidate);
           const garmentTypeDefinition = garmentProductTypeId
