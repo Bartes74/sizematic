@@ -2,8 +2,6 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { listMeasurementsForProfile } from '@/server/measurements';
 import type {
-  Brand,
-  BrandTypeMapping,
   BrandingSettings,
   DashboardSizePreference,
   Measurement,
@@ -28,8 +26,6 @@ export default async function SizesDirectoryPage() {
   let measurements: Measurement[] = [];
   let sizeLabels: SizeLabel[] = [];
   let sizePreferences: DashboardSizePreference[] = [];
-  let brands: Brand[] = [];
-  let brandMappings: BrandTypeMapping[] = [];
   let userName = user.email?.split('@')[0] ?? null;
   let userRole: UserRole = 'free';
   let avatarUrl: string | null = null;
@@ -67,19 +63,6 @@ export default async function SizesDirectoryPage() {
 
   sizePreferences = (preferencesData ?? []) as DashboardSizePreference[];
 
-  const { data: brandsData } = await supabase
-    .from('brands')
-    .select('id, name, logo_url, website_url, created_at, updated_at, slug')
-    .order('name', { ascending: true });
-
-  brands = (brandsData ?? []) as Brand[];
-
-  const { data: brandMappingsData } = await supabase
-    .from('brand_garment_types')
-    .select('brand_id, garment_type');
-
-  brandMappings = (brandMappingsData ?? []) as BrandTypeMapping[];
-
   userName = profile.display_name ?? userName;
   userRole = profile.role as UserRole;
   avatarUrl = profile.avatar_url ?? null;
@@ -111,8 +94,6 @@ export default async function SizesDirectoryPage() {
         measurements={measurements}
         sizeLabels={sizeLabels}
         sizePreferences={sizePreferences}
-        brands={brands}
-        brandMappings={brandMappings}
         profileId={profile.id}
       />
     </div>

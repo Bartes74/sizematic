@@ -27,6 +27,7 @@ type GarmentFormProps = {
   brands: Brand[];
   brandMappings: BrandMapping[];
   bodyMeasurements: BodyMeasurements | null;
+  initialProductTypeId?: string | null;
 };
 
 const CATEGORY_TO_QUICK: Record<Category, QuickCategoryId[]> = {
@@ -90,9 +91,12 @@ export function GarmentForm({
   brands,
   brandMappings,
   bodyMeasurements,
+  initialProductTypeId,
 }: GarmentFormProps) {
   const router = useRouter();
-  const [selectedProductTypeId, setSelectedProductTypeId] = useState<string>('');
+  const [selectedProductTypeId, setSelectedProductTypeId] = useState<string>(
+    () => initialProductTypeId ?? ''
+  );
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [selectedBrandId, setSelectedBrandId] = useState('');
   const [customBrandName, setCustomBrandName] = useState('');
@@ -119,10 +123,22 @@ export function GarmentForm({
       return;
     }
 
-    if (!selectedProductTypeId || !productTypeOptions.some((type) => type.id === selectedProductTypeId)) {
+    if (
+      initialProductTypeId &&
+      selectedProductTypeId !== initialProductTypeId &&
+      productTypeOptions.some((type) => type.id === initialProductTypeId)
+    ) {
+      setSelectedProductTypeId(initialProductTypeId);
+      return;
+    }
+
+    if (
+      !selectedProductTypeId ||
+      !productTypeOptions.some((type) => type.id === selectedProductTypeId)
+    ) {
       setSelectedProductTypeId(productTypeOptions[0].id);
     }
-  }, [productTypeOptions, selectedProductTypeId]);
+  }, [productTypeOptions, initialProductTypeId, selectedProductTypeId]);
 
   const selectedProductType = useMemo<ProductTypeDefinition | null>(() => {
     return productTypeOptions.find((type) => type.id === selectedProductTypeId) ?? null;

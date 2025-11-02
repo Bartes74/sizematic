@@ -73,6 +73,14 @@ export const QUICK_CATEGORY_CONFIGS: QuickCategoryConfig[] = Array.from(category
     productTypes: data.productTypes,
   }));
 
+export const QUICK_CATEGORY_PRIMARY_SUPABASE = QUICK_CATEGORY_CONFIGS.reduce<
+  Record<QuickCategoryId, Category>
+>((acc, category) => {
+  const [primary] = category.supabaseCategories;
+  acc[category.id] = primary ?? 'tops';
+  return acc;
+}, {} as Record<QuickCategoryId, Category>);
+
 export const PRODUCT_TYPE_MAP = PRODUCT_TYPES.reduce<Record<string, ProductTypeDefinition>>(
   (acc, definition) => {
     acc[definition.id] = definition;

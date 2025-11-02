@@ -2,8 +2,6 @@ import { HomePage } from "@/components/home-page";
 import { listMeasurementsForProfile } from "@/server/measurements";
 import { createClient } from "@/lib/supabase/server";
 import type {
-  Brand,
-  BrandTypeMapping,
   BrandingSettings,
   DashboardSizePreference,
   Garment,
@@ -40,8 +38,6 @@ export default async function Home() {
   let sizeLabels: SizeLabel[] = [];
   let measurements: Measurement[] = [];
   let sizePreferences: DashboardSizePreference[] = [];
-  let brands: Brand[] = [];
-  let brandMappings: BrandTypeMapping[] = [];
   let branding: BrandingSettings = {
     site_name: "SizeHub",
     site_claim: "SizeSync",
@@ -97,19 +93,6 @@ export default async function Home() {
 
   sizePreferences = (preferencesData ?? []) as DashboardSizePreference[];
 
-  const { data: brandsData } = await supabase
-    .from("brands")
-    .select("id, name, logo_url, website_url, created_at, updated_at, slug")
-    .order("name", { ascending: true });
-
-  brands = (brandsData ?? []) as Brand[];
-
-  const { data: brandMappingsData } = await supabase
-    .from("brand_garment_types")
-    .select("brand_id, garment_type");
-
-  brandMappings = (brandMappingsData ?? []) as BrandTypeMapping[];
-
   const { data: bodyMeasurementsData } = await supabase
     .from('body_measurements')
     .select('*')
@@ -148,8 +131,6 @@ export default async function Home() {
       sizeLabels={sizeLabels}
       branding={branding}
       sizePreferences={sizePreferences}
-      brands={brands}
-      brandMappings={brandMappings}
       profileId={profile.id}
       trustedCircleInitial={trustedCircleInitial ?? undefined}
       bodyMeasurements={bodyMeasurements}

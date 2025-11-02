@@ -8,12 +8,9 @@ import type {
   Measurement,
   SizeLabel,
   DashboardSizePreference,
-  Brand,
-  BrandTypeMapping,
   Category,
 } from '@/lib/types';
-import type { QuickCategoryId } from '@/data/product-tree';
-import { QuickSizeModal, QuickSizePreferencesModal } from '@/components/quick-size-modals';
+import { QuickSizePreferencesModal } from '@/components/quick-size-modals';
 
 function parseSizeLabelParts(label: string): { value: string; unit: string | null } {
   const trimmed = label.trim();
@@ -73,23 +70,10 @@ function parseSizeLabelParts(label: string): { value: string; unit: string | nul
   return { value: normalized, unit: null };
 }
 
-function buildBrandMap(brandMappings: BrandTypeMapping[]): Map<string, Set<string>> {
-  const map = new Map<string, Set<string>>();
-  brandMappings.forEach(({ brand_id, garment_type }) => {
-    if (!map.has(garment_type)) {
-      map.set(garment_type, new Set());
-    }
-    map.get(garment_type)!.add(brand_id);
-  });
-  return map;
-}
-
 type SizesDirectoryProps = {
   measurements: Measurement[];
   sizeLabels: SizeLabel[];
   sizePreferences: DashboardSizePreference[];
-  brands: Brand[];
-  brandMappings: BrandTypeMapping[];
   profileId: string;
 };
 
@@ -97,12 +81,9 @@ export function SizesDirectory({
   measurements,
   sizeLabels,
   sizePreferences,
-  brands,
-  brandMappings,
   profileId,
 }: SizesDirectoryProps) {
   const router = useRouter();
-  const [activeTile, setActiveTile] = useState<{ categoryId: QuickCategoryId; productTypeId: string | null } | null>(null);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
 
   const measurementByCategory = useMemo(() => {
@@ -188,11 +169,6 @@ export function SizesDirectory({
     });
   }, [measurementByCategory, sizeLabelsByCategory]);
 
-  const handleSaved = () => {
-    setActiveTile(null);
-    router.refresh();
-  };
-
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pb-16 pt-12 lg:px-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
@@ -230,7 +206,11 @@ export function SizesDirectory({
                 <button
                   key={tile.productTypeId}
                   type="button"
-                  onClick={() => setActiveTile({ categoryId: category.id, productTypeId: tile.productTypeId })}
+                  onClick={() => {
+                    const primaryCategory = category.supabaseCategories[0] ?? 'tops';
+                    const query = tile.productTypeId ? `?productType=${tile.productTypeId}` : '';
+                    router.push(`/dashboard/garments/add/${primaryCategory}${query}`);
+                  }}
                   className={`flex min-h-[160px] flex-col justify-between rounded-[26px] border px-5 py-4 text-left transition ${
                     tile.hasData
                       ? 'border-[#48A9A6]/40 bg-[#48A9A6]/8 text-[#184b49]'
@@ -250,21 +230,6 @@ export function SizesDirectory({
           </section>
         ))}
       </div>
-
-      {activeTile ? (
-        <ModalShell onClose={() => setActiveTile(null)}>
-          <QuickSizeModal
-            categoryId={activeTile.categoryId}
-            initialProductTypeId={activeTile.productTypeId}
-            profileId={profileId}
-            brands={brands}
-            brandIdsByGarmentType={brandIdsByGarmentType}
-            onClose={() => setActiveTile(null)}
-            onSaved={handleSaved}
-          />
-        </ModalShell>
-      ) : null}
-
       {preferencesOpen ? (
         <ModalShell onClose={() => setPreferencesOpen(false)} maxWidth="max-w-3xl">
           <QuickSizePreferencesModal

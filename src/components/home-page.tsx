@@ -5,10 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { GlobalHeader } from '@/components/global-header';
-import { QUICK_CATEGORY_CONFIGS, PRODUCT_TYPE_MAP } from '@/data/product-tree';
+import {
+  QUICK_CATEGORY_CONFIGS,
+  PRODUCT_TYPE_MAP,
+  QUICK_CATEGORY_PRIMARY_SUPABASE,
+} from '@/data/product-tree';
 import type { QuickCategoryId } from '@/data/product-tree';
 import { TrustedCircle } from '@/components/trusted-circle';
-import { QuickSizeModal, QuickSizePreferencesModal } from '@/components/quick-size-modals';
+import { QuickSizePreferencesModal } from '@/components/quick-size-modals';
 import type {
   Measurement,
   Category,
@@ -17,9 +21,6 @@ import type {
   UserRole,
   BrandingSettings,
   DashboardSizePreference,
-  Brand,
-  BrandTypeMapping,
-  GarmentType,
   BodyMeasurements,
 } from '@/lib/types';
 import {
@@ -45,8 +46,6 @@ type HomePageProps = {
   sizeLabels?: SizeLabel[];
   branding?: BrandingSettings;
   sizePreferences?: DashboardSizePreference[];
-  brands?: Brand[];
-  brandMappings?: BrandTypeMapping[];
   profileId: string;
   trustedCircleInitial?: {
     plan: string | null;
@@ -446,15 +445,12 @@ export function HomePage({
   sizeLabels = [],
   branding,
   sizePreferences = [],
-  brands = [],
-  brandMappings = [],
   profileId,
   trustedCircleInitial,
   bodyMeasurements: bodyMeasurementsProp = null,
 }: HomePageProps) {
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
-  const [activeQuickTile, setActiveQuickTile] = useState<{ categoryId: QuickCategoryId; productTypeId?: string | null } | null>(null);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [activeBodyMeasurementDefinition, setActiveBodyMeasurementDefinition] = useState<BodyMeasurementDefinition | null>(null);
 
@@ -500,17 +496,6 @@ export function HomePage({
     return map;
   }, [measurements]);
 
-  const brandIdsByGarmentType = useMemo(() => {
-    const map = new Map<GarmentType, Set<string>>();
-    brandMappings.forEach(({ brand_id, garment_type }) => {
-      if (!map.has(garment_type)) {
-        map.set(garment_type, new Set());
-      }
-      map.get(garment_type)!.add(brand_id);
-    });
-    return map;
-  }, [brandMappings]);
-
   const preferenceMap = useMemo(() => {
     const map = new Map<QuickCategoryId, { sizeLabelId: string | null; productType: string | null }>();
     sizePreferences.forEach((pref) => {
@@ -554,7 +539,7 @@ export function HomePage({
       let sizeValue = '--';
       let sizeUnit: string | null = null;
       let productTypeLabel = 'Dodaj rozmiar';
-      let productTypeId: string | null = null;
+      let productTypeId: string | null = preference?.productType ?? null;
       let sizeLabelId: string | null = null;
 
       if (selectedLabel) {
@@ -586,9 +571,11 @@ export function HomePage({
       }
 
       const hasData = sizeValue !== '--';
+      const primaryCategory = QUICK_CATEGORY_PRIMARY_SUPABASE[config.id] ?? 'tops';
 
       return {
         categoryId: config.id,
+        primaryCategory,
         label: config.label,
         sizeValue,
         sizeUnit,
@@ -736,7 +723,11 @@ export function HomePage({
               <button
                 key={tile.categoryId}
                 type="button"
-                onClick={() => setActiveQuickTile({ categoryId: tile.categoryId, productTypeId: tile.productTypeId })}
+                onClick={() => {
+                  const targetCategory = tile.primaryCategory;
+                  const query = tile.productTypeId ? `?productType=${tile.productTypeId}` : '';
+                  router.push(`/dashboard/garments/add/${targetCategory}${query}`);
+                }}
                 className="group flex min-h-[170px] flex-col items-center justify-between rounded-[26px] border border-border/60 bg-[var(--surface-interactive)] p-5 text-center shadow-[0_20px_45px_-32px_rgba(6,134,239,0.45)] transition hover:border-[#48A9A6] hover:shadow-[#48A9A6]/25"
               >
                 <p className="text-sm font-semibold text-foreground">{tile.label}</p>
@@ -882,23 +873,6 @@ export function HomePage({
               router.refresh();
             }}
             onCancel={() => setActiveBodyMeasurementDefinition(null)}
-          />
-        </ModalShell>
-      )}
-
-      {activeQuickTile && (
-        <ModalShell onClose={() => setActiveQuickTile(null)}>
-          <QuickSizeModal
-            categoryId={activeQuickTile.categoryId}
-            initialProductTypeId={activeQuickTile.productTypeId ?? null}
-            profileId={profileId}
-            brands={brands}
-            brandIdsByGarmentType={brandIdsByGarmentType}
-            onClose={() => setActiveQuickTile(null)}
-            onSaved={() => {
-              setActiveQuickTile(null);
-              router.refresh();
-            }}
           />
         </ModalShell>
       )}

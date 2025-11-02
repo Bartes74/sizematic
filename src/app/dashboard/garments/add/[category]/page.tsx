@@ -18,10 +18,14 @@ const CATEGORY_NAMES: Record<Category, string> = {
 
 export default async function AddGarmentByCategoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ category: string }>;
+  searchParams: Promise<{ productType?: string }>;
 }) {
   const { category } = await params;
+  const resolvedSearchParams = await searchParams;
+  const productType = resolvedSearchParams?.productType ?? null;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -93,6 +97,7 @@ export default async function AddGarmentByCategoryPage({
           brands={brands || []}
           brandMappings={brandMappings || []}
           bodyMeasurements={(bodyMeasurements as BodyMeasurements) || null}
+          initialProductTypeId={productType ?? null}
         />
       </main>
     </div>
