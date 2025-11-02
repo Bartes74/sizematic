@@ -9,7 +9,6 @@ import {
   type FormEvent,
   type ReactNode,
 } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { GlobalHeader } from '@/components/global-header';
@@ -19,18 +18,17 @@ import {
   QUICK_CATEGORY_PRIMARY_SUPABASE,
 } from '@/data/product-tree';
 import type { QuickCategoryId } from '@/data/product-tree';
-import { TrustedCircle } from '@/components/trusted-circle';
 import { QuickSizePreferencesModal } from '@/components/quick-size-modals';
 import { RecentActivity } from '@/components/recent-activity';
 import type {
-  Measurement,
-  Category,
   Garment,
   SizeLabel,
   UserRole,
   BrandingSettings,
   DashboardSizePreference,
   BodyMeasurements,
+  DashboardEvent,
+  DashboardEventParticipant,
 } from '@/lib/types';
 import {
   BODY_MEASUREMENT_DEFINITIONS,
@@ -57,6 +55,7 @@ type HomePageProps = {
   branding?: BrandingSettings;
   sizePreferences?: DashboardSizePreference[];
   profileId: string;
+  events?: DashboardEvent[];
   trustedCircleInitial?: {
     plan: string | null;
     limit: number | null;
@@ -89,14 +88,6 @@ type EventParticipant = {
   lastName: string;
   phone: string;
   email: string;
-};
-
-type DashboardEvent = {
-  id: string;
-  date: string;
-  title: string;
-  isRecurring: boolean;
-  participants: EventParticipant[];
 };
 
 type TrustedMemberContact = {
@@ -218,13 +209,6 @@ function formatGarmentQuickValue(garment: Garment): { value: string; unit: strin
   return { value: fallback || '--', unit: null };
 }
 
-type WishlistItem = {
-  id: string;
-  title: string;
-  subtitle: string;
-  image?: string | null;
-};
-
 type ActivityItem = {
   id: string;
   icon: ReactNode;
@@ -336,8 +320,12 @@ function BodyMeasurementQuickModal({
       }
 
       onSuccess();
-    } catch (submissionError: any) {
-      setError(submissionError.message || 'Nie udało się zapisać pomiaru.');
+    } catch (submissionError: unknown) {
+      if (submissionError && typeof submissionError === 'object' && 'message' in submissionError) {
+        setError(String((submissionError as { message?: unknown }).message) || 'Nie udało się zapisać pomiaru.');
+      } else {
+        setError('Nie udało się zapisać pomiaru.');
+      }
     } finally {
       setLoading(false);
     }
@@ -411,36 +399,6 @@ function BodyMeasurementQuickModal({
   );
 }
 
-function formatMeasurementKey(key: string) {
-  if (!key) {
-    return '';
-  }
-  return key
-    .split('_')
-    .map((part) => (part ? part.slice(0, 1).toUpperCase() + part.slice(1) : ''))
-    .filter(Boolean)
-    .join(' ');
-}
-
-const KNOWN_SIZE_UNITS = new Set([
-  'cm',
-  'mm',
-  'in',
-  'eu',
-  'us',
-  'uk',
-  'it',
-  'fr',
-  'de',
-  'jp',
-  'cn',
-  'br',
-  'au',
-  'ru',
-  'mx',
-  'pl',
-]);
-
 function parseSizeLabelParts(label: string): { value: string; unit: string | null } {
   const trimmed = label.trim();
   if (!trimmed) {
@@ -488,99 +446,6 @@ function parseSizeLabelParts(label: string): { value: string; unit: string | nul
   return { value: normalized, unit: null };
 }
 
-function HorizontalScroller<T>({
-  title,
-  subtitle,
-  items,
-  renderItem,
-}: {
-  title: string;
-  subtitle?: string;
-  items: T[];
-  renderItem: (item: T) => ReactNode;
-}) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  useEffect(() => {
-    const element = scrollRef.current;
-    if (!element) return;
-
-    const update = () => {
-      setCanScrollLeft(element.scrollLeft > 0);
-      setCanScrollRight(element.scrollLeft + element.clientWidth < element.scrollWidth - 4);
-    };
-
-    update();
-    element.addEventListener('scroll', update);
-    window.addEventListener('resize', update);
-
-    return () => {
-      element.removeEventListener('scroll', update);
-      window.removeEventListener('resize', update);
-    };
-  }, []);
-
-  const handleScroll = (direction: 'left' | 'right') => {
-    const element = scrollRef.current;
-    if (!element) return;
-    const amount = element.clientWidth * 0.8;
-    element.scrollBy({
-      left: direction === 'left' ? -amount : amount,
-      behavior: 'smooth',
-    });
-  };
-
-  return (
-    <SectionCard className="group relative overflow-hidden">
-      <div className="flex items-center justify-between gap-2 pb-4">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground sm:text-xl">{title}</h2>
-          {subtitle ? (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="relative">
-        <div
-          ref={scrollRef}
-          className="no-scrollbar flex gap-4 overflow-x-auto pb-1 pr-3"
-        >
-          {items.map((item) => renderItem(item))}
-        </div>
-
-        {canScrollLeft && (
-          <button
-            type="button"
-            aria-label="Scroll left"
-            onClick={() => handleScroll('left')}
-            className="arrow-button absolute left-3 top-1/2 hidden -translate-y-1/2 rounded-2xl p-2 transition group-hover:flex"
-          >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        )}
-
-        {canScrollRight && (
-          <button
-            type="button"
-            aria-label="Scroll right"
-            onClick={() => handleScroll('right')}
-            className="arrow-button absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-2xl p-2 transition group-hover:flex"
-          >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        )}
-      </div>
-    </SectionCard>
-  );
-}
-
 export function HomePage({
   measurements,
   userName,
@@ -591,6 +456,7 @@ export function HomePage({
   branding,
   sizePreferences = [],
   profileId,
+  events: eventsProp = [],
   trustedCircleInitial,
   bodyMeasurements: bodyMeasurementsProp = null,
 }: HomePageProps) {
@@ -602,29 +468,44 @@ export function HomePage({
   const [eventTitle, setEventTitle] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
-  const [events, setEvents] = useState<DashboardEvent[]>(() => [
-    {
-      id: 'event-1',
-      date: '2025-10-28',
-      title: 'Ślub przyjaciela',
-      isRecurring: false,
-      participants: [],
-    },
-    {
-      id: 'event-2',
-      date: '2025-11-12',
-      title: 'Weekendowy wypad',
-      isRecurring: false,
-      participants: [],
-    },
-    {
-      id: 'event-3',
-      date: '2025-12-01',
-      title: 'Firmowa kolacja świąteczna',
-      isRecurring: false,
-      participants: [],
-    },
-  ]);
+  const [eventError, setEventError] = useState<string | null>(null);
+  const [eventSubmitting, setEventSubmitting] = useState(false);
+  const [eventRecords, setEventRecords] = useState<DashboardEvent[]>(eventsProp);
+  useEffect(() => {
+    setEventRecords(eventsProp);
+  }, [eventsProp]);
+  const eventsScrollRef = useRef<HTMLDivElement>(null);
+  const [eventsCanScrollLeft, setEventsCanScrollLeft] = useState(false);
+  const [eventsCanScrollRight, setEventsCanScrollRight] = useState(false);
+  const updateEventScrollState = useCallback(() => {
+    const container = eventsScrollRef.current;
+    if (!container) {
+      setEventsCanScrollLeft(false);
+      setEventsCanScrollRight(false);
+      return;
+    }
+
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    const tolerance = 4;
+    setEventsCanScrollLeft(scrollLeft > tolerance);
+    setEventsCanScrollRight(scrollLeft + clientWidth < scrollWidth - tolerance);
+  }, []);
+
+  const handleEventScroll = useCallback((direction: 'left' | 'right') => {
+    const container = eventsScrollRef.current;
+    if (!container) {
+      return;
+    }
+ 
+     const offset = container.clientWidth * 0.8;
+     container.scrollBy({
+       left: direction === 'left' ? -offset : offset,
+       behavior: 'smooth',
+     });
+    requestAnimationFrame(() => {
+      updateEventScrollState();
+    });
+  }, [updateEventScrollState]);
   const createEmptyParticipant = useCallback((): EventParticipant => ({
     id: Math.random().toString(36).slice(2),
     firstName: '',
@@ -640,6 +521,8 @@ export function HomePage({
     setEventDate('');
     setIsRecurring(false);
     setParticipants([createEmptyParticipant()]);
+    setEventError(null);
+    setEventSubmitting(false);
   }, [createEmptyParticipant]);
 
   const bodyMeasurements = bodyMeasurementsProp ?? null;
@@ -899,14 +782,14 @@ export function HomePage({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return events
+    return eventRecords
       .map((event) => {
-        let eventDate = new Date(event.date + 'T00:00:00');
+        let eventDate = new Date(event.event_date + 'T00:00:00');
         if (Number.isNaN(eventDate.getTime())) {
           return null;
         }
 
-        if (event.isRecurring) {
+        if (event.is_recurring) {
           const adjusted = new Date(eventDate);
           adjusted.setFullYear(today.getFullYear());
           if (adjusted < today) {
@@ -943,7 +826,28 @@ export function HomePage({
       .filter((entry): entry is { sortKey: number; item: CalendarEvent } => Boolean(entry))
       .sort((a, b) => a.sortKey - b.sortKey)
       .map((entry) => entry.item);
-  }, [events]);
+  }, [eventRecords]);
+
+  useEffect(() => {
+    const container = eventsScrollRef.current;
+    if (!container) {
+      return;
+    }
+ 
+     updateEventScrollState();
+     container.addEventListener('scroll', updateEventScrollState);
+ 
+     return () => {
+       container.removeEventListener('scroll', updateEventScrollState);
+     };
+  }, [calendarItems.length, updateEventScrollState]);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      updateEventScrollState();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [calendarItems, updateEventScrollState]);
 
   const trustedMembers = useMemo(() => {
     return (trustedCircleInitial?.members ?? []).map((member) => {
@@ -1006,10 +910,15 @@ export function HomePage({
   }, [resetEventForm]);
 
   const handleEventSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
+    async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      const sanitizedParticipants = participants
+      if (!eventTitle.trim() || !eventDate) {
+        setEventError('Uzupełnij nazwę i datę wydarzenia.');
+        return;
+      }
+
+      const trimmedParticipants = participants
         .map((participant) => ({
           ...participant,
           firstName: participant.firstName.trim(),
@@ -1024,46 +933,54 @@ export function HomePage({
           participant.phone
         );
 
-      setEvents((prev) => [
-        ...prev,
-        {
-          id: `event-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`,
-          date: eventDate,
-          title: eventTitle.trim(),
-          isRecurring,
-          participants: sanitizedParticipants,
-        },
-      ]);
+      const participantPayload: DashboardEventParticipant[] = trimmedParticipants.map(
+        ({ firstName, lastName, phone, email }) => ({
+          firstName,
+          lastName,
+          phone,
+          email,
+        })
+      );
 
-      setIsAddEventOpen(false);
-      resetEventForm();
+      setEventSubmitting(true);
+      setEventError(null);
+
+      try {
+        const supabase = createSupabaseClient();
+        const { data, error } = await supabase
+          .from('dashboard_events')
+          .insert({
+            profile_id: profileId,
+            title: eventTitle.trim(),
+            event_date: eventDate,
+            is_recurring: isRecurring,
+            participants: participantPayload,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        const insertedEvent = {
+          ...data,
+          participants: (data.participants ?? []) as DashboardEventParticipant[],
+        } as DashboardEvent;
+
+        setEventRecords((prev) => [...prev, insertedEvent]);
+        setIsAddEventOpen(false);
+        resetEventForm();
+        void router.refresh();
+      } catch (insertionError) {
+        console.error('Nie udało się zapisać wydarzenia', insertionError);
+        setEventError('Nie udało się zapisać wydarzenia. Spróbuj ponownie.');
+      } finally {
+        setEventSubmitting(false);
+      }
     },
-    [eventDate, eventTitle, isRecurring, participants, resetEventForm]
+    [eventDate, eventTitle, isRecurring, participants, profileId, resetEventForm, router]
   );
-
-  const wishlistItems: WishlistItem[] = useMemo(() => {
-    if (!garments.length && !sizeLabels.length) {
-      return [
-        { id: 'demo-shoe', title: 'Nike Air Force 1', subtitle: 'Rozmiar: 42' },
-        { id: 'demo-jeans', title: "Levi's 501 Jeans", subtitle: 'Rozmiar: 32x32' },
-      ];
-    }
-
-    const garmentsMapped = garments.slice(0, 4).map((item) => ({
-      id: item.id,
-      title: item.name,
-      subtitle: item.brand_name ? `Rozmiar: ${item.brand_name}` : 'Dodaj notatkę',
-      image: item.photo_url,
-    }));
-
-    const labelsMapped = sizeLabels.slice(0, 2).map((item) => ({
-      id: item.id,
-      title: item.brand_name ? `${item.brand_name}` : 'Metka',
-      subtitle: `Rozmiar: ${item.label}`,
-    }));
-
-    return [...garmentsMapped, ...labelsMapped].slice(0, 5);
-  }, [garments, sizeLabels]);
 
   const activityItems: ActivityItem[] = useMemo(() => {
     const list: ActivityItem[] = [];
@@ -1230,20 +1147,66 @@ export function HomePage({
             Dodaj wydarzenie
           </button>
           </div>
-          <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
-            {calendarItems.map((event) => (
+          {calendarItems.length ? (
+            <div className="relative">
               <div
-                key={event.id}
-                className="flex w-[calc(25%-0.75rem)] min-w-[260px] flex-col rounded-[26px] border border-border/70 bg-[var(--surface-interactive)] px-6 py-5 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                className="group relative"
+                onMouseEnter={updateEventScrollState}
+                onFocus={updateEventScrollState}
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-                  {event.date}
-                </p>
-                <h3 className="mt-3 text-base font-semibold text-foreground">{event.title}</h3>
-                <p className="text-sm font-semibold text-primary">{event.context}</p>
+                <div
+                  ref={eventsScrollRef}
+                  className="no-scrollbar flex gap-4 overflow-x-auto pb-2"
+                >
+                  {calendarItems.map((event) => (
+                    <div
+                      key={event.id}
+                      className="flex w-[calc(25%-0.75rem)] min-w-[260px] flex-col rounded-[26px] border border-border/70 bg-[var(--surface-interactive)] px-6 py-5 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                    >
+                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                        {event.date}
+                      </p>
+                      <h3 className="mt-3 text-base font-semibold text-foreground">{event.title}</h3>
+                      <p className="text-sm font-semibold text-primary">{event.context}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {eventsCanScrollLeft ? (
+                  <button
+                    type="button"
+                    aria-label="Przewiń wydarzenia w lewo"
+                    onClick={() => handleEventScroll('left')}
+                    className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-2xl bg-background/90 p-2 text-foreground shadow-lg shadow-primary/10 transition hover:bg-background group-hover:flex"
+                  >
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                ) : null}
+
+                {eventsCanScrollRight ? (
+                  <button
+                    type="button"
+                    aria-label="Przewiń wydarzenia w prawo"
+                    onClick={() => handleEventScroll('right')}
+                    className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-2xl bg-background/90 p-2 text-foreground shadow-lg shadow-primary/10 transition hover:bg-background group-hover:flex"
+                  >
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                ) : null}
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-[26px] border border-dashed border-border/70 bg-[var(--surface-interactive)] px-6 py-10 text-center">
+              <h3 className="text-base font-semibold text-foreground">Brak zaplanowanych wydarzeń</h3>
+              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                Dodaj pierwsze wydarzenie, aby zawsze mieć wgląd w nadchodzące okazje.
+              </p>
+            </div>
+          )}
         </SectionCard>
 
         <section className="grid gap-6">
@@ -1313,6 +1276,12 @@ export function HomePage({
               />
               Wydarzenie cykliczne (np. urodziny, imieniny)
             </label>
+
+            {eventError ? (
+              <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {eventError}
+              </div>
+            ) : null}
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -1438,10 +1407,10 @@ export function HomePage({
               </button>
               <button
                 type="submit"
-                disabled={!eventDate || !eventTitle}
+                disabled={eventSubmitting || !eventDate || !eventTitle.trim()}
                 className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Zapisz wydarzenie
+                {eventSubmitting ? 'Zapisywanie...' : 'Zapisz wydarzenie'}
               </button>
             </div>
           </form>

@@ -9,6 +9,7 @@ import type {
   SizeLabel,
   UserRole,
   BodyMeasurements,
+  DashboardEvent,
 } from "@/lib/types";
 import { redirect } from "next/navigation";
 import { getTrustedCircleSnapshot } from "@/server/trusted-circle";
@@ -46,6 +47,7 @@ export default async function Home() {
   };
   let trustedCircleInitial: Awaited<ReturnType<typeof getTrustedCircleSnapshot>> | null = null;
   let bodyMeasurements: BodyMeasurements | null = null;
+  let events: DashboardEvent[] = [];
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -121,6 +123,24 @@ export default async function Home() {
     console.warn('Failed to load trusted circle snapshot for dashboard:', error);
   }
 
+  const { data: eventsData } = await supabase
+    .from('dashboard_events')
+    .select('*')
+    .eq('profile_id', profile.id)
+    .order('event_date', { ascending: true })
+    .order('created_at', { ascending: true });
+
+  events = ((eventsData ?? []) as Record<string, unknown>[]).map((event) => {
+    const participants = Array.isArray(event.participants)
+      ? event.participants
+      : [];
+
+    return {
+      ...event,
+      participants,
+    } as DashboardEvent;
+  });
+
   return (
     <HomePage
       measurements={measurements}
@@ -132,6 +152,7 @@ export default async function Home() {
       branding={branding}
       sizePreferences={sizePreferences}
       profileId={profile.id}
+      events={events}
       trustedCircleInitial={trustedCircleInitial ?? undefined}
       bodyMeasurements={bodyMeasurements}
     />
