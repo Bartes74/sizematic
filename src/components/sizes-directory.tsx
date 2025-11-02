@@ -111,8 +111,6 @@ export function SizesDirectory({
     return map;
   }, [sizeLabels]);
 
-  const brandIdsByGarmentType = useMemo(() => buildBrandMap(brandMappings), [brandMappings]);
-
   const categoryTiles = useMemo(() => {
     return QUICK_CATEGORY_CONFIGS.map((category) => {
       const labelsForCategory = category.supabaseCategories.flatMap(
