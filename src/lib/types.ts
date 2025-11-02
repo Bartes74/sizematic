@@ -170,6 +170,7 @@ export type BodyMeasurements = {
   hand_circumference_cm: number | null;
   hand_length_cm: number | null;
   head_cm: number | null;
+  notes: string | null;
 };
 
 export type DashboardEventParticipant = {

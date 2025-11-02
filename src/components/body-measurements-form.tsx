@@ -101,8 +101,12 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
       setSuccess(true);
       router.refresh();
       setTimeout(() => setSuccess(false), 3000);
-    } catch (submissionError: any) {
-      setError(submissionError.message || 'Wystąpił błąd podczas zapisywania wymiarów.');
+    } catch (submissionError: unknown) {
+      const message =
+        submissionError && typeof submissionError === 'object' && 'message' in submissionError
+          ? String((submissionError as { message?: unknown }).message)
+          : null;
+      setError(message || 'Wystąpił błąd podczas zapisywania wymiarów.');
     } finally {
       setIsLoading(false);
     }
