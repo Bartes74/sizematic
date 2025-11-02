@@ -187,6 +187,7 @@ export type DashboardEvent = {
   event_date: string;
   is_recurring: boolean;
   participants: DashboardEventParticipant[];
+  notes: string | null;
   created_at: string;
   updated_at: string;
 };

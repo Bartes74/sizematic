@@ -81,6 +81,10 @@ type CalendarEvent = {
   date: string;
   title: string;
   context: string;
+  kind: 'user' | 'default';
+  eventDateISO: string;
+  userEvent?: DashboardEvent;
+  seedEvent?: GiftCalendarSeedEvent;
 };
 
 type EventParticipant = {
@@ -508,10 +512,15 @@ export function HomePage({
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
   const [eventDate, setEventDate] = useState('');
+  const [eventNotes, setEventNotes] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
   const [eventError, setEventError] = useState<string | null>(null);
   const [eventSubmitting, setEventSubmitting] = useState(false);
   const [eventRecords, setEventRecords] = useState<DashboardEvent[]>(eventsProp);
+  const [selectedCalendarEvent, setSelectedCalendarEvent] = useState<CalendarEvent | null>(null);
+  const handleCloseEventDetails = useCallback(() => {
+    setSelectedCalendarEvent(null);
+  }, []);
   useEffect(() => {
     setEventRecords(eventsProp);
   }, [eventsProp]);
@@ -560,6 +569,7 @@ export function HomePage({
   const resetEventForm = useCallback(() => {
     setEventTitle('');
     setEventDate('');
+    setEventNotes('');
     setIsRecurring(false);
     setParticipants([createEmptyParticipant()]);
     setEventError(null);
@@ -862,6 +872,9 @@ export function HomePage({
           date: formattedDate,
           title: event.title,
           context: contextLabel,
+          kind: 'user',
+          eventDateISO: eventDate.toISOString(),
+          userEvent: event,
         },
       });
     });
@@ -894,6 +907,9 @@ export function HomePage({
           date: formattedDate,
           title: event.title,
           context: contextLabel,
+          kind: 'default',
+          eventDateISO: baseDate.toISOString(),
+          seedEvent: event,
         },
       });
     });
@@ -1017,6 +1033,8 @@ export function HomePage({
         })
       );
 
+      const trimmedNotes = eventNotes.trim();
+
       setEventSubmitting(true);
       setEventError(null);
 
@@ -1030,6 +1048,7 @@ export function HomePage({
             event_date: eventDate,
             is_recurring: isRecurring,
             participants: participantPayload,
+            notes: trimmedNotes || null,
           })
           .select()
           .single();
@@ -1041,6 +1060,7 @@ export function HomePage({
         const insertedEvent = {
           ...data,
           participants: (data.participants ?? []) as DashboardEventParticipant[],
+          notes: typeof data.notes === 'string' ? data.notes : null,
         } as DashboardEvent;
 
         setEventRecords((prev) => [...prev, insertedEvent]);
@@ -1054,7 +1074,7 @@ export function HomePage({
         setEventSubmitting(false);
       }
     },
-    [eventDate, eventTitle, isRecurring, participants, profileId, resetEventForm, router]
+    [eventDate, eventNotes, eventTitle, isRecurring, participants, profileId, resetEventForm, router]
   );
 
   const activityItems: ActivityItem[] = useMemo(() => {
@@ -1236,7 +1256,16 @@ export function HomePage({
                   {calendarItems.map((event) => (
                     <div
                       key={event.id}
-                      className="flex w-[calc(25%-0.75rem)] min-w-[260px] flex-col rounded-[26px] border border-border/70 bg-[var(--surface-interactive)] px-6 py-5 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setSelectedCalendarEvent(event)}
+                      onKeyDown={(keyboardEvent) => {
+                        if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+                          keyboardEvent.preventDefault();
+                          setSelectedCalendarEvent(event);
+                        }
+                      }}
+                      className="flex w-[calc(25%-0.75rem)] min-w-[260px] flex-col rounded-[26px] border border-border/70 bg-[var(--surface-interactive)] px-6 py-5 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer"
                     >
                       <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
                         {event.date}
@@ -1340,6 +1369,17 @@ export function HomePage({
                   className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Notatki (opcjonalnie)</label>
+              <textarea
+                value={eventNotes}
+                onChange={(event) => setEventNotes(event.target.value)}
+                rows={3}
+                placeholder="Co warto pamiętać przy przygotowaniach, preferencje obdarowywanej osoby..."
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
             </div>
 
             <label className="flex items-center gap-3 rounded-2xl border border-border/60 bg-[var(--surface-interactive)] px-4 py-3 text-sm font-medium text-foreground">
@@ -1491,7 +1531,102 @@ export function HomePage({
           </form>
         </ModalShell>
       ) : null}
-      </main>
+
+      {selectedCalendarEvent ? (() => {
+        const eventDate = new Date(selectedCalendarEvent.eventDateISO);
+        const formattedDate = eventDate.toLocaleDateString('pl-PL', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+        const todayMidnight = new Date();
+        todayMidnight.setHours(0, 0, 0, 0);
+        const diffDays = Math.max(0, Math.ceil((eventDate.getTime() - todayMidnight.getTime()) / (1000 * 60 * 60 * 24)));
+        const countdownText = diffDays === 0 ? 'Wydarzenie zaplanowane na dziś' : diffDays === 1 ? 'Pozostał 1 dzień' : `Pozostało ${diffDays} dni`;
+        const userEvent = selectedCalendarEvent.userEvent;
+        const participants = (userEvent?.participants ?? []) as DashboardEventParticipant[];
+        const visibleParticipants = participants.filter((participant) =>
+          participant.firstName || participant.lastName || participant.email || participant.phone
+        );
+
+        return (
+          <ModalShell onClose={handleCloseEventDetails} maxWidth="max-w-xl">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold text-foreground">{selectedCalendarEvent.title}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {formattedDate} · {selectedCalendarEvent.context}
+                </p>
+                <p className="text-sm font-medium text-primary">{countdownText}</p>
+                {selectedCalendarEvent.kind === 'user' && userEvent?.is_recurring ? (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    Cykliczne wydarzenie
+                  </span>
+                ) : null}
+              </div>
+
+              {selectedCalendarEvent.kind === 'user' ? (
+                <div className="space-y-6">
+                  {userEvent?.notes ? (
+                    <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">Notatki</p>
+                      <p>{userEvent.notes}</p>
+                    </div>
+                  ) : null}
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-foreground">Lista uczestników</h4>
+                      <span className="text-xs text-muted-foreground">
+                        {visibleParticipants.length} / {participants.length}
+                      </span>
+                    </div>
+                    {visibleParticipants.length ? (
+                      <ul className="space-y-2">
+                        {visibleParticipants.map((participant, index) => {
+                          const name = [participant.firstName, participant.lastName]
+                            .filter(Boolean)
+                            .join(' ')
+                            .trim();
+                          const fallbackName = name || participant.email || `Uczestnik ${index + 1}`;
+                          return (
+                            <li key={`${participant.email ?? participant.phone ?? index}`} className="rounded-xl border border-border/50 bg-[var(--surface-interactive)] px-4 py-3 text-sm text-foreground">
+                              <p className="font-semibold">{fallbackName}</p>
+                              <div className="mt-1 space-y-1 text-xs text-muted-foreground">
+                                {participant.email ? <p>E-mail: {participant.email}</p> : null}
+                                {participant.phone ? <p>Telefon: {participant.phone}</p> : null}
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="rounded-xl border border-dashed border-border/60 bg-[var(--surface-interactive)] px-4 py-3 text-sm text-muted-foreground">
+                        Nie dodano jeszcze żadnych uczestników.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] px-4 py-4 text-sm text-muted-foreground">
+                  To wydarzenie zostało dodane automatycznie. Możesz zapisać dodatkowe informacje, dodając własne wydarzenie z listą uczestników i notatkami.
+                </div>
+              )}
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleCloseEventDetails}
+                  className="rounded-full border border-border/60 px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+                >
+                  Zamknij
+                </button>
+              </div>
+            </div>
+          </ModalShell>
+        );
+      })()
+        : null}
 
       {activeBodyMeasurementDefinition && (
         <ModalShell onClose={() => setActiveBodyMeasurementDefinition(null)} maxWidth="max-w-xl">

@@ -131,13 +131,15 @@ export default async function Home() {
     .order('created_at', { ascending: true });
 
   events = ((eventsData ?? []) as Record<string, unknown>[]).map((event) => {
-    const participants = Array.isArray(event.participants)
+    const participants = (Array.isArray(event.participants)
       ? event.participants
-      : [];
+      : []) as DashboardEvent['participants'];
+    const notes = typeof event.notes === 'string' ? event.notes : null;
 
     return {
       ...event,
       participants,
+      notes,
     } as DashboardEvent;
   });
 
