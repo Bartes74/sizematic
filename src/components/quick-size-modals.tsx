@@ -8,7 +8,97 @@ import type {
   Brand,
   DashboardSizePreference,
   SizeLabel,
+  Garment,
 } from '@/lib/types';
+
+function resolveGarmentProductTypeId(garment: Garment): string | null {
+  const size = garment.size as Record<string, unknown> | null;
+  const idFromSize = typeof size?.product_type_id === 'string' ? (size.product_type_id as string) : null;
+  if (idFromSize) {
+    return idFromSize;
+  }
+
+  const fallback = Object.values(PRODUCT_TYPE_MAP).find(
+    (definition) =>
+      definition.garmentTypes.includes(garment.type) &&
+      definition.supabaseCategories.includes(garment.category)
+  );
+
+  return fallback?.id ?? null;
+}
+
+type NormalizedGarmentSize = {
+  values: Record<string, number | string | null | undefined>;
+  labels: Record<string, string>;
+  units: Record<string, string>;
+};
+
+function normalizeGarmentSize(size: unknown): NormalizedGarmentSize | null {
+  if (!size || typeof size !== 'object' || Array.isArray(size)) {
+    return null;
+  }
+
+  const record = size as Record<string, unknown>;
+  if (!('values' in record)) {
+    return null;
+  }
+
+  return {
+    values: (record.values ?? {}) as Record<string, number | string | null | undefined>,
+    labels: (record.labels ?? {}) as Record<string, string>,
+    units: (record.units ?? {}) as Record<string, string>,
+  };
+}
+
+function formatGarmentQuickValue(garment: Garment): string | null {
+  const normalized = normalizeGarmentSize(garment.size);
+
+  if (normalized) {
+    const { values } = normalized;
+    const orderedKeys = Object.keys(values).filter((key) => {
+      const entry = values[key];
+      return entry !== null && entry !== undefined && entry !== '';
+    });
+
+    if (orderedKeys.length > 0) {
+      const preferredOrder = [
+        'ring_size',
+        'size_label',
+        'finger_circumference_mm',
+        'waist_pants_cm',
+        'waist_cm',
+        'hips_cm',
+      ];
+      const firstKey = preferredOrder.find((key) => orderedKeys.includes(key)) ?? orderedKeys[0];
+      const rawValue = values[firstKey];
+      if (rawValue === null || rawValue === undefined) {
+        return null;
+      }
+      return String(rawValue);
+    }
+  }
+
+  const legacySize = garment.size as Record<string, unknown> | null;
+  if (!legacySize) {
+    return null;
+  }
+
+  if (legacySize.size) {
+    return String(legacySize.size);
+  }
+  if (legacySize.size_eu) {
+    return `EU ${legacySize.size_eu}`;
+  }
+  if (legacySize.size_mm) {
+    return `${legacySize.size_mm} mm`;
+  }
+  if (legacySize.waist_inch) {
+    const length = legacySize.length_inch ? `/${legacySize.length_inch}` : '';
+    return `${legacySize.waist_inch}${length}`;
+  }
+
+  return null;
+}
 
 type QuickSizeModalProps = {
   categoryId: QuickCategoryId;
@@ -232,6 +322,7 @@ export function QuickSizeModal({
 type QuickSizePreferencesModalProps = {
   profileId: string;
   sizeLabels: SizeLabel[];
+  garments: Garment[];
   sizePreferences: DashboardSizePreference[];
   onClose: () => void;
   onSaved: () => void;
@@ -240,6 +331,7 @@ type QuickSizePreferencesModalProps = {
 export function QuickSizePreferencesModal({
   profileId,
   sizeLabels,
+  garments,
   sizePreferences,
   onClose,
   onSaved,
@@ -271,8 +363,30 @@ export function QuickSizePreferencesModal({
       }
     });
 
+    garments.forEach((garment) => {
+      const productTypeId = resolveGarmentProductTypeId(garment);
+      if (!productTypeId) {
+        return;
+      }
+
+      const createdAt = garment.created_at ?? garment.updated_at ?? null;
+      const createdAtMs = createdAt ? new Date(createdAt).getTime() : 0;
+      const existing = map.get(productTypeId);
+      if (existing && existing.createdAtMs >= createdAtMs) {
+        return;
+      }
+
+      const formatted = formatGarmentQuickValue(garment);
+      if (formatted) {
+        map.set(productTypeId, {
+          label: formatted,
+          createdAtMs,
+        });
+      }
+    });
+
     return map;
-  }, [sizeLabels]);
+  }, [garments, sizeLabels]);
 
   useEffect(() => {
     const preference = sizePreferences.find(

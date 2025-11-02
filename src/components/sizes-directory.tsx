@@ -361,6 +361,7 @@ export function SizesDirectory({
           <QuickSizePreferencesModal
             profileId={profileId}
             sizeLabels={sizeLabels}
+            garments={garments}
             sizePreferences={sizePreferences}
             onClose={() => setPreferencesOpen(false)}
             onSaved={() => {
