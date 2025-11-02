@@ -13,6 +13,8 @@ import {
 import type { QuickCategoryId } from '@/data/product-tree';
 import { TrustedCircle } from '@/components/trusted-circle';
 import { QuickSizePreferencesModal } from '@/components/quick-size-modals';
+import { GiftsAndOccasions } from '@/components/gifts-and-occasions';
+import { RecentActivity } from '@/components/recent-activity';
 import type {
   Measurement,
   Category,
@@ -813,11 +815,33 @@ export function HomePage({
   const hasBodyMeasurementsRecord = Boolean(bodyMeasurements);
 
   const calendarItems: CalendarEvent[] = useMemo(() => {
-    return [
-      { id: 'event-1', date: 'Oct 28', title: "Friend's Wedding", context: 'Uroczysty' },
-      { id: 'event-2', date: 'Nov 12', title: 'Weekend Getaway', context: 'Casual & comfy' },
-      { id: 'event-3', date: 'Dec 01', title: 'Holiday Party', context: 'Festive' },
+    const baseEvents = [
+      { id: 'event-1', date: '2025-10-28', title: 'Ślub przyjaciela' },
+      { id: 'event-2', date: '2025-11-12', title: 'Weekendowy wypad' },
+      { id: 'event-3', date: '2025-12-01', title: 'Firmowa kolacja świąteczna' },
     ];
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return baseEvents.map((event) => {
+      const eventDate = new Date(event.date + 'T00:00:00');
+      const diffTime = eventDate.getTime() - today.getTime();
+      const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+      const formattedDate = eventDate.toLocaleDateString('pl-PL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+
+      return {
+        id: event.id,
+        date: formattedDate,
+        title: event.title,
+        context: `Za ${diffDays} dni`,
+      } satisfies CalendarEvent;
+    });
   }, []);
 
   const wishlistItems: WishlistItem[] = useMemo(() => {
@@ -990,83 +1014,53 @@ export function HomePage({
           </SectionCard>
         ) : null}
 
+        <SectionCard>
+          <div className="flex items-center justify-between gap-3 pb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">Nadchodzące wydarzenia</h2>
+              <p className="text-sm text-muted-foreground">
+                Przygotuj się z wyprzedzeniem – zobacz, ile dni zostało do ważnych okazji.
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {calendarItems.map((event) => (
+              <div
+                key={event.id}
+                className="flex min-h-[160px] flex-col justify-between rounded-[26px] border border-border/70 bg-[var(--surface-interactive)] px-6 py-5 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+              >
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                    {event.date}
+                  </p>
+                  <h3 className="mt-3 text-base font-semibold text-foreground">{event.title}</h3>
+                </div>
+                <p className="text-sm font-semibold text-primary">{event.context}</p>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+
         <section className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="flex flex-col gap-6">
-            <HorizontalScroller
-              title="Event Calendar"
-              subtitle="Bądź gotowy na nadchodzące okazje"
-              items={calendarItems}
-          renderItem={(event) => (
-            <div
-              key={event.id}
-              className="scroller-card event-card min-w-[220px] px-6 text-sm transition"
-            >
-              <div className="text-xs font-semibold uppercase tracking-widest text-primary">
-                {event.date}
-              </div>
-              <h3 className="mt-2 text-base font-semibold">{event.title}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{event.context}</p>
-                </div>
-              )}
-            />
-
             <SectionCard>
-              <h2 className="pb-4 text-lg font-semibold text-foreground sm:text-xl">Last Activity</h2>
+              <h2 className="pb-4 text-lg font-semibold text-foreground sm:text-xl">Ostatnia aktywność</h2>
               <div className="space-y-3">
                 {activityItems.map((item) => (
-                <div key={item.id} className="list-chip flex items-center gap-3 rounded-2xl p-3">
-                  <span className="chip-icon h-8 w-8">
-                    {item.icon}
-                  </span>
-                  <p className="text-sm text-foreground">{item.description}</p>
-                </div>
-              ))}
-              </div>
-            </SectionCard>
-          </div>
-
-          <div className="flex flex-col gap-6">
-            <SectionCard className="wishlist-card">
-              <h2 className="pb-4 text-lg font-semibold text-foreground sm:text-xl">Wishlist</h2>
-              <div className="space-y-4">
-                {wishlistItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 rounded-2xl border border-border/50 bg-[var(--surface-muted)] px-4 py-3 transition hover:border-primary/40">
-                    <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-border/40 bg-[var(--surface-elevated)]">
-                      {item.image ? (
-                        <Image
-                          src={item.image}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                          {item.title ? item.title.slice(0, 1) : ''}
-                        </div>
-                      )}
+                  <div key={item.id} className="list-chip flex items-center gap-3 rounded-2xl p-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      {item.icon}
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">{item.subtitle}</p>
-                    </div>
-                    <button
-                      type="button"
-                      className="rounded-full p-2 text-muted-foreground transition hover:text-primary"
-                      aria-label="More actions"
-                    >
-                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v.01M12 12v.01M12 18v.01" />
-                      </svg>
-                    </button>
+                    <p className="text-sm text-foreground">{item.description}</p>
                   </div>
                 ))}
               </div>
             </SectionCard>
 
-            <SectionCard>
-              <TrustedCircle initialData={trustedCircleInitial} />
-            </SectionCard>
+            <RecentActivity />
           </div>
+
+          <GiftsAndOccasions />
         </section>
       </main>
 
