@@ -1,6 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -74,6 +82,21 @@ type CalendarEvent = {
   date: string;
   title: string;
   context: string;
+};
+
+type EventParticipant = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+};
+
+type TrustedMemberContact = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
 };
 
 type NormalizedGarmentSize = {
@@ -568,6 +591,24 @@ export function HomePage({
   const displayName = userName || 'Twoja garderoba';
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [activeBodyMeasurementDefinition, setActiveBodyMeasurementDefinition] = useState<BodyMeasurementDefinition | null>(null);
+  const [isAddEventOpen, setIsAddEventOpen] = useState(false);
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const createEmptyParticipant = useCallback((): EventParticipant => ({
+    id: Math.random().toString(36).slice(2),
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+  }), []);
+  const [participants, setParticipants] = useState<EventParticipant[]>(() => [
+    createEmptyParticipant(),
+  ]);
+  const resetEventForm = useCallback(() => {
+    setEventTitle('');
+    setEventDate('');
+    setParticipants([createEmptyParticipant()]);
+  }, [createEmptyParticipant]);
 
   const bodyMeasurements = bodyMeasurementsProp ?? null;
 
@@ -852,6 +893,78 @@ export function HomePage({
     });
   }, []);
 
+  const trustedMembers = useMemo(() => {
+    return (trustedCircleInitial?.members ?? []).map((member) => {
+      const profile = member.profile;
+      return {
+        id: profile.id,
+        firstName: profile.display_name?.split(' ')[0] ?? profile.display_name ?? 'Kontakt',
+        lastName: profile.display_name?.split(' ').slice(1).join(' ') ?? '',
+        email: profile.email ?? '',
+      } as TrustedMemberContact;
+    });
+  }, [trustedCircleInitial]);
+
+  const handleParticipantChange = useCallback(
+    (id: string, field: keyof EventParticipant, value: string) => {
+      setParticipants((prev) =>
+        prev.map((participant) =>
+          participant.id === id ? { ...participant, [field]: value } : participant
+        )
+      );
+    },
+    []
+  );
+
+  const handleAddParticipant = useCallback(() => {
+    setParticipants((prev) => [...prev, createEmptyParticipant()]);
+  }, [createEmptyParticipant]);
+
+  const handleRemoveParticipant = useCallback((id: string) => {
+    setParticipants((prev) => (prev.length <= 1 ? prev : prev.filter((participant) => participant.id !== id)));
+  }, []);
+
+  const handleAddTrustedMember = useCallback((member: TrustedMemberContact) => {
+    setParticipants((prev) => {
+      if (member.email && prev.some((participant) => participant.email === member.email)) {
+        return prev;
+      }
+
+      return [
+        ...prev,
+        {
+          id: Math.random().toString(36).slice(2),
+          firstName: member.firstName,
+          lastName: member.lastName,
+          phone: '',
+          email: member.email,
+        },
+      ];
+    });
+  }, []);
+
+  const handleCloseEventModal = useCallback(() => {
+    setIsAddEventOpen(false);
+    resetEventForm();
+  }, [resetEventForm]);
+
+  const handleEventSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      // TODO: Persist event to backend when data model is ready.
+      console.log('Planned event', {
+        title: eventTitle,
+        date: eventDate,
+        participants,
+      });
+
+      setIsAddEventOpen(false);
+      resetEventForm();
+    },
+    [eventDate, eventTitle, participants, resetEventForm]
+  );
+
   const wishlistItems: WishlistItem[] = useMemo(() => {
     if (!garments.length && !sizeLabels.length) {
       return [
@@ -1030,6 +1143,16 @@ export function HomePage({
                 Przygotuj się z wyprzedzeniem – zobacz, ile dni zostało do ważnych okazji.
               </p>
             </div>
+          <button
+            type="button"
+            onClick={() => setIsAddEventOpen(true)}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
+            </svg>
+            Dodaj wydarzenie
+          </button>
           </div>
           <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
             {calendarItems.map((event) => (
@@ -1068,6 +1191,178 @@ export function HomePage({
 
           <GiftsAndOccasions />
         </section>
+
+      {isAddEventOpen ? (
+        <ModalShell onClose={handleCloseEventModal} maxWidth="max-w-2xl">
+          <form onSubmit={handleEventSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold text-foreground">Dodaj wydarzenie</h3>
+              <p className="text-sm text-muted-foreground">
+                Zapisz nadchodzącą okazję i zaproś osoby, którym chcesz sprawić idealny prezent.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Data wydarzenia <span className="text-destructive">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={eventDate}
+                  onChange={(event) => setEventDate(event.target.value)}
+                  required
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Nazwa wydarzenia <span className="text-destructive">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={eventTitle}
+                  onChange={(event) => setEventTitle(event.target.value)}
+                  placeholder="np. Urodziny Kasi"
+                  required
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-foreground">Lista uczestników</h4>
+                <button
+                  type="button"
+                  onClick={handleAddParticipant}
+                  className="inline-flex items-center gap-2 rounded-full border border-border/60 px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
+                  </svg>
+                  Dodaj osobę
+                </button>
+              </div>
+
+              <div className="space-y-4 max-h-[320px] overflow-y-auto pr-1">
+                {participants.map((participant, index) => (
+                  <div
+                    key={participant.id}
+                    className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] p-4"
+                  >
+                    <div className="flex items-center justify-between pb-2">
+                      <p className="text-sm font-semibold text-foreground">Osoba {index + 1}</p>
+                      {participants.length > 1 ? (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveParticipant(participant.id)}
+                          className="text-xs font-medium text-destructive transition hover:text-destructive/80"
+                        >
+                          Usuń
+                        </button>
+                      ) : null}
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold uppercase text-muted-foreground">
+                          Imię
+                        </label>
+                        <input
+                          type="text"
+                          value={participant.firstName}
+                          onChange={(event) =>
+                            handleParticipantChange(participant.id, 'firstName', event.target.value)
+                          }
+                          placeholder="np. Anna"
+                          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold uppercase text-muted-foreground">
+                          Nazwisko
+                        </label>
+                        <input
+                          type="text"
+                          value={participant.lastName}
+                          onChange={(event) =>
+                            handleParticipantChange(participant.id, 'lastName', event.target.value)
+                          }
+                          placeholder="np. Kowalska"
+                          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold uppercase text-muted-foreground">
+                          Telefon
+                        </label>
+                        <input
+                          type="tel"
+                          value={participant.phone}
+                          onChange={(event) =>
+                            handleParticipantChange(participant.id, 'phone', event.target.value)
+                          }
+                          placeholder="np. +48 600 600 600"
+                          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold uppercase text-muted-foreground">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          value={participant.email}
+                          onChange={(event) =>
+                            handleParticipantChange(participant.id, 'email', event.target.value)
+                          }
+                          placeholder="np. anna@example.com"
+                          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {trustedMembers.length > 0 ? (
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">Dodaj z Kręgu zaufanych</h4>
+                <div className="flex flex-wrap gap-2">
+                  {trustedMembers.map((member) => (
+                    <button
+                      type="button"
+                      key={member.id}
+                      onClick={() => handleAddTrustedMember(member)}
+                      className="rounded-full border border-border/60 px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
+                    >
+                      {member.firstName} {member.lastName}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={handleCloseEventModal}
+                className="rounded-full border border-border/60 px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+              >
+                Anuluj
+              </button>
+              <button
+                type="submit"
+                disabled={!eventDate || !eventTitle}
+                className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Zapisz wydarzenie
+              </button>
+            </div>
+          </form>
+        </ModalShell>
+      ) : null}
       </main>
 
       {activeBodyMeasurementDefinition && (
