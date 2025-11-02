@@ -896,10 +896,15 @@ export function HomePage({
   const trustedMembers = useMemo(() => {
     return (trustedCircleInitial?.members ?? []).map((member) => {
       const profile = member.profile;
+      const rawDisplayName = profile.display_name?.trim() ?? '';
+      const [firstNameRaw, ...rest] = rawDisplayName.split(' ');
+      const computedFirstName = firstNameRaw?.trim() || rawDisplayName || 'Kontakt';
+      const computedLastName = rest.join(' ').trim();
+
       return {
         id: profile.id,
-        firstName: profile.display_name?.split(' ')[0] ?? profile.display_name ?? 'Kontakt',
-        lastName: profile.display_name?.split(' ').slice(1).join(' ') ?? '',
+        firstName: computedFirstName,
+        lastName: computedLastName,
         email: profile.email ?? '',
       } as TrustedMemberContact;
     });
