@@ -569,20 +569,28 @@ export function HomePage({
     return map;
   }, [sizeLabels]);
 
-  const labelsByCategory = useMemo(() => {
-    const map = new Map<Category, SizeLabel[]>();
+  const sizeLabelsById = useMemo(() => {
+    const map = new Map<string, SizeLabel>();
     sizeLabels.forEach((label) => {
-      const category = label.category as Category;
-      if (!map.has(category)) {
-        map.set(category, []);
+      map.set(label.id, label);
+    });
+    return map;
+  }, [sizeLabels]);
+
+  const labelsByProductType = useMemo(() => {
+    const map = new Map<string, SizeLabel[]>();
+    sizeLabels.forEach((label) => {
+      if (!label.product_type) {
+        return;
       }
-      map.get(category)!.push(label);
+      if (!map.has(label.product_type)) {
+        map.set(label.product_type, []);
+      }
+      map.get(label.product_type)!.push(label);
     });
     map.forEach((list) => {
       list.sort(
-        (a, b) =>
-          new Date(b.created_at || b.recorded_at).getTime() -
-          new Date(a.created_at || a.recorded_at).getTime()
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
     });
     return map;
@@ -603,6 +611,33 @@ export function HomePage({
     return map;
   }, [garments]);
 
+  const latestTimestampByProductType = useMemo(() => {
+    const map = new Map<string, number>();
+
+    sizeLabels.forEach((label) => {
+      if (!label.product_type) {
+        return;
+      }
+      const ts = Date.parse(label.created_at ?? label.recorded_at);
+      if (!Number.isNaN(ts)) {
+        map.set(label.product_type, Math.max(map.get(label.product_type) ?? 0, ts));
+      }
+    });
+
+    garments.forEach((garment) => {
+      const productTypeId = resolveGarmentProductTypeId(garment);
+      if (!productTypeId) {
+        return;
+      }
+      const ts = garment.created_at ? Date.parse(garment.created_at) : NaN;
+      if (!Number.isNaN(ts)) {
+        map.set(productTypeId, Math.max(map.get(productTypeId) ?? 0, ts));
+      }
+    });
+
+    return map;
+  }, [garments, sizeLabels]);
+
   const preferenceMap = useMemo(() => {
     const map = new Map<QuickCategoryId, { sizeLabelId: string | null; productType: string | null }>();
     sizePreferences.forEach((pref) => {
@@ -618,22 +653,28 @@ export function HomePage({
   const quickSizeTiles = useMemo(() => {
     return QUICK_CATEGORY_CONFIGS.map((config) => {
       const preference = preferenceMap.get(config.id);
-      const labelsForCategory = config.supabaseCategories.flatMap(
-        (supCategory) => labelsByCategory.get(supCategory) ?? []
-      );
 
-      const productTypeOrder: string[] = [];
+      const baseProductTypes = config.productTypes.map((productType) => productType.id);
+
+      const sortedByRecency = [...baseProductTypes].sort((a, b) => {
+        const tsA = latestTimestampByProductType.get(a) ?? 0;
+        const tsB = latestTimestampByProductType.get(b) ?? 0;
+        if (tsA === tsB) {
+          return baseProductTypes.indexOf(a) - baseProductTypes.indexOf(b);
+        }
+        return tsB - tsA;
+      });
+
+      let productTypeOrder: string[] = sortedByRecency;
       if (
         preference?.productType &&
-        config.productTypes.some((type) => type.id === preference.productType)
+        sortedByRecency.includes(preference.productType)
       ) {
-        productTypeOrder.push(preference.productType);
+        productTypeOrder = [
+          preference.productType,
+          ...sortedByRecency.filter((id) => id !== preference.productType),
+        ];
       }
-      config.productTypes.forEach((productType) => {
-        if (!productTypeOrder.includes(productType.id)) {
-          productTypeOrder.push(productType.id);
-        }
-      });
 
       let sizeValue = '--';
       let sizeUnit: string | null = null;
@@ -661,8 +702,11 @@ export function HomePage({
         }
       }
 
-      if (applyLabel(labelsForCategory.find((label) => productTypeOrder.includes(label.product_type ?? '')))) {
-        return finalizeTile();
+      for (const productTypeKey of productTypeOrder) {
+        const labelList = labelsByProductType.get(productTypeKey) ?? [];
+        if (applyLabel(labelList[0])) {
+          return finalizeTile();
+        }
       }
 
       const applyGarment = (productTypeKey: string) => {
@@ -744,7 +788,14 @@ export function HomePage({
         };
       }
     });
-  }, [bodyMeasurements, garmentsByProductType, labelsByCategory, preferenceMap, sizeLabelsById]);
+  }, [
+    bodyMeasurements,
+    garmentsByProductType,
+    labelsByProductType,
+    preferenceMap,
+    sizeLabelsById,
+    latestTimestampByProductType,
+  ]);
 
   const measurementDefinitions = useMemo(
     () => BODY_MEASUREMENT_DEFINITIONS ?? [],
