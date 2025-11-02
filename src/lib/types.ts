@@ -146,31 +146,31 @@ export type MeasurementSummary = {
 
 // Body Measurements - Universal Size Passport (one per user)
 export type BodyMeasurements = {
-  id: string;
   profile_id: string;
-  created_at: string;
-  updated_at: string;
   height_cm: number | null;
+  neck_cm: number | null;
   chest_cm: number | null;
-  waist_cm: number | null;
-  waist_pants_cm: number | null;
-  hips_cm: number | null;
   shoulder_cm: number | null;
   sleeve_cm: number | null;
-  neck_cm: number | null;
   bust_cm: number | null;
   underbust_cm: number | null;
-  torso_girth_cm: number | null;
+  waist_natural_cm: number | null;
+  waist_pants_cm: number | null;
+  hips_cm: number | null;
   inseam_cm: number | null;
+  torso_girth_cm: number | null;
   thigh_cm: number | null;
-  foot_length_mm: number | null;
+  head_cm: number | null;
+  hand_cm: number | null;
+  hand_length_cm: number | null;
+  wrist_cm: number | null;
+  foot_left_cm: number | null;
+  foot_right_cm: number | null;
   foot_width_cm: number | null;
   finger_circumference_mm: number | null;
-  wrist_cm: number | null;
-  hand_circumference_cm: number | null;
-  hand_length_cm: number | null;
-  head_cm: number | null;
   notes: string | null;
+  created_at: string;
+  last_updated: string | null;
 };
 
 export type DashboardEventParticipant = {
