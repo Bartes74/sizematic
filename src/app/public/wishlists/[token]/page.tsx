@@ -1,4 +1,3 @@
-import type { PageProps } from 'next';
 import { notFound } from 'next/navigation';
 
 import { PublicWishlistView } from '@/components/wishlists/public-wishlist-view';
@@ -6,9 +5,11 @@ import { getPublicWishlistPayload } from '@/server/wishlists-public';
 
 export const dynamic = 'force-dynamic';
 
-type PublicWishlistPageProps = PageProps<{
-  token: string;
-}>;
+type PublicWishlistPageProps = {
+  params: Promise<{
+    token: string;
+  }>;
+};
 
 export default async function PublicWishlistPage({ params }: PublicWishlistPageProps) {
   const { token } = await params;
