@@ -1023,18 +1023,16 @@ export function HomePage({
               </p>
             </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
             {calendarItems.map((event) => (
               <div
                 key={event.id}
-                className="flex min-h-[160px] flex-col justify-between rounded-[26px] border border-border/70 bg-[var(--surface-interactive)] px-6 py-5 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                className="flex w-[calc(25%-0.75rem)] min-w-[260px] flex-col rounded-[26px] border border-border/70 bg-[var(--surface-interactive)] px-6 py-5 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
               >
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-                    {event.date}
-                  </p>
-                  <h3 className="mt-3 text-base font-semibold text-foreground">{event.title}</h3>
-                </div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                  {event.date}
+                </p>
+                <h3 className="mt-3 text-base font-semibold text-foreground">{event.title}</h3>
                 <p className="text-sm font-semibold text-primary">{event.context}</p>
               </div>
             ))}
