@@ -110,35 +110,19 @@ export function GarmentForm({
     [category]
   );
 
-  const effectiveQuickCategories = useMemo<QuickCategoryId[]>(() => {
-    const categories = new Set<QuickCategoryId>(baseQuickCategories);
-
-    if (initialProductTypeId) {
-      const initialCategory = PRODUCT_TYPE_CATEGORY_MAP[initialProductTypeId];
-      if (initialCategory) {
-        categories.add(initialCategory);
+  const productTypeOptions = useMemo(() => {
+    return PRODUCT_TYPES.filter((definition) => {
+      if (!definition.supabaseCategories.includes(category)) {
+        return false;
       }
-    }
 
-    if (selectedProductTypeId) {
-      const selectedCategory = PRODUCT_TYPE_CATEGORY_MAP[selectedProductTypeId];
-      if (selectedCategory) {
-        categories.add(selectedCategory);
-      }
-    }
+      const inBaseCategory = baseQuickCategories.includes(definition.category as QuickCategoryId);
+      const isInitial = Boolean(initialProductTypeId && definition.id === initialProductTypeId);
+      const isSelected = Boolean(selectedProductTypeId && definition.id === selectedProductTypeId);
 
-    return Array.from(categories);
-  }, [baseQuickCategories, initialProductTypeId, selectedProductTypeId]);
-
-  const productTypeOptions = useMemo(
-    () =>
-      PRODUCT_TYPES.filter(
-        (definition) =>
-          effectiveQuickCategories.includes(definition.category) &&
-          definition.supabaseCategories.includes(category)
-      ),
-    [category, effectiveQuickCategories]
-  );
+      return inBaseCategory || isInitial || isSelected;
+    });
+  }, [category, baseQuickCategories, initialProductTypeId, selectedProductTypeId]);
 
   useEffect(() => {
     if (productTypeOptions.length === 0) {
