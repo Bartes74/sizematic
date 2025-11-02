@@ -360,7 +360,11 @@ export function GarmentForm({
     if (field.type === 'radio') {
       return (
         <fieldset className="space-y-2 border-0 p-0">
-          <div className="flex flex-wrap gap-2">
+          <div
+            className={`flex gap-2 ${
+              field.id === 'finger' ? 'flex-wrap md:flex-nowrap overflow-x-auto' : 'flex-wrap'
+            }`}
+          >
             {(field.options ?? []).map((option) => {
               const id = `${field.id}-${option}`;
               return (
