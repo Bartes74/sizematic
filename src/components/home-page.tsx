@@ -21,6 +21,7 @@ import type { QuickCategoryId } from '@/data/product-tree';
 import { QuickSizePreferencesModal } from '@/components/quick-size-modals';
 import { RecentActivity } from '@/components/recent-activity';
 import type {
+  Measurement,
   Garment,
   SizeLabel,
   UserRole,
