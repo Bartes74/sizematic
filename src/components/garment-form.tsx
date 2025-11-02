@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { BodyMeasurements, Brand, Category, GarmentType } from '@/lib/types';
 import {
   PRODUCT_TYPES,
+  PRODUCT_TYPE_CATEGORY_MAP,
   type ProductFieldDefinition,
   type ProductTypeDefinition,
   type QuickCategoryId,
@@ -36,7 +37,7 @@ const CATEGORY_TO_QUICK: Record<Category, QuickCategoryId[]> = {
   footwear: ['footwear'],
   outerwear: ['outerwear'],
   headwear: ['lingerie'],
-  accessories: ['accessories', 'jewelry'],
+  accessories: ['accessories'],
   kids: ['tops'],
 };
 
@@ -104,18 +105,40 @@ export function GarmentForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const quickCategories = useMemo<QuickCategoryId[]>(
+  const baseQuickCategories = useMemo<QuickCategoryId[]>(
     () => CATEGORY_TO_QUICK[category] ?? ['tops'],
     [category]
   );
 
-  const productTypeOptions = useMemo(() =>
-    PRODUCT_TYPES.filter(
-      (definition) =>
-        quickCategories.includes(definition.category) &&
-        definition.supabaseCategories.includes(category)
-    ),
-  [category, quickCategories]);
+  const effectiveQuickCategories = useMemo<QuickCategoryId[]>(() => {
+    const categories = new Set<QuickCategoryId>(baseQuickCategories);
+
+    if (initialProductTypeId) {
+      const initialCategory = PRODUCT_TYPE_CATEGORY_MAP[initialProductTypeId];
+      if (initialCategory) {
+        categories.add(initialCategory);
+      }
+    }
+
+    if (selectedProductTypeId) {
+      const selectedCategory = PRODUCT_TYPE_CATEGORY_MAP[selectedProductTypeId];
+      if (selectedCategory) {
+        categories.add(selectedCategory);
+      }
+    }
+
+    return Array.from(categories);
+  }, [baseQuickCategories, initialProductTypeId, selectedProductTypeId]);
+
+  const productTypeOptions = useMemo(
+    () =>
+      PRODUCT_TYPES.filter(
+        (definition) =>
+          effectiveQuickCategories.includes(definition.category) &&
+          definition.supabaseCategories.includes(category)
+      ),
+    [category, effectiveQuickCategories]
+  );
 
   useEffect(() => {
     if (productTypeOptions.length === 0) {
