@@ -517,6 +517,13 @@ export function HomePage({
   const [eventError, setEventError] = useState<string | null>(null);
   const [eventSubmitting, setEventSubmitting] = useState(false);
   const [eventRecords, setEventRecords] = useState<DashboardEvent[]>(eventsProp);
+  const createEmptyParticipant = useCallback((): EventParticipant => ({
+    id: Math.random().toString(36).slice(2),
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+  }), []);
   const [participants, setParticipants] = useState<EventParticipant[]>(() => [
     createEmptyParticipant(),
   ]);
