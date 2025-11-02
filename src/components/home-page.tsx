@@ -104,6 +104,24 @@ type NormalizedGarmentSize = {
   units: Record<string, string>;
 };
 
+type GiftCalendarSeedEvent = {
+  id: string;
+  title: string;
+  month: number;
+  day: number;
+};
+
+const DEFAULT_GIFTING_EVENTS: GiftCalendarSeedEvent[] = [
+  { id: 'mikolajki', title: 'Mikołajki', month: 12, day: 6 },
+  { id: 'wigilia', title: 'Wigilia Bożego Narodzenia', month: 12, day: 24 },
+  { id: 'boze-narodzenie', title: 'Boże Narodzenie', month: 12, day: 25 },
+  { id: 'walentynki', title: 'Walentynki', month: 2, day: 14 },
+  { id: 'dzien-matki', title: 'Dzień Matki', month: 5, day: 26 },
+  { id: 'dzien-dziecka', title: 'Dzień Dziecka', month: 6, day: 1 },
+  { id: 'dzien-babci', title: 'Dzień Babci', month: 1, day: 21 },
+  { id: 'dzien-dziadka', title: 'Dzień Dziadka', month: 1, day: 22 },
+];
+
 function normalizeGarmentSize(size: unknown): NormalizedGarmentSize | null {
   if (!size || typeof size !== 'object' || Array.isArray(size)) {
     return null;
@@ -802,48 +820,82 @@ export function HomePage({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return eventRecords
-      .map((event) => {
-        let eventDate = new Date(event.event_date + 'T00:00:00');
-        if (Number.isNaN(eventDate.getTime())) {
-          return null;
+    const entries: Array<{ sortKey: number; item: CalendarEvent }> = [];
+
+    eventRecords.forEach((event) => {
+      let eventDate = new Date(event.event_date + 'T00:00:00');
+      if (Number.isNaN(eventDate.getTime())) {
+        return;
+      }
+
+      if (event.is_recurring) {
+        const adjusted = new Date(eventDate);
+        adjusted.setFullYear(today.getFullYear());
+        if (adjusted < today) {
+          adjusted.setFullYear(today.getFullYear() + 1);
         }
+        eventDate = adjusted;
+      }
 
-        if (event.is_recurring) {
-          const adjusted = new Date(eventDate);
-          adjusted.setFullYear(today.getFullYear());
-          if (adjusted < today) {
-            adjusted.setFullYear(today.getFullYear() + 1);
-          }
-          eventDate = adjusted;
-        }
+      if (eventDate < today) {
+        return;
+      }
 
-        if (eventDate < today) {
-          return null;
-        }
+      const diffTime = eventDate.getTime() - today.getTime();
+      const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
-        const diffTime = eventDate.getTime() - today.getTime();
-        const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+      const formattedDate = eventDate.toLocaleDateString('pl-PL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
 
-        const formattedDate = eventDate.toLocaleDateString('pl-PL', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
+      const contextLabel = diffDays === 0 ? 'Dziś' : `Za ${diffDays} dni`;
 
-        const contextLabel = diffDays === 0 ? 'Dziś' : `Za ${diffDays} dni`;
+      entries.push({
+        sortKey: eventDate.getTime(),
+        item: {
+          id: event.id,
+          date: formattedDate,
+          title: event.title,
+          context: contextLabel,
+        },
+      });
+    });
 
-        return {
-          sortKey: eventDate.getTime(),
-          item: {
-            id: event.id,
-            date: formattedDate,
-            title: event.title,
-            context: contextLabel,
-          } satisfies CalendarEvent,
-        };
-      })
-      .filter((entry): entry is { sortKey: number; item: CalendarEvent } => Boolean(entry))
+    DEFAULT_GIFTING_EVENTS.forEach((event) => {
+      const baseDate = new Date(today.getFullYear(), event.month - 1, event.day);
+      if (Number.isNaN(baseDate.getTime())) {
+        return;
+      }
+
+      if (baseDate < today) {
+        baseDate.setFullYear(today.getFullYear() + 1);
+      }
+
+      const diffTime = baseDate.getTime() - today.getTime();
+      const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+      const formattedDate = baseDate.toLocaleDateString('pl-PL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+
+      const contextLabel = diffDays === 0 ? 'Dziś' : `Za ${diffDays} dni`;
+
+      entries.push({
+        sortKey: baseDate.getTime(),
+        item: {
+          id: `default-${event.id}-${baseDate.getFullYear()}`,
+          date: formattedDate,
+          title: event.title,
+          context: contextLabel,
+        },
+      });
+    });
+
+    return entries
       .sort((a, b) => a.sortKey - b.sortKey)
       .map((entry) => entry.item);
   }, [eventRecords]);
