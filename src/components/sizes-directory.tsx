@@ -3,12 +3,17 @@
 import { type ReactNode, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { QUICK_CATEGORY_CONFIGS, CATEGORY_LABEL_MAP } from '@/data/product-tree';
+import {
+  QUICK_CATEGORY_CONFIGS,
+  CATEGORY_LABEL_MAP,
+  PRODUCT_TYPE_MAP,
+} from '@/data/product-tree';
 import type {
   Measurement,
   SizeLabel,
   DashboardSizePreference,
   Category,
+  Garment,
 } from '@/lib/types';
 import { QuickSizePreferencesModal } from '@/components/quick-size-modals';
 
@@ -70,8 +75,110 @@ function parseSizeLabelParts(label: string): { value: string; unit: string | nul
   return { value: normalized, unit: null };
 }
 
+type NormalizedGarmentSize = {
+  values: Record<string, number | string | null | undefined>;
+  labels: Record<string, string>;
+  units: Record<string, string>;
+};
+
+function normalizeGarmentSize(size: unknown): NormalizedGarmentSize | null {
+  if (!size || typeof size !== 'object' || Array.isArray(size)) {
+    return null;
+  }
+
+  const record = size as Record<string, unknown>;
+  if (!('values' in record)) {
+    return null;
+  }
+
+  return {
+    values: (record.values ?? {}) as Record<string, number | string | null | undefined>,
+    labels: (record.labels ?? {}) as Record<string, string>,
+    units: (record.units ?? {}) as Record<string, string>,
+  };
+}
+
+function resolveGarmentProductTypeId(garment: Garment): string | null {
+  const size = garment.size as Record<string, unknown> | null;
+  const idFromSize = typeof size?.product_type_id === 'string' ? (size.product_type_id as string) : null;
+  if (idFromSize) {
+    return idFromSize;
+  }
+
+  const fallback = Object.values(PRODUCT_TYPE_MAP).find(
+    (definition) =>
+      definition.garmentTypes.includes(garment.type) &&
+      definition.supabaseCategories.includes(garment.category)
+  );
+
+  return fallback?.id ?? null;
+}
+
+function formatGarmentQuickValue(garment: Garment): { value: string; unit: string | null } {
+  const normalized = normalizeGarmentSize(garment.size);
+
+  if (normalized) {
+    const { values, units } = normalized;
+
+    if (values.size_label) {
+      return { value: String(values.size_label), unit: null };
+    }
+
+    const orderedKeys = Object.keys(values).filter((key) => {
+      const entry = values[key];
+      return entry !== null && entry !== undefined && entry !== '';
+    });
+
+    if (orderedKeys.length > 0) {
+      const firstKey = orderedKeys[0];
+      const rawValue = values[firstKey];
+      let displayValue = '';
+
+      if (typeof rawValue === 'number') {
+        displayValue = new Intl.NumberFormat(undefined, {
+          maximumFractionDigits: Math.abs(rawValue) % 1 === 0 ? 0 : 1,
+        }).format(rawValue);
+      } else {
+        displayValue = String(rawValue);
+      }
+
+      const unit = units[firstKey];
+      return { value: displayValue || '--', unit: unit ? unit.toUpperCase() : null };
+    }
+  }
+
+  const legacySize = garment.size as Record<string, unknown> | null;
+  if (!legacySize) {
+    return { value: '--', unit: null };
+  }
+
+  if (legacySize.size) {
+    return { value: String(legacySize.size), unit: null };
+  }
+  if (legacySize.collar_cm) {
+    return {
+      value: `${legacySize.collar_cm}`,
+      unit: 'CM',
+    };
+  }
+  if (legacySize.waist_inch) {
+    const length = legacySize.length_inch ? `/${legacySize.length_inch}` : '';
+    return { value: `${legacySize.waist_inch}${length}`, unit: null };
+  }
+  if (legacySize.size_eu) {
+    return { value: `EU ${legacySize.size_eu}`, unit: null };
+  }
+
+  return { value: '--', unit: null };
+}
+
 type SizesDirectoryProps = {
   measurements: Measurement[];
+  garments: (Garment & {
+    brands?: {
+      name: string | null;
+    } | null;
+  })[];
   sizeLabels: SizeLabel[];
   sizePreferences: DashboardSizePreference[];
   profileId: string;
@@ -79,6 +186,7 @@ type SizesDirectoryProps = {
 
 export function SizesDirectory({
   measurements,
+  garments,
   sizeLabels,
   sizePreferences,
   profileId,
@@ -111,6 +219,21 @@ export function SizesDirectory({
     return map;
   }, [sizeLabels]);
 
+  const garmentsByProductType = useMemo(() => {
+    const map = new Map<string, Garment[]>();
+    garments.forEach((garment) => {
+      const productTypeId = resolveGarmentProductTypeId(garment);
+      if (!productTypeId) {
+        return;
+      }
+      if (!map.has(productTypeId)) {
+        map.set(productTypeId, []);
+      }
+      map.get(productTypeId)!.push(garment);
+    });
+    return map;
+  }, [garments]);
+
   const categoryTiles = useMemo(() => {
     return QUICK_CATEGORY_CONFIGS.map((category) => {
       const labelsForCategory = category.supabaseCategories.flatMap(
@@ -118,54 +241,54 @@ export function SizesDirectory({
       );
 
       const productTiles = category.productTypes.map((productType) => {
+        let sizeValue = '--';
+        let sizeUnit: string | null = null;
+
         const label = labelsForCategory.find((item) => item.product_type === productType.id) ?? null;
-
         if (label) {
-          const { value, unit } = parseSizeLabelParts(label.label || '');
-          return {
-            productTypeId: productType.id,
-            label: productType.label,
-            sizeValue: value,
-            sizeUnit: unit,
-            hasData: true,
-          };
-        }
-
-        const measurement = category.supabaseCategories
-          .map((supCategory) => measurementByCategory.get(supCategory))
-          .find(Boolean);
-
-        if (measurement) {
-          const entries = Object.entries(measurement.values || {}).filter(
-            ([, value]) => value !== undefined && value !== null
-          );
-          if (entries.length > 0) {
-            const [, rawValue] = entries[0] as [string, number];
-            const formattedValue = Number.isFinite(rawValue)
-              ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(rawValue)
-              : String(rawValue ?? '');
-            return {
-              productTypeId: productType.id,
-              label: productType.label,
-              sizeValue: formattedValue || '--',
-              sizeUnit: 'CM',
-              hasData: formattedValue !== '',
-            };
+          const parsed = parseSizeLabelParts(label.label || '');
+          sizeValue = parsed.value || '--';
+          sizeUnit = parsed.unit;
+        } else {
+          const garmentList = garmentsByProductType.get(productType.id) ?? [];
+          if (garmentList.length > 0) {
+            const quickValue = formatGarmentQuickValue(garmentList[0]);
+            sizeValue = quickValue.value || '--';
+            sizeUnit = quickValue.unit;
+          } else {
+            const measurement = category.supabaseCategories
+              .map((supCategory) => measurementByCategory.get(supCategory))
+              .find(Boolean);
+            if (measurement) {
+              const entries = Object.entries(measurement.values || {}).filter(
+                ([, value]) => value !== undefined && value !== null
+              );
+              if (entries.length > 0) {
+                const [, rawValue] = entries[0] as [string, number];
+                const formattedValue = Number.isFinite(rawValue)
+                  ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(rawValue)
+                  : String(rawValue ?? '');
+                sizeValue = formattedValue || '--';
+                sizeUnit = 'CM';
+              }
+            }
           }
         }
 
+        const hasData = sizeValue !== '--';
+
         return {
           productTypeId: productType.id,
-          label: productType.label,
-          sizeValue: '--',
-          sizeUnit: null,
-          hasData: false,
+          label: PRODUCT_TYPE_MAP[productType.id]?.label ?? productType.label,
+          sizeValue,
+          sizeUnit,
+          hasData,
         };
       });
 
       return { category, productTiles };
     });
-  }, [measurementByCategory, sizeLabelsByCategory]);
+  }, [garmentsByProductType, measurementByCategory, sizeLabelsByCategory]);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pb-16 pt-12 lg:px-6">
@@ -206,8 +329,13 @@ export function SizesDirectory({
                   type="button"
                   onClick={() => {
                     const primaryCategory = category.supabaseCategories[0] ?? 'tops';
-                    const query = tile.productTypeId ? `?productType=${tile.productTypeId}` : '';
-                    router.push(`/dashboard/garments/add/${primaryCategory}${query}`);
+                    const params = new URLSearchParams();
+                    if (tile.productTypeId) {
+                      params.set('productType', tile.productTypeId);
+                    }
+                    params.set('quickCategory', category.id);
+                    const query = params.toString();
+                    router.push(`/dashboard/garments/add/${primaryCategory}${query ? `?${query}` : ''}`);
                   }}
                   className={`flex min-h-[160px] flex-col justify-between rounded-[26px] border px-5 py-4 text-left transition ${
                     tile.hasData

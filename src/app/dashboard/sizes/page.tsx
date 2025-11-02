@@ -4,6 +4,7 @@ import { listMeasurementsForProfile } from '@/server/measurements';
 import type {
   BrandingSettings,
   DashboardSizePreference,
+  Garment,
   Measurement,
   SizeLabel,
   UserRole,
@@ -24,6 +25,11 @@ export default async function SizesDirectoryPage() {
   }
 
   let measurements: Measurement[] = [];
+  let garments: (Garment & {
+    brands?: {
+      name: string | null;
+    } | null;
+  })[] = [];
   let sizeLabels: SizeLabel[] = [];
   let sizePreferences: DashboardSizePreference[] = [];
   let userName = user.email?.split('@')[0] ?? null;
@@ -55,6 +61,25 @@ export default async function SizesDirectoryPage() {
     .order('created_at', { ascending: false });
 
   sizeLabels = (sizeLabelsData ?? []) as SizeLabel[];
+
+  const { data: garmentsData } = await supabase
+    .from('garments')
+    .select(
+      `
+        *,
+        brands (
+          name
+        )
+      `
+    )
+    .eq('profile_id', profile.id)
+    .order('created_at', { ascending: false });
+
+  garments = (garmentsData ?? []) as (Garment & {
+    brands?: {
+      name: string | null;
+    } | null;
+  })[];
 
   const { data: preferencesData } = await supabase
     .from('dashboard_size_preferences')
@@ -92,6 +117,7 @@ export default async function SizesDirectoryPage() {
       />
       <SizesDirectory
         measurements={measurements}
+        garments={garments}
         sizeLabels={sizeLabels}
         sizePreferences={sizePreferences}
         profileId={profile.id}
