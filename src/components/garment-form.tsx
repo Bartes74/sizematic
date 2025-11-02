@@ -108,8 +108,8 @@ export function GarmentForm({
   const [isLoading, setIsLoading] = useState(false);
 
   const baseQuickCategories = useMemo<QuickCategoryId[]>(
-    () => CATEGORY_TO_QUICK[category] ?? ['tops'],
-    [category]
+    () => (extraQuickCategories.length > 0 ? extraQuickCategories : CATEGORY_TO_QUICK[category] ?? ['tops']),
+    [category, extraQuickCategories]
   );
 
   const allowedQuickCategories = useMemo(() => {

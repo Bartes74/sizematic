@@ -739,6 +739,7 @@ export function HomePage({
           productTypeLabel,
           productTypeId,
           sizeLabelId,
+          quickCategoryId: config.id,
           hasData,
         };
       }
@@ -883,8 +884,15 @@ export function HomePage({
                 type="button"
                 onClick={() => {
                   const targetCategory = tile.primaryCategory;
-                  const query = tile.productTypeId ? `?productType=${tile.productTypeId}` : '';
-                  router.push(`/dashboard/garments/add/${targetCategory}${query}`);
+                  const params = new URLSearchParams();
+                  if (tile.productTypeId) {
+                    params.set('productType', tile.productTypeId);
+                  }
+                  if (tile.quickCategoryId) {
+                    params.set('quickCategory', tile.quickCategoryId);
+                  }
+                  const query = params.toString();
+                  router.push(`/dashboard/garments/add/${targetCategory}${query ? `?${query}` : ''}`);
                 }}
                 className="group flex min-h-[170px] flex-col items-center justify-between rounded-[26px] border border-border/60 bg-[var(--surface-interactive)] p-5 text-center shadow-[0_20px_45px_-32px_rgba(6,134,239,0.45)] transition hover:border-[#48A9A6] hover:shadow-[#48A9A6]/25"
               >

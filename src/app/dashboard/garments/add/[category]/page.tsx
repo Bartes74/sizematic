@@ -40,6 +40,10 @@ export default async function AddGarmentByCategoryPage({
           Boolean(item) && validQuickCategories.has(item as QuickCategoryId)
         )
     : [];
+
+  const displayHeading = quickCategoryList.length
+    ? QUICK_CATEGORY_CONFIGS.find((item) => quickCategoryList.includes(item.id))?.label ?? CATEGORY_NAMES[category as Category]
+    : CATEGORY_NAMES[category as Category];
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -98,7 +102,7 @@ export default async function AddGarmentByCategoryPage({
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            {CATEGORY_NAMES[category as Category]}
+            {displayHeading}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Dodaj przedmiot do swojej garderoby
@@ -112,7 +116,7 @@ export default async function AddGarmentByCategoryPage({
           brandMappings={brandMappings || []}
           bodyMeasurements={(bodyMeasurements as BodyMeasurements) || null}
           initialProductTypeId={productType ?? null}
-          extraQuickCategories={quickCategoryList as any}
+          extraQuickCategories={quickCategoryList}
         />
       </main>
     </div>
