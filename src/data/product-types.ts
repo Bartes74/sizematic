@@ -9,7 +9,7 @@ export type QuickCategoryId =
   | 'accessories'
   | 'footwear';
 
-export type ProductFieldType = 'text' | 'number' | 'select' | 'measurement';
+export type ProductFieldType = 'text' | 'number' | 'select' | 'measurement' | 'radio';
 
 export type ProductFieldDefinition = {
   id: string;
@@ -861,20 +861,29 @@ const JEWELRY_TYPES: ProductTypeDefinition[] = [
     supabaseCategories: ['accessories'],
     fields: [
       {
+        id: 'ring_size',
+        storageKey: 'ring_size',
+        label: 'Rozmiar pierścionka',
+        type: 'text',
+        required: true,
+        placeholder: 'np. 12, 16.5, 52',
+      },
+      {
         id: 'finger_circumference',
         storageKey: 'finger_circumference_mm',
         label: 'Obwód palca',
         type: 'measurement',
         unit: 'mm',
         measurementId: 'finger',
-        required: true,
+        helpText: 'Opcjonalnie – pomoże przeliczyć rozmiar w innych systemach.',
       },
       {
         id: 'hand_orientation',
         storageKey: 'hand_orientation',
         label: 'Ręka',
-        type: 'select',
+        type: 'radio',
         options: HAND_ORIENTATION_OPTIONS,
+        required: true,
       },
       {
         id: 'body_part',
@@ -882,6 +891,7 @@ const JEWELRY_TYPES: ProductTypeDefinition[] = [
         label: 'Część ciała',
         type: 'select',
         options: BODY_PART_OPTIONS,
+        required: true,
       },
       {
         id: 'finger',
@@ -889,6 +899,7 @@ const JEWELRY_TYPES: ProductTypeDefinition[] = [
         label: 'Palec',
         type: 'select',
         options: FINGER_OPTIONS,
+        required: true,
       },
     ],
   },

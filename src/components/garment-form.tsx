@@ -357,6 +357,41 @@ export function GarmentForm({
       </label>
     );
 
+    if (field.type === 'radio') {
+      return (
+        <div className="space-y-2">
+          {labelContent}
+          <div className="flex flex-wrap gap-2">
+            {(field.options ?? []).map((option) => {
+              const id = `${field.id}-${option}`;
+              return (
+                <label
+                  key={option}
+                  htmlFor={id}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
+                    value === option
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border bg-background hover:border-primary/40'
+                  }`}
+                >
+                  <input
+                    id={id}
+                    type="radio"
+                    name={field.id}
+                    value={option}
+                    checked={value === option}
+                    onChange={(event) => handleFieldChange(field.id, event.target.value)}
+                    className="hidden"
+                  />
+                  <span>{option}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
     if (field.type === 'select') {
       return (
         <div className="space-y-2">
