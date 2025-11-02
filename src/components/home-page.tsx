@@ -517,10 +517,65 @@ export function HomePage({
   const [eventError, setEventError] = useState<string | null>(null);
   const [eventSubmitting, setEventSubmitting] = useState(false);
   const [eventRecords, setEventRecords] = useState<DashboardEvent[]>(eventsProp);
+  const [participants, setParticipants] = useState<EventParticipant[]>(() => [
+    createEmptyParticipant(),
+  ]);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const buildParticipantState = useCallback(
+    (list?: DashboardEventParticipant[]) => {
+      if (!list || list.length === 0) {
+        return [createEmptyParticipant()];
+      }
+
+      return list.map((participant) => ({
+        id: Math.random().toString(36).slice(2),
+        firstName: participant.firstName ?? '',
+        lastName: participant.lastName ?? '',
+        phone: participant.phone ?? '',
+        email: participant.email ?? '',
+      }));
+    },
+    [createEmptyParticipant]
+  );
   const [selectedCalendarEvent, setSelectedCalendarEvent] = useState<CalendarEvent | null>(null);
   const handleCloseEventDetails = useCallback(() => {
     setSelectedCalendarEvent(null);
   }, []);
+  const openEventForm = useCallback(
+    (options?: { event?: DashboardEvent; seed?: { title: string; dateISO: string } }) => {
+      setEventError(null);
+      setEventSubmitting(false);
+
+      if (options?.event) {
+        const existingEvent = options.event;
+        setEditingEventId(existingEvent.id);
+        setEventTitle(existingEvent.title ?? '');
+        setEventDate(existingEvent.event_date ?? '');
+        setEventNotes(existingEvent.notes ?? '');
+        setIsRecurring(Boolean(existingEvent.is_recurring));
+        setParticipants(buildParticipantState(existingEvent.participants as DashboardEventParticipant[]));
+      } else {
+        const seedDateISO = options?.seed?.dateISO ?? '';
+        let formattedSeedDate = '';
+        if (seedDateISO) {
+          const seedDate = new Date(seedDateISO);
+          if (!Number.isNaN(seedDate.getTime())) {
+            formattedSeedDate = seedDate.toISOString().slice(0, 10);
+          }
+        }
+
+        setEditingEventId(null);
+        setEventTitle(options?.seed?.title ?? '');
+        setEventDate(formattedSeedDate);
+        setEventNotes('');
+        setIsRecurring(false);
+        setParticipants([createEmptyParticipant()]);
+      }
+
+      setIsAddEventOpen(true);
+    },
+    [buildParticipantState, createEmptyParticipant]
+  );
   useEffect(() => {
     setEventRecords(eventsProp);
   }, [eventsProp]);
@@ -563,9 +618,6 @@ export function HomePage({
     phone: '',
     email: '',
   }), []);
-  const [participants, setParticipants] = useState<EventParticipant[]>(() => [
-    createEmptyParticipant(),
-  ]);
   const resetEventForm = useCallback(() => {
     setEventTitle('');
     setEventDate('');
@@ -574,6 +626,7 @@ export function HomePage({
     setParticipants([createEmptyParticipant()]);
     setEventError(null);
     setEventSubmitting(false);
+    setEditingEventId(null);
   }, [createEmptyParticipant]);
 
   const bodyMeasurements = bodyMeasurementsProp ?? null;
@@ -833,6 +886,10 @@ export function HomePage({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const userEventKeys = new Set(
+      eventRecords.map((event) => `${event.event_date}-${(event.title ?? '').toLowerCase()}`)
+    );
+
     const entries: Array<{ sortKey: number; item: CalendarEvent }> = [];
 
     eventRecords.forEach((event) => {
@@ -887,6 +944,11 @@ export function HomePage({
 
       if (baseDate < today) {
         baseDate.setFullYear(today.getFullYear() + 1);
+      }
+
+      const dateKey = `${baseDate.toISOString().slice(0, 10)}-${event.title.toLowerCase()}`;
+      if (userEventKeys.has(dateKey)) {
+        return;
       }
 
       const diffTime = baseDate.getTime() - today.getTime();
@@ -1040,30 +1102,63 @@ export function HomePage({
 
       try {
         const supabase = createSupabaseClient();
-        const { data, error } = await supabase
-          .from('dashboard_events')
-          .insert({
-            profile_id: profileId,
-            title: eventTitle.trim(),
-            event_date: eventDate,
-            is_recurring: isRecurring,
-            participants: participantPayload,
-            notes: trimmedNotes || null,
-          })
-          .select()
-          .single();
+        let persistedEvent: DashboardEvent | null = null;
 
-        if (error) {
-          throw error;
+        if (editingEventId) {
+          const { data, error } = await supabase
+            .from('dashboard_events')
+            .update({
+              title: eventTitle.trim(),
+              event_date: eventDate,
+              is_recurring: isRecurring,
+              participants: participantPayload,
+              notes: trimmedNotes || null,
+            })
+            .eq('id', editingEventId)
+            .eq('profile_id', profileId)
+            .select()
+            .single();
+
+          if (error) {
+            throw error;
+          }
+
+          persistedEvent = {
+            ...data,
+            participants: (data.participants ?? []) as DashboardEventParticipant[],
+            notes: typeof data.notes === 'string' ? data.notes : null,
+          } as DashboardEvent;
+
+          setEventRecords((prev) =>
+            prev.map((existing) => (existing.id === editingEventId ? persistedEvent! : existing))
+          );
+        } else {
+          const { data, error } = await supabase
+            .from('dashboard_events')
+            .insert({
+              profile_id: profileId,
+              title: eventTitle.trim(),
+              event_date: eventDate,
+              is_recurring: isRecurring,
+              participants: participantPayload,
+              notes: trimmedNotes || null,
+            })
+            .select()
+            .single();
+
+          if (error) {
+            throw error;
+          }
+
+          persistedEvent = {
+            ...data,
+            participants: (data.participants ?? []) as DashboardEventParticipant[],
+            notes: typeof data.notes === 'string' ? data.notes : null,
+          } as DashboardEvent;
+
+          setEventRecords((prev) => [...prev, persistedEvent!]);
         }
 
-        const insertedEvent = {
-          ...data,
-          participants: (data.participants ?? []) as DashboardEventParticipant[],
-          notes: typeof data.notes === 'string' ? data.notes : null,
-        } as DashboardEvent;
-
-        setEventRecords((prev) => [...prev, insertedEvent]);
         setIsAddEventOpen(false);
         resetEventForm();
         void router.refresh();
@@ -1074,7 +1169,7 @@ export function HomePage({
         setEventSubmitting(false);
       }
     },
-    [eventDate, eventNotes, eventTitle, isRecurring, participants, profileId, resetEventForm, router]
+    [editingEventId, eventDate, eventNotes, eventTitle, isRecurring, participants, profileId, resetEventForm, router]
   );
 
   const activityItems: ActivityItem[] = useMemo(() => {
@@ -1233,7 +1328,7 @@ export function HomePage({
             </div>
           <button
             type="button"
-            onClick={() => setIsAddEventOpen(true)}
+            onClick={() => openEventForm()}
             className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -1615,7 +1710,7 @@ export function HomePage({
                 </div>
               )}
 
-              <div className="flex justify-end">
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={handleCloseEventDetails}
@@ -1623,6 +1718,34 @@ export function HomePage({
                 >
                   Zamknij
                 </button>
+                {selectedCalendarEvent.kind === 'user' && userEvent ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleCloseEventDetails();
+                      openEventForm({ event: userEvent });
+                    }}
+                    className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                  >
+                    Edytuj wydarzenie
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleCloseEventDetails();
+                      openEventForm({
+                        seed: {
+                          title: selectedCalendarEvent.title,
+                          dateISO: selectedCalendarEvent.eventDateISO,
+                        },
+                      });
+                    }}
+                    className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                  >
+                    Personalizuj wydarzenie
+                  </button>
+                )}
               </div>
             </div>
           </ModalShell>
