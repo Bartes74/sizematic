@@ -304,6 +304,7 @@ export type WishlistItem = {
   id: string;
   wishlist_id: string;
   url: string;
+  category: string | null;
   product_name: string | null;
   product_brand: string | null;
   image_url: string | null;

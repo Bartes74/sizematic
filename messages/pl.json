@@ -6,6 +6,7 @@
     "error": "Wystąpił błąd",
     "save": "Zapisz",
     "cancel": "Anuluj",
+    "clear": "Wyczyść",
     "delete": "Usuń",
     "edit": "Edytuj",
     "close": "Zamknij"
@@ -14,6 +15,90 @@
     "light": "Jasny",
     "dark": "Ciemny",
     "system": "System"
+  },
+  "wishlist": {
+    "title": "Lista marzeń",
+    "subtitle": "Dodawaj pomysły na prezenty, a my zadbamy o szczegóły.",
+    "form": {
+      "category": "Kategoria",
+      "categoryPlaceholder": "np. Biżuteria",
+      "url": "Link do sklepu",
+      "urlPlaceholder": "https://przykład.pl/produkt",
+      "notes": "Opis (opcjonalnie)",
+      "notesPlaceholder": "Krótka notatka lub szczegóły dla Ciebie",
+      "submit": "Dodaj do listy",
+      "saving": "Dodawanie..."
+    },
+    "emptyState": "Twoja lista jest pusta. Dodaj pierwszy produkt, aby rozpocząć.",
+    "defaults": {
+      "title": "Moja lista marzeń"
+    },
+    "errors": {
+      "bootstrapFailed": "Nie udało się przygotować listy marzeń. Spróbuj ponownie.",
+      "noWishlist": "Najpierw utwórz listę marzeń.",
+      "urlRequired": "Podaj link do sklepu.",
+      "invalidUrl": "Adres URL jest nieprawidłowy.",
+      "addFailed": "Nie udało się dodać pozycji do listy.",
+      "refreshFailed": "Nie udało się odświeżyć danych produktu.",
+      "priceRange": "Podaj poprawny zakres ceny.",
+      "loadFailed": "Nie udało się pobrać elementów listy."
+    },
+    "cards": {
+      "noImage": "Brak zdjęcia",
+      "fallbackTitle": "Nowy produkt",
+      "loading": "Pobieram dane produktu...",
+      "error": "Nie udało się pobrać danych produktu.",
+      "retry": "Spróbuj ponownie",
+      "retryShort": "Ponów",
+      "brandFallback": "Marka nieznana",
+      "refreshHint": "Spróbuj ponownie pobrać dane"
+    },
+    "details": {
+      "fallbackTitle": "Szczegóły produktu",
+      "categoryLabel": "Kategoria",
+      "priceLabel": "Cena",
+      "priceUnavailable": "Cena niedostępna",
+      "notesLabel": "Notatka",
+      "storeLink": "Link do sklepu",
+      "refresh": "Odśwież dane",
+      "delete": "Usuń z listy",
+      "confirmDelete": "Potwierdź usunięcie",
+      "notFetched": "Brak danych",
+      "lastSync": "Ostatnie pobranie: {{value}}"
+    },
+    "filters": {
+      "title": "Filtry i sortowanie",
+      "subtitle": "Zawęź listę według kategorii, ceny lub daty dodania.",
+      "categoryLabel": "Kategoria",
+      "categoryAll": "Wszystkie kategorie",
+      "priceLabel": "Cena",
+      "min": "Min",
+      "max": "Maks",
+      "sortLabel": "Sortowanie",
+      "sortDateDesc": "Najnowsze",
+      "sortDateAsc": "Najstarsze",
+      "sortPriceDesc": "Cena malejąco",
+      "sortPriceAsc": "Cena rosnąco",
+      "apply": "Zastosuj",
+      "clear": "Wyczyść filtry"
+    },
+    "summary": "Wyświetlono {{count}} z {{total}} pozycji",
+    "actions": {
+      "loadMore": "Załaduj więcej",
+      "shareList": "Udostępnij listę",
+      "shareItem": "Udostępnij tę rzecz"
+    },
+    "shareModal": {
+      "titleList": "Link publiczny: {{list}}",
+      "titleItem": "Link publiczny: {{item}}",
+      "subtitle": "Każdy, kto otrzyma link, zobaczy szczegóły tej pozycji.",
+      "loading": "Generuję link...",
+      "retry": "Spróbuj ponownie",
+      "linkLabel": "Link",
+      "copy": "Kopiuj link",
+      "copied": "Skopiowano!",
+      "disclaimer": "Udostępniaj link wyłącznie zaufanym osobom."
+    }
   },
   "nav": {
     "home": "Strona główna",

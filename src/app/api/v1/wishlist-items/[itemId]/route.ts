@@ -8,6 +8,7 @@ type UpdatePayload = Partial<{
   product_brand: string | null;
   matched_size: string | null;
   notes: string | null;
+  category: string | null;
   size_confidence: SizeMatchConfidence;
 }>;
 
@@ -16,8 +17,60 @@ const ALLOWED_FIELDS = new Set([
   "product_brand",
   "matched_size",
   "notes",
+  "category",
   "size_confidence",
 ]);
+
+const MAX_CATEGORY_LENGTH = 120;
+const MAX_NOTES_LENGTH = 2000;
+
+export async function GET(_request: NextRequest, context: unknown) {
+  const { params } = context as { params: { itemId: string } };
+  const { itemId } = params;
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
+    }
+
+    const { data: item, error } = await supabase
+      .from("wishlist_items")
+      .select("*, wishlists!inner(owner_id)")
+      .eq("id", itemId)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!item) {
+      return NextResponse.json({ message: "Pozycja nie została znaleziona" }, { status: 404 });
+    }
+
+    const ownerRecord = item as typeof item & { wishlists: { owner_id: string } };
+    const wishlistInfo = ownerRecord.wishlists;
+
+    if (!wishlistInfo || wishlistInfo.owner_id !== user.id) {
+      return NextResponse.json({ message: "Brak dostępu do tej pozycji" }, { status: 403 });
+    }
+
+    const { wishlists: _omit, ...rest } = ownerRecord;
+    void _omit;
+
+    return NextResponse.json({ item: rest });
+  } catch (error) {
+    console.error(`GET /v1/wishlist-items/${itemId} failed:`, error);
+    return NextResponse.json(
+      { message: "Nie udało się pobrać pozycji listy życzeń" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function PATCH(request: NextRequest, context: unknown) {
   const { params } = context as { params: { itemId: string } };
@@ -78,6 +131,24 @@ export async function PATCH(request: NextRequest, context: unknown) {
     for (const key of Object.keys(body) as Array<keyof UpdatePayload>) {
       if (key === "size_confidence") {
         payload.size_confidence = body.size_confidence;
+      } else if (key === "category") {
+        const normalized = body.category?.trim() || null;
+        if (normalized && normalized.length > MAX_CATEGORY_LENGTH) {
+          return NextResponse.json(
+            { message: "Kategorie mogą mieć maksymalnie 120 znaków" },
+            { status: 400 }
+          );
+        }
+        payload.category = normalized;
+      } else if (key === "notes") {
+        const normalizedNotes = body.notes?.trim() || null;
+        if (normalizedNotes && normalizedNotes.length > MAX_NOTES_LENGTH) {
+          return NextResponse.json(
+            { message: "Notatki mogą mieć maksymalnie 2000 znaków" },
+            { status: 400 }
+          );
+        }
+        payload.notes = normalizedNotes;
       } else {
         payload[key] = (body[key] ?? null) as UpdatePayload[Exclude<
           keyof UpdatePayload,
@@ -115,6 +186,70 @@ export async function PATCH(request: NextRequest, context: unknown) {
     console.error(`PATCH /v1/wishlist-items/${itemId} failed:`, error);
     return NextResponse.json(
       { message: "Nie udało się zaktualizować pozycji listy życzeń" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(_request: NextRequest, context: unknown) {
+  const { params } = context as { params: { itemId: string } };
+  const { itemId } = params;
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
+    }
+
+    const { data: item, error: itemError } = await supabase
+      .from("wishlist_items")
+      .select("wishlist_id")
+      .eq("id", itemId)
+      .maybeSingle();
+
+    if (itemError) {
+      throw new Error(itemError.message);
+    }
+
+    if (!item) {
+      return NextResponse.json({ message: "Pozycja nie została znaleziona" }, { status: 404 });
+    }
+
+    const { data: wishlist, error: wishlistError } = await supabase
+      .from("wishlists")
+      .select("owner_id")
+      .eq("id", item.wishlist_id)
+      .maybeSingle();
+
+    if (wishlistError) {
+      throw new Error(wishlistError.message);
+    }
+
+    if (!wishlist || wishlist.owner_id !== user.id) {
+      return NextResponse.json(
+        { message: "Brak uprawnień do usunięcia tej pozycji" },
+        { status: 403 }
+      );
+    }
+
+    const { error: deleteError } = await supabase
+      .from("wishlist_items")
+      .delete()
+      .eq("id", itemId);
+
+    if (deleteError) {
+      throw new Error(deleteError.message);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(`DELETE /v1/wishlist-items/${itemId} failed:`, error);
+    return NextResponse.json(
+      { message: "Nie udało się usunąć pozycji z listy życzeń" },
       { status: 500 }
     );
   }

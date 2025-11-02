@@ -14,10 +14,12 @@
 | Quick Sizes | Dodanie rozmiaru z modalu, aktualizacja skrótów, weryfikacja kafelków | ✅ (dashboard.spec.ts) |
 | Trusted Circle | Widok listy członków + fallback gdy brak danych | ✅ (dashboard.spec.ts) |
 | Strona „Zobacz wszystkie rozmiary” | Nawigacja z dashboardu, render kart, modal edycji | ✅ (sizes-directory.spec.ts) |
+| Lista marzeń | Dodanie rzeczy, udostępnienie listy (share modal), kliknięcie linku w widoku publicznym | ✅ (wishlist.spec.ts) |
 
 ## Założenia
 - Używamy testowego użytkownika seed (do ustalenia w kolejnych krokach).
 - `PLAYWRIGHT_TEST_EMAIL` oraz `PLAYWRIGHT_TEST_PASSWORD` muszą wskazywać tego użytkownika.
+- Testy listy życzeń wymagają użytkownika z aktywną listą; ustaw zmienne `E2E_WISHLIST_EMAIL` / `E2E_WISHLIST_PASSWORD` (dashboard) i `E2E_WISHLIST_PUBLIC_TOKEN` (widok publiczny).
 - Testy uruchamiamy w Chrome (headless). Inne przeglądarki dodamy po stabilizacji.
 - MCP wykorzystamy do debuggingu (komendy `get-screenshot`, `get-context`, nagrania).
 

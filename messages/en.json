@@ -6,6 +6,7 @@
     "error": "An error occurred",
     "save": "Save",
     "cancel": "Cancel",
+    "clear": "Clear",
     "delete": "Delete",
     "edit": "Edit",
     "close": "Close"
@@ -14,6 +15,90 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "subtitle": "Collect gift ideas and let GiftFit handle the details.",
+    "form": {
+      "category": "Category",
+      "categoryPlaceholder": "e.g. Jewelry",
+      "url": "Store link",
+      "urlPlaceholder": "https://example.com/product",
+      "notes": "Description (optional)",
+      "notesPlaceholder": "Add a short note for yourself",
+      "submit": "Add to list",
+      "saving": "Adding..."
+    },
+    "emptyState": "Your wishlist is empty. Add the first product to get started.",
+    "defaults": {
+      "title": "My wishlist"
+    },
+    "errors": {
+      "bootstrapFailed": "We couldn't prepare your wishlist. Please try again.",
+      "noWishlist": "Create a wishlist first.",
+      "urlRequired": "Enter a store link.",
+      "invalidUrl": "The URL looks incorrect.",
+      "addFailed": "We couldn't add the item to the list.",
+      "refreshFailed": "We couldn't refresh product data.",
+      "priceRange": "Check the price range.",
+      "loadFailed": "We couldn't load wishlist items."
+    },
+    "cards": {
+      "noImage": "No image",
+      "fallbackTitle": "New product",
+      "loading": "Fetching product data...",
+      "error": "We couldn't fetch product data.",
+      "retry": "Try again",
+      "retryShort": "Retry",
+      "brandFallback": "Brand unavailable",
+      "refreshHint": "Try fetching data again"
+    },
+    "details": {
+      "fallbackTitle": "Product details",
+      "categoryLabel": "Category",
+      "priceLabel": "Price",
+      "priceUnavailable": "Price unavailable",
+      "notesLabel": "Note",
+      "storeLink": "Store link",
+      "refresh": "Refresh data",
+      "delete": "Remove from list",
+      "confirmDelete": "Confirm removal",
+      "notFetched": "No data yet",
+      "lastSync": "Last fetched: {{value}}"
+    },
+    "filters": {
+      "title": "Filters & sorting",
+      "subtitle": "Narrow the list by category, price or date.",
+      "categoryLabel": "Category",
+      "categoryAll": "All categories",
+      "priceLabel": "Price",
+      "min": "Min",
+      "max": "Max",
+      "sortLabel": "Sort by",
+      "sortDateDesc": "Newest first",
+      "sortDateAsc": "Oldest first",
+      "sortPriceDesc": "Price: high to low",
+      "sortPriceAsc": "Price: low to high",
+      "apply": "Apply",
+      "clear": "Clear filters"
+    },
+    "summary": "Showing {{count}} of {{total}} items",
+    "actions": {
+      "loadMore": "Load more",
+      "shareList": "Share list",
+      "shareItem": "Share this item"
+    },
+    "shareModal": {
+      "titleList": "Public link: {{list}}",
+      "titleItem": "Public link: {{item}}",
+      "subtitle": "Anyone with the link can view these details.",
+      "loading": "Generating link...",
+      "retry": "Try again",
+      "linkLabel": "Link",
+      "copy": "Copy link",
+      "copied": "Copied!",
+      "disclaimer": "Share this link only with people you trust."
+    }
   },
   "nav": {
     "home": "Home",

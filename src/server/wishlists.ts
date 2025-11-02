@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createSupabaseAdminClient } from "@/lib/supabase";
+import { logWishlistEvent } from "@/server/wishlist-events";
 import type {
   ItemParseStatus,
   SizeMatchConfidence,
@@ -67,6 +68,19 @@ export async function enrichWishlistItemFromUrl(params: {
       .from("wishlist_items")
       .update(updatePayload)
       .eq("id", itemId);
+
+    await logWishlistEvent({
+      profileId: ownerProfileId,
+      wishlistId,
+      wishlistItemId: itemId,
+      eventType: "wishlist_metadata_success",
+      source: "owner",
+      metadata: {
+        requestUrl: url,
+        productName: updatePayload.product_name,
+        priceSnapshot: updatePayload.price_snapshot,
+      },
+    });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Nie udało się pobrać danych produktu";
@@ -80,6 +94,18 @@ export async function enrichWishlistItemFromUrl(params: {
         size_confidence: "missing",
       })
       .eq("id", itemId);
+
+    await logWishlistEvent({
+      profileId: ownerProfileId,
+      wishlistId,
+      wishlistItemId: itemId,
+      eventType: "wishlist_metadata_failed",
+      source: "owner",
+      metadata: {
+        requestUrl: url,
+        error: message,
+      },
+    });
   }
 }
 
