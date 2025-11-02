@@ -360,6 +360,11 @@ export function GarmentForm({
     if (field.type === 'radio') {
       return (
         <fieldset className="space-y-2 border-0 p-0">
+          {field.required ? (
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              * pole wymagane
+            </span>
+          ) : null}
           <div
             className={`flex gap-2 ${
               field.id === 'finger' ? 'flex-wrap md:flex-nowrap overflow-x-auto' : 'flex-wrap'
