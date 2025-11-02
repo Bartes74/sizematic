@@ -56,6 +56,7 @@ type HomePageProps = {
   sizePreferences?: DashboardSizePreference[];
   profileId: string;
   events?: DashboardEvent[];
+  wishlistItems?: DashboardWishlistItem[];
   trustedCircleInitial?: {
     plan: string | null;
     limit: number | null;
@@ -84,6 +85,16 @@ type CalendarEvent = {
   eventDateISO: string;
   userEvent?: DashboardEvent;
   seedEvent?: GiftCalendarSeedEvent;
+};
+
+type DashboardWishlistItem = {
+  id: string;
+  productName: string | null;
+  productBrand: string | null;
+  imageUrl: string | null;
+  url: string | null;
+  wishlistTitle: string;
+  status: string | null;
 };
 
 type EventParticipant = {
@@ -485,7 +496,7 @@ function parseSizeLabelParts(label: string): { value: string; unit: string | nul
 }
 
 export function HomePage({
-  measurements,
+  measurements: _measurements,
   userName,
   userRole = 'free',
   avatarUrl,
@@ -495,6 +506,7 @@ export function HomePage({
   sizePreferences = [],
   profileId,
   events: eventsProp = [],
+  wishlistItems: wishlistItemsProp = [],
   trustedCircleInitial,
   bodyMeasurements: bodyMeasurementsProp = null,
 }: HomePageProps) {
@@ -623,6 +635,7 @@ export function HomePage({
   }, [createEmptyParticipant]);
 
   const bodyMeasurements = bodyMeasurementsProp ?? null;
+  const wishlistItems = wishlistItemsProp;
 
   const sizeLabelsById = useMemo(() => {
     const map = new Map<string, SizeLabel>();
@@ -1236,6 +1249,79 @@ export function HomePage({
             ))}
           </div>
         </div>
+
+        <SectionCard>
+          <div className="flex items-center justify-between gap-3 pb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">Lista marzeń</h2>
+              <p className="text-sm text-muted-foreground">
+                Zapisuj pomysły na prezenty i udostępniaj je bliskim, by ułatwić im wybór idealnej rzeczy.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/wishlists"
+              className="text-sm font-semibold text-primary transition hover:text-primary/80"
+            >
+              Otwórz listę
+            </Link>
+          </div>
+
+          {wishlistItems.length ? (
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {wishlistItems.map((item) => {
+                const productName = item.productName?.trim() || 'Nowy pomysł na prezent';
+                const productBrand = item.productBrand?.trim();
+                const wishlistTitle = item.wishlistTitle || 'Lista marzeń';
+                const href = item.url ?? '#';
+
+                return (
+                  <a
+                    key={item.id}
+                    href={href}
+                    target={item.url ? '_blank' : undefined}
+                    rel={item.url ? 'noopener noreferrer' : undefined}
+                    className="flex items-center gap-4 rounded-[24px] border border-border/70 bg-[var(--surface-interactive)] px-4 py-4 transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                  >
+                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
+                      {item.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={item.imageUrl} alt={productName} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                          Brak zdjęcia
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-foreground">{productName}</p>
+                      {productBrand ? (
+                        <p className="truncate text-xs uppercase tracking-wide text-muted-foreground">
+                          {productBrand}
+                        </p>
+                      ) : null}
+                      <p className="mt-2 text-xs text-muted-foreground">Lista: {wishlistTitle}</p>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-[26px] border border-dashed border-border/70 bg-[var(--surface-interactive)] px-6 py-10 text-center">
+              <h3 className="text-base font-semibold text-foreground">Twoja lista marzeń czeka na pierwsze pozycje</h3>
+              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                Zanotuj link, produkt lub inspirację – wystarczy kilka kliknięć, by inni wiedzieli, co sprawi Ci radość.
+              </p>
+              <Link
+                href="/dashboard/wishlists"
+                className="mt-4 inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+              >
+                Dodaj pierwszy prezent
+              </Link>
+            </div>
+          )}
+        </SectionCard>
+
         {shouldShowDataGaps ? (
           <SectionCard>
             <div className="flex items-center justify-between gap-3 pb-2">

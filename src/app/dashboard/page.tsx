@@ -10,6 +10,7 @@ import type {
   UserRole,
   BodyMeasurements,
   DashboardEvent,
+  WishlistStatus,
 } from "@/lib/types";
 import { redirect } from "next/navigation";
 import { getTrustedCircleSnapshot } from "@/server/trusted-circle";
@@ -48,6 +49,15 @@ export default async function Home() {
   let trustedCircleInitial: Awaited<ReturnType<typeof getTrustedCircleSnapshot>> | null = null;
   let bodyMeasurements: BodyMeasurements | null = null;
   let events: DashboardEvent[] = [];
+  let wishlistItems: {
+    id: string;
+    productName: string | null;
+    productBrand: string | null;
+    imageUrl: string | null;
+    url: string | null;
+    wishlistTitle: string;
+    status: WishlistStatus | null;
+  }[] = [];
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -143,6 +153,52 @@ export default async function Home() {
     } as DashboardEvent;
   });
 
+  const { data: wishlistItemsData } = await supabase
+    .from('wishlist_items')
+    .select(
+      `
+        id,
+        product_name,
+        product_brand,
+        image_url,
+        url,
+        wishlists!inner (
+          id,
+          title,
+          status,
+          owner_profile_id
+        )
+      `
+    )
+    .eq('wishlists.owner_profile_id', profile.id)
+    .order('created_at', { ascending: false })
+    .limit(6);
+
+  wishlistItems = ((wishlistItemsData ?? []) as Record<string, unknown>[]).map((raw) => {
+    const row = raw as {
+      id: string;
+      product_name: string | null;
+      product_brand: string | null;
+      image_url: string | null;
+      url: string | null;
+      wishlists: {
+        id: string;
+        title: string | null;
+        status: WishlistStatus | null;
+      } | null;
+    };
+
+    return {
+      id: row.id,
+      productName: row.product_name ?? null,
+      productBrand: row.product_brand ?? null,
+      imageUrl: row.image_url ?? null,
+      url: row.url ?? null,
+      wishlistTitle: row.wishlists?.title ?? 'Lista marzeń',
+      status: row.wishlists?.status ?? null,
+    };
+  });
+
   return (
     <HomePage
       measurements={measurements}
@@ -155,6 +211,7 @@ export default async function Home() {
       sizePreferences={sizePreferences}
       profileId={profile.id}
       events={events}
+      wishlistItems={wishlistItems}
       trustedCircleInitial={trustedCircleInitial ?? undefined}
       bodyMeasurements={bodyMeasurements}
     />
