@@ -400,6 +400,25 @@ function BodyMeasurementQuickModal({
   );
 }
 
+const KNOWN_SIZE_UNITS = new Set([
+  'cm',
+  'mm',
+  'in',
+  'eu',
+  'us',
+  'uk',
+  'it',
+  'fr',
+  'de',
+  'jp',
+  'cn',
+  'br',
+  'au',
+  'ru',
+  'mx',
+  'pl',
+]);
+
 function parseSizeLabelParts(label: string): { value: string; unit: string | null } {
   const trimmed = label.trim();
   if (!trimmed) {
