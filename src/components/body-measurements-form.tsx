@@ -153,7 +153,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
               localizedPurpose = tDefinitions(`${translationKey}.purpose`);
             } catch {}
             try {
-              const raw = tDefinitions.raw(`${translationKey}.how`, { returnObjects: true }) as unknown;
+              const raw = tDefinitions.raw(`${translationKey}.how`) as unknown;
               if (Array.isArray(raw)) {
                 localizedHow = raw as string[];
               }

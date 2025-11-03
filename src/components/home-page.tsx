@@ -358,7 +358,7 @@ function BodyMeasurementQuickModal({
       purpose = tMeasurementDefinitions(`${translationKey}.purpose`);
     } catch {}
     try {
-      const raw = tMeasurementDefinitions.raw(`${translationKey}.how`, { returnObjects: true }) as unknown;
+      const raw = tMeasurementDefinitions.raw(`${translationKey}.how`) as unknown;
       if (Array.isArray(raw)) {
         how = raw as string[];
       }
@@ -1368,7 +1368,13 @@ export function HomePage({
             </Link>
           </div>
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-              {quickSizeTiles.map((tile) => (
+            {quickSizeTiles.map((tile) => {
+              const categoryLabel = tQuickCategories.optional(tile.categoryId) ?? tile.label;
+              const translatedProductType = tile.productTypeId
+                ? tProductTypes.optional(tile.productTypeId) ?? tile.productTypeLabel
+                : tile.productTypeLabel;
+
+              return (
               <button
                 key={tile.categoryId}
                 type="button"
@@ -1387,7 +1393,7 @@ export function HomePage({
                 className="group flex min-h-[170px] flex-col items-center justify-between rounded-[26px] border border-border/60 bg-[var(--surface-interactive)] p-5 text-center shadow-[0_20px_45px_-32px_rgba(6,134,239,0.45)] transition hover:border-[#48A9A6] hover:shadow-[#48A9A6]/25"
               >
                 <p className="text-sm font-semibold text-foreground">
-                  {tQuickCategories(tile.categoryId as any, { defaultMessage: tile.label })}
+                  {categoryLabel}
                 </p>
                 {tile.hasData ? (
                   <div className="flex items-baseline gap-2">
@@ -1402,16 +1408,11 @@ export function HomePage({
                   <span className="text-3xl font-semibold text-foreground">--</span>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  {tile.hasData
-                    ? tile.productTypeId
-                      ? tProductTypes(tile.productTypeId as any, {
-                          defaultMessage: tile.productTypeLabel,
-                        })
-                      : tile.productTypeLabel
-                    : tSizesSection('emptyProductType')}
+                  {tile.hasData ? translatedProductType : tSizesSection('emptyProductType')}
                 </p>
               </button>
-            ))}
+              );
+            })}
           </div>
         </div>
 
