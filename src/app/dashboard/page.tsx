@@ -1,6 +1,6 @@
 import { HomePage } from "@/components/home-page";
 import { listMeasurementsForProfile } from "@/server/measurements";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import type {
   BrandingSettings,
   DashboardSizePreference,
@@ -19,6 +19,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const supabase = await createClient();
+  const adminSupabase = createSupabaseAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -153,7 +154,7 @@ export default async function Home() {
     } as DashboardEvent;
   });
 
-  const { data: wishlistItemsData } = await supabase
+  const { data: wishlistItemsData } = await adminSupabase
     .from('wishlist_items')
     .select(
       `

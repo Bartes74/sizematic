@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent, MouseEvent as ReactMouseEvent, ReactNode } from 'react';
 
+import { PRODUCT_TREE } from '@/data/product-tree';
 import type { Wishlist, WishlistItem } from '@/lib/types';
 
 type WishlistDashboardProps = {
@@ -52,6 +53,8 @@ type PriceSnapshot = {
   amount?: string | number | null;
   currency?: string | null;
 };
+
+const STATIC_WISHLIST_CATEGORIES = PRODUCT_TREE.map((category) => category.label);
 
 function normalizeItem(item: WishlistItem): WishlistItemView {
   return {
@@ -562,6 +565,17 @@ export default function WishlistDashboard({
   const [formLoading, setFormLoading] = useState(false);
   const [bootstrapLoading, setBootstrapLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<WishlistItemView | null>(null);
+
+  const categoryOptions = useMemo(() => {
+    const labels = new Set<string>();
+    STATIC_WISHLIST_CATEGORIES.forEach((label) => labels.add(label));
+    availableCategories.forEach((label) => {
+      if (label) {
+        labels.add(label);
+      }
+    });
+    return Array.from(labels).sort((a, b) => a.localeCompare(b, 'pl'));
+  }, [availableCategories]);
 
   const activeWishlist = useMemo(() => {
     return wishlists.find((entry) => entry.id === activeWishlistId) ?? null;
@@ -1099,15 +1113,19 @@ export default function WishlistDashboard({
             <label htmlFor="wishlist-category" className="text-sm font-semibold text-muted-foreground">
               {t('form.category')}
             </label>
-            <input
+            <select
               id="wishlist-category"
-              type="text"
               className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               value={formCategory}
               onChange={(event) => setFormCategory(event.target.value)}
-              placeholder={t('form.categoryPlaceholder')}
-              maxLength={120}
-            />
+            >
+              <option value="">{t('form.categoryPlaceholder')}</option>
+              {categoryOptions.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="space-y-2 md:col-span-2">
             <label htmlFor="wishlist-url" className="text-sm font-semibold text-muted-foreground">
@@ -1206,7 +1224,7 @@ export default function WishlistDashboard({
               onChange={(event: ChangeEvent<HTMLSelectElement>) => setCategoryFilter(event.target.value)}
             >
               <option value="all">{t('filters.categoryAll')}</option>
-              {availableCategories.map((category) => (
+              {categoryOptions.map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>
