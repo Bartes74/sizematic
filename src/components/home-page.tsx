@@ -543,10 +543,12 @@ export function HomePage({
 }: HomePageProps) {
   const locale = useLocale();
   const tCommon = useTranslations('common');
-  const tWishlist = useTranslations('wishlist');
-  const tEvents = useTranslations('dashboard.events');
   const tEventsModal = useTranslations('dashboard.events.modal');
   const tEventsDetails = useTranslations('dashboard.events.details');
+  const tEvents = useTranslations('dashboard.events');
+  const tWishlist = useTranslations('wishlist');
+  const tQuickCategories = useTranslations('dashboard.quickCategories');
+  const tProductTypes = useTranslations('dashboard.productTypes');
   const tSizesSection = useTranslations('dashboard.sizesSection');
   const tDataGaps = useTranslations('dashboard.dataGaps');
   const tMeasurementsForm = useTranslations('measurementsForm');
@@ -1336,7 +1338,7 @@ export function HomePage({
             </Link>
           </div>
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-            {quickSizeTiles.map((tile) => (
+              {quickSizeTiles.map((tile) => (
               <button
                 key={tile.categoryId}
                 type="button"
@@ -1354,7 +1356,9 @@ export function HomePage({
                 }}
                 className="group flex min-h-[170px] flex-col items-center justify-between rounded-[26px] border border-border/60 bg-[var(--surface-interactive)] p-5 text-center shadow-[0_20px_45px_-32px_rgba(6,134,239,0.45)] transition hover:border-[#48A9A6] hover:shadow-[#48A9A6]/25"
               >
-                <p className="text-sm font-semibold text-foreground">{tile.label}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {tQuickCategories(tile.categoryId as any, { defaultMessage: tile.label })}
+                </p>
                 {tile.hasData ? (
                   <div className="flex items-baseline gap-2">
                     <p className="text-3xl font-semibold text-foreground">{tile.sizeValue}</p>
@@ -1367,7 +1371,15 @@ export function HomePage({
                 ) : (
                   <span className="text-3xl font-semibold text-foreground">--</span>
                 )}
-                <p className="text-xs text-muted-foreground">{tile.productTypeLabel}</p>
+                <p className="text-xs text-muted-foreground">
+                  {tile.hasData
+                    ? tile.productTypeId
+                      ? tProductTypes(tile.productTypeId as any, {
+                          defaultMessage: tile.productTypeLabel,
+                        })
+                      : tile.productTypeLabel
+                    : tSizesSection('emptyProductType')}
+                </p>
               </button>
             ))}
           </div>
