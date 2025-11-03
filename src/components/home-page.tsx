@@ -293,9 +293,10 @@ type ModalShellProps = {
   onClose: () => void;
   children: ReactNode;
   maxWidth?: string;
+  closeLabel?: string;
 };
 
-function ModalShell({ onClose, children, maxWidth = 'max-w-2xl' }: ModalShellProps) {
+function ModalShell({ onClose, children, maxWidth = 'max-w-2xl', closeLabel = 'Close' }: ModalShellProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className={`w-full ${maxWidth} rounded-3xl border border-border bg-card p-6 shadow-2xl`}>
@@ -304,7 +305,7 @@ function ModalShell({ onClose, children, maxWidth = 'max-w-2xl' }: ModalShellPro
             type="button"
             onClick={onClose}
             className="rounded-full border border-border/60 p-2 text-muted-foreground transition hover:border-primary hover:text-primary"
-            aria-label="Zamknij"
+            aria-label={closeLabel}
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />
@@ -544,6 +545,8 @@ export function HomePage({
   const tCommon = useTranslations('common');
   const tWishlist = useTranslations('wishlist');
   const tEvents = useTranslations('dashboard.events');
+  const tEventsModal = useTranslations('dashboard.events.modal');
+  const tEventsDetails = useTranslations('dashboard.events.details');
   const tWishlistSection = useTranslations('dashboard.wishlistSection');
   void _measurements;
   const router = useRouter();
@@ -1179,7 +1182,7 @@ export function HomePage({
       event.preventDefault();
 
       if (!eventTitle.trim() || !eventDate) {
-        setEventError('Uzupełnij nazwę i datę wydarzenia.');
+        setEventError(tEventsModal('errors.missingRequired'));
         return;
       }
 
@@ -1275,13 +1278,24 @@ export function HomePage({
         resetEventForm();
         void router.refresh();
       } catch (insertionError) {
-        console.error('Nie udało się zapisać wydarzenia', insertionError);
-        setEventError('Nie udało się zapisać wydarzenia. Spróbuj ponownie.');
+        console.error('Failed to save event', insertionError);
+        setEventError(tEventsModal('errors.saveFailed'));
       } finally {
         setEventSubmitting(false);
       }
     },
-    [editingEventId, eventDate, eventNotes, eventTitle, isRecurring, participants, profileId, resetEventForm, router]
+    [
+      editingEventId,
+      eventDate,
+      eventNotes,
+      eventTitle,
+      isRecurring,
+      participants,
+      profileId,
+      resetEventForm,
+      router,
+      tEventsModal,
+    ]
   );
 
   return (
@@ -1587,7 +1601,7 @@ export function HomePage({
       </main>
 
       {pendingDeleteItem ? (
-        <ModalShell onClose={handleCancelWishlistDelete} maxWidth="max-w-md">
+        <ModalShell onClose={handleCancelWishlistDelete} maxWidth="max-w-md" closeLabel={tCommon('close')}>
           <div className="space-y-5">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-foreground">
@@ -1629,19 +1643,19 @@ export function HomePage({
       ) : null}
 
       {isAddEventOpen ? (
-        <ModalShell onClose={handleCloseEventModal} maxWidth="max-w-2xl">
+        <ModalShell onClose={handleCloseEventModal} maxWidth="max-w-2xl" closeLabel={tCommon('close')}>
           <form onSubmit={handleEventSubmit} className="space-y-6">
             <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-foreground">Dodaj wydarzenie</h3>
-              <p className="text-sm text-muted-foreground">
-                Zapisz nadchodzącą okazję i zaproś osoby, którym chcesz sprawić idealny prezent.
-              </p>
+              <h3 className="text-xl font-semibold text-foreground">
+                {editingEventId ? tEventsModal('titleEdit') : tEventsModal('titleCreate')}
+              </h3>
+              <p className="text-sm text-muted-foreground">{tEventsModal('subtitle')}</p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
-                  Data wydarzenia <span className="text-destructive">*</span>
+                  {tEventsModal('dateLabel')} <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="date"
@@ -1653,13 +1667,13 @@ export function HomePage({
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
-                  Nazwa wydarzenia <span className="text-destructive">*</span>
+                  {tEventsModal('nameLabel')} <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="text"
                   value={eventTitle}
                   onChange={(event) => setEventTitle(event.target.value)}
-                  placeholder="np. Urodziny Kasi"
+                  placeholder={tEventsModal('namePlaceholder')}
                   required
                   className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
@@ -1667,12 +1681,12 @@ export function HomePage({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Notatki (opcjonalnie)</label>
+              <label className="text-sm font-medium text-foreground">{tEventsModal('notesLabel')}</label>
               <textarea
                 value={eventNotes}
                 onChange={(event) => setEventNotes(event.target.value)}
                 rows={3}
-                placeholder="Co warto pamiętać przy przygotowaniach, preferencje obdarowywanej osoby..."
+                placeholder={tEventsModal('notesPlaceholder')}
                 className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
@@ -1684,7 +1698,7 @@ export function HomePage({
                 onChange={(event) => setIsRecurring(event.target.checked)}
                 className="h-4 w-4 rounded border-border text-primary focus:ring-primary/40"
               />
-              Wydarzenie cykliczne (np. urodziny, imieniny)
+              {tEventsModal('recurringLabel')}
             </label>
 
             {eventError ? (
@@ -1695,7 +1709,7 @@ export function HomePage({
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-foreground">Lista uczestników</h4>
+                <h4 className="text-sm font-semibold text-foreground">{tEventsModal('participants.title')}</h4>
                 <button
                   type="button"
                   onClick={handleAddParticipant}
@@ -1704,7 +1718,7 @@ export function HomePage({
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
                   </svg>
-                  Dodaj osobę
+                  {tEventsModal('participants.add')}
                 </button>
               </div>
 
@@ -1715,21 +1729,23 @@ export function HomePage({
                     className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] p-4"
                   >
                     <div className="flex items-center justify-between pb-2">
-                      <p className="text-sm font-semibold text-foreground">Osoba {index + 1}</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        {tEventsModal('participants.personLabel', { index: index + 1 })}
+                      </p>
                       {participants.length > 1 ? (
                         <button
                           type="button"
                           onClick={() => handleRemoveParticipant(participant.id)}
                           className="text-xs font-medium text-destructive transition hover:text-destructive/80"
                         >
-                          Usuń
+                          {tCommon('delete')}
                         </button>
                       ) : null}
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="space-y-1">
                         <label className="text-xs font-semibold uppercase text-muted-foreground">
-                          Imię
+                          {tEventsModal('participants.fields.firstName.label')}
                         </label>
                         <input
                           type="text"
@@ -1737,13 +1753,13 @@ export function HomePage({
                           onChange={(event) =>
                             handleParticipantChange(participant.id, 'firstName', event.target.value)
                           }
-                          placeholder="np. Anna"
+                          placeholder={tEventsModal('participants.fields.firstName.placeholder')}
                           className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-semibold uppercase text-muted-foreground">
-                          Nazwisko
+                          {tEventsModal('participants.fields.lastName.label')}
                         </label>
                         <input
                           type="text"
@@ -1751,13 +1767,13 @@ export function HomePage({
                           onChange={(event) =>
                             handleParticipantChange(participant.id, 'lastName', event.target.value)
                           }
-                          placeholder="np. Kowalska"
+                          placeholder={tEventsModal('participants.fields.lastName.placeholder')}
                           className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-semibold uppercase text-muted-foreground">
-                          Telefon
+                          {tEventsModal('participants.fields.phone.label')}
                         </label>
                         <input
                           type="tel"
@@ -1765,13 +1781,13 @@ export function HomePage({
                           onChange={(event) =>
                             handleParticipantChange(participant.id, 'phone', event.target.value)
                           }
-                          placeholder="np. +48 600 600 600"
+                          placeholder={tEventsModal('participants.fields.phone.placeholder')}
                           className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-semibold uppercase text-muted-foreground">
-                          Email
+                          {tEventsModal('participants.fields.email.label')}
                         </label>
                         <input
                           type="email"
@@ -1779,7 +1795,7 @@ export function HomePage({
                           onChange={(event) =>
                             handleParticipantChange(participant.id, 'email', event.target.value)
                           }
-                          placeholder="np. anna@example.com"
+                          placeholder={tEventsModal('participants.fields.email.placeholder')}
                           className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
@@ -1791,7 +1807,7 @@ export function HomePage({
 
             {trustedMembers.length > 0 ? (
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-foreground">Dodaj z Kręgu zaufanych</h4>
+                <h4 className="text-sm font-semibold text-foreground">{tEventsModal('participants.trustedLabel')}</h4>
                 <div className="flex flex-wrap gap-2">
                   {trustedMembers.map((member) => (
                     <button
@@ -1813,14 +1829,18 @@ export function HomePage({
                 onClick={handleCloseEventModal}
                 className="rounded-full border border-border/60 px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
               >
-                Anuluj
+                {tCommon('cancel')}
               </button>
               <button
                 type="submit"
                 disabled={eventSubmitting || !eventDate || !eventTitle.trim()}
                 className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {eventSubmitting ? 'Zapisywanie...' : 'Zapisz wydarzenie'}
+                {eventSubmitting
+                  ? tEventsModal('saving')
+                  : editingEventId
+                    ? tEventsModal('submitUpdate')
+                    : tEventsModal('submitCreate')}
               </button>
             </div>
           </form>
@@ -1829,7 +1849,7 @@ export function HomePage({
 
       {selectedCalendarEvent ? (() => {
         const eventDate = new Date(selectedCalendarEvent.eventDateISO);
-        const formattedDate = eventDate.toLocaleDateString('pl-PL', {
+        const formattedDate = eventDate.toLocaleDateString(locale || undefined, {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric',
@@ -1837,7 +1857,7 @@ export function HomePage({
         const todayMidnight = new Date();
         todayMidnight.setHours(0, 0, 0, 0);
         const diffDays = Math.max(0, Math.ceil((eventDate.getTime() - todayMidnight.getTime()) / (1000 * 60 * 60 * 24)));
-        const countdownText = diffDays === 0 ? 'Wydarzenie zaplanowane na dziś' : diffDays === 1 ? 'Pozostał 1 dzień' : `Pozostało ${diffDays} dni`;
+        const countdownText = tEventsDetails('countdown', { count: diffDays });
         const userEvent = selectedCalendarEvent.userEvent;
         const participants = (userEvent?.participants ?? []) as DashboardEventParticipant[];
         const visibleParticipants = participants.filter((participant) =>
@@ -1845,7 +1865,7 @@ export function HomePage({
         );
 
         return (
-          <ModalShell onClose={handleCloseEventDetails} maxWidth="max-w-xl">
+          <ModalShell onClose={handleCloseEventDetails} maxWidth="max-w-xl" closeLabel={tCommon('close')}>
             <div className="space-y-6">
               <div className="space-y-2">
                 <h3 className="text-xl font-semibold text-foreground">{selectedCalendarEvent.title}</h3>
@@ -1855,7 +1875,7 @@ export function HomePage({
                 <p className="text-sm font-medium text-primary">{countdownText}</p>
                 {selectedCalendarEvent.kind === 'user' && userEvent?.is_recurring ? (
                   <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                    Cykliczne wydarzenie
+                    {tEventsDetails('recurringBadge')}
                   </span>
                 ) : null}
               </div>
@@ -1864,14 +1884,16 @@ export function HomePage({
                 <div className="space-y-6">
                   {userEvent?.notes ? (
                     <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
-                      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">Notatki</p>
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
+                        {tEventsDetails('notesLabel')}
+                      </p>
                       <p>{userEvent.notes}</p>
                     </div>
                   ) : null}
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-foreground">Lista uczestników</h4>
+                      <h4 className="text-sm font-semibold text-foreground">{tEventsModal('participants.title')}</h4>
                       <span className="text-xs text-muted-foreground">
                         {visibleParticipants.length} / {participants.length}
                       </span>
@@ -1883,13 +1905,22 @@ export function HomePage({
                             .filter(Boolean)
                             .join(' ')
                             .trim();
-                          const fallbackName = name || participant.email || `Uczestnik ${index + 1}`;
+                          const fallbackName =
+                            name || participant.email || tEventsDetails('participantFallback', { index: index + 1 });
                           return (
                             <li key={`${participant.email ?? participant.phone ?? index}`} className="rounded-xl border border-border/50 bg-[var(--surface-interactive)] px-4 py-3 text-sm text-foreground">
                               <p className="font-semibold">{fallbackName}</p>
                               <div className="mt-1 space-y-1 text-xs text-muted-foreground">
-                                {participant.email ? <p>E-mail: {participant.email}</p> : null}
-                                {participant.phone ? <p>Telefon: {participant.phone}</p> : null}
+                                {participant.email ? (
+                                  <p>
+                                    {tEventsDetails('contact.email')}: {participant.email}
+                                  </p>
+                                ) : null}
+                                {participant.phone ? (
+                                  <p>
+                                    {tEventsDetails('contact.phone')}: {participant.phone}
+                                  </p>
+                                ) : null}
                               </div>
                             </li>
                           );
@@ -1897,14 +1928,14 @@ export function HomePage({
                       </ul>
                     ) : (
                       <p className="rounded-xl border border-dashed border-border/60 bg-[var(--surface-interactive)] px-4 py-3 text-sm text-muted-foreground">
-                        Nie dodano jeszcze żadnych uczestników.
+                        {tEventsDetails('participantsEmpty')}
                       </p>
                     )}
                   </div>
                 </div>
               ) : (
                 <div className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] px-4 py-4 text-sm text-muted-foreground">
-                  To wydarzenie zostało dodane automatycznie. Możesz zapisać dodatkowe informacje, dodając własne wydarzenie z listą uczestników i notatkami.
+                  {tEventsDetails('autoSeedInfo')}
                 </div>
               )}
 
@@ -1914,7 +1945,7 @@ export function HomePage({
                   onClick={handleCloseEventDetails}
                   className="rounded-full border border-border/60 px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
                 >
-                  Zamknij
+                  {tCommon('close')}
                 </button>
                 {selectedCalendarEvent.kind === 'user' && userEvent ? (
                   <button
@@ -1925,7 +1956,7 @@ export function HomePage({
                     }}
                     className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
                   >
-                    Edytuj wydarzenie
+                    {tEventsDetails('edit')}
                   </button>
                 ) : (
                   <button
@@ -1941,7 +1972,7 @@ export function HomePage({
                     }}
                     className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
                   >
-                    Personalizuj wydarzenie
+                    {tEventsDetails('personalize')}
                   </button>
                 )}
               </div>
@@ -1952,7 +1983,11 @@ export function HomePage({
         : null}
 
       {activeBodyMeasurementDefinition && (
-        <ModalShell onClose={() => setActiveBodyMeasurementDefinition(null)} maxWidth="max-w-xl">
+        <ModalShell
+          onClose={() => setActiveBodyMeasurementDefinition(null)}
+          maxWidth="max-w-xl"
+          closeLabel={tCommon('close')}
+        >
           <BodyMeasurementQuickModal
             definition={activeBodyMeasurementDefinition}
             profileId={profileId}
@@ -1968,7 +2003,7 @@ export function HomePage({
       )}
 
       {preferencesOpen && (
-        <ModalShell onClose={() => setPreferencesOpen(false)} maxWidth="max-w-3xl">
+        <ModalShell onClose={() => setPreferencesOpen(false)} maxWidth="max-w-3xl" closeLabel={tCommon('close')}>
           <QuickSizePreferencesModal
             profileId={profileId}
             sizeLabels={sizeLabels}

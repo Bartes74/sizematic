@@ -247,7 +247,63 @@
       "ariaLeft": "Przewiń wydarzenia w lewo",
       "ariaRight": "Przewiń wydarzenia w prawo",
       "emptyTitle": "Brak zaplanowanych wydarzeń",
-      "emptyBody": "Dodaj pierwsze wydarzenie, aby zawsze mieć wgląd w nadchodzące okazje."
+      "emptyBody": "Dodaj pierwsze wydarzenie, aby zawsze mieć wgląd w nadchodzące okazje.",
+      "modal": {
+        "titleCreate": "Dodaj wydarzenie",
+        "titleEdit": "Edytuj wydarzenie",
+        "subtitle": "Zapisz nadchodzącą okazję i zaproś osoby, którym chcesz sprawić idealny prezent.",
+        "dateLabel": "Data wydarzenia",
+        "nameLabel": "Nazwa wydarzenia",
+        "namePlaceholder": "np. Urodziny Kasi",
+        "notesLabel": "Notatki (opcjonalnie)",
+        "notesPlaceholder": "Co warto pamiętać przy przygotowaniach, preferencje obdarowywanej osoby...",
+        "recurringLabel": "Wydarzenie cykliczne (np. urodziny, imieniny)",
+        "saving": "Zapisywanie...",
+        "submitCreate": "Zapisz wydarzenie",
+        "submitUpdate": "Zapisz zmiany",
+        "participants": {
+          "title": "Lista uczestników",
+          "add": "Dodaj osobę",
+          "personLabel": "Osoba {index}",
+          "trustedLabel": "Dodaj z Kręgu zaufanych",
+          "fields": {
+            "firstName": {
+              "label": "Imię",
+              "placeholder": "np. Anna"
+            },
+            "lastName": {
+              "label": "Nazwisko",
+              "placeholder": "np. Kowalska"
+            },
+            "phone": {
+              "label": "Telefon",
+              "placeholder": "np. +48 600 600 600"
+            },
+            "email": {
+              "label": "E-mail",
+              "placeholder": "np. anna@example.com"
+            }
+          }
+        },
+        "errors": {
+          "missingRequired": "Uzupełnij nazwę i datę wydarzenia.",
+          "saveFailed": "Nie udało się zapisać wydarzenia. Spróbuj ponownie."
+        }
+      },
+      "details": {
+        "countdown": "{count, plural, =0 {Wydarzenie zaplanowane na dziś} one {Pozostał # dzień} few {Pozostały # dni} many {Pozostało # dni} other {Pozostało # dni}}",
+        "recurringBadge": "Cykliczne wydarzenie",
+        "notesLabel": "Notatki",
+        "participantFallback": "Uczestnik {index}",
+        "contact": {
+          "email": "E-mail",
+          "phone": "Telefon"
+        },
+        "participantsEmpty": "Nie dodano jeszcze żadnych uczestników.",
+        "autoSeedInfo": "To wydarzenie zostało dodane automatycznie. Możesz zapisać dodatkowe informacje, dodając własne wydarzenie z listą uczestników i notatkami.",
+        "edit": "Edytuj wydarzenie",
+        "personalize": "Personalizuj wydarzenie"
+      }
     },
     "wishlistSection": {
       "title": "Lista marzeń",

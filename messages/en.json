@@ -247,7 +247,63 @@
       "ariaLeft": "Scroll events to the left",
       "ariaRight": "Scroll events to the right",
       "emptyTitle": "No events scheduled",
-      "emptyBody": "Add your first event to keep an eye on upcoming occasions."
+      "emptyBody": "Add your first event to keep an eye on upcoming occasions.",
+      "modal": {
+        "titleCreate": "Add event",
+        "titleEdit": "Edit event",
+        "subtitle": "Record the occasion and invite the people you want to delight with the perfect gift.",
+        "dateLabel": "Event date",
+        "nameLabel": "Event name",
+        "namePlaceholder": "e.g. Kate's birthday",
+        "notesLabel": "Notes (optional)",
+        "notesPlaceholder": "Anything to remember while preparing, recipient preferences...",
+        "recurringLabel": "Recurring event (e.g. birthday, name day)",
+        "saving": "Saving...",
+        "submitCreate": "Save event",
+        "submitUpdate": "Save changes",
+        "participants": {
+          "title": "Guest list",
+          "add": "Add person",
+          "personLabel": "Guest {index}",
+          "trustedLabel": "Add from Trusted Circle",
+          "fields": {
+            "firstName": {
+              "label": "First name",
+              "placeholder": "e.g. Anna"
+            },
+            "lastName": {
+              "label": "Last name",
+              "placeholder": "e.g. Kowalska"
+            },
+            "phone": {
+              "label": "Phone",
+              "placeholder": "e.g. +48 600 600 600"
+            },
+            "email": {
+              "label": "Email",
+              "placeholder": "e.g. anna@example.com"
+            }
+          }
+        },
+        "errors": {
+          "missingRequired": "Fill in the event name and date.",
+          "saveFailed": "We couldn't save the event. Please try again."
+        }
+      },
+      "details": {
+        "countdown": "{count, plural, =0 {Event is today} one {# day left} other {# days left}}",
+        "recurringBadge": "Recurring event",
+        "notesLabel": "Notes",
+        "participantFallback": "Guest {index}",
+        "contact": {
+          "email": "Email",
+          "phone": "Phone"
+        },
+        "participantsEmpty": "No participants have been added yet.",
+        "autoSeedInfo": "This event was added automatically. Create your own event to add notes and invitees.",
+        "edit": "Edit event",
+        "personalize": "Personalize event"
+      }
     },
     "wishlistSection": {
       "title": "Wishlist",
