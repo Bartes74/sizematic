@@ -128,7 +128,7 @@ export async function POST(request: NextRequest, context: unknown) {
       return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
     }
 
-    const { data: wishlist, error: wishlistError } = await supabase
+    const { data: wishlist, error: wishlistError } = await adminClient
       .from("wishlists")
       .select("*")
       .eq("id", wishlistId)
