@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
 import { logWishlistEvent } from "@/server/wishlist-events";
 import { enrichWishlistItemFromUrl } from "@/server/wishlists";
@@ -119,6 +119,7 @@ export async function POST(request: NextRequest, context: unknown) {
     }
 
     const supabase = await createClient();
+    const adminClient = createSupabaseAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -144,9 +145,9 @@ export async function POST(request: NextRequest, context: unknown) {
       );
     }
 
-    const profile = await getProfileForUser(supabase, user.id);
+    const profile = await getProfileForUser(adminClient, user.id);
 
-    const { data: inserted, error: insertError } = await supabase
+    const { data: inserted, error: insertError } = await adminClient
       .from("wishlist_items")
       .insert({
         wishlist_id: wishlistId,
@@ -216,6 +217,7 @@ export async function GET(request: NextRequest, context: unknown) {
     const maxPrice = parsePriceQuery(maxPriceParam);
 
     const supabase = await createClient();
+    const adminClient = createSupabaseAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -224,7 +226,7 @@ export async function GET(request: NextRequest, context: unknown) {
       return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
     }
 
-    const { data: wishlist, error: wishlistError } = await supabase
+    const { data: wishlist, error: wishlistError } = await adminClient
       .from("wishlists")
       .select("id, owner_id")
       .eq("id", wishlistId)
@@ -241,7 +243,7 @@ export async function GET(request: NextRequest, context: unknown) {
       );
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await adminClient
       .from("wishlist_items")
       .select("*")
       .eq("wishlist_id", wishlistId)
