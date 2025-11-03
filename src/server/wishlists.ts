@@ -43,7 +43,7 @@ export async function enrichWishlistItemFromUrl(params: {
   const { data: existing, error: existingError } = await supabase
     .from("wishlist_items")
     .select(
-      "product_name, product_brand, image_url, price_snapshot, parse_status, matched_size, size_confidence"
+      "product_name, product_brand, image_url, price_snapshot, parse_status, matched_size, size_confidence, parse_error"
     )
     .eq("id", itemId)
     .maybeSingle();
