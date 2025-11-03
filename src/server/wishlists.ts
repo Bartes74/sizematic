@@ -1,5 +1,7 @@
 import "server-only";
 
+import { revalidatePath } from "next/cache";
+
 import { createSupabaseAdminClient } from "@/lib/supabase";
 import { logWishlistEvent } from "@/server/wishlist-events";
 import type {
@@ -81,6 +83,9 @@ export async function enrichWishlistItemFromUrl(params: {
         priceSnapshot: updatePayload.price_snapshot,
       },
     });
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/wishlists");
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Nie udało się pobrać danych produktu";
@@ -106,6 +111,9 @@ export async function enrichWishlistItemFromUrl(params: {
         error: message,
       },
     });
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/wishlists");
   }
 }
 

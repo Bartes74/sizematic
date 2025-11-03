@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
@@ -173,6 +174,9 @@ export async function POST(request: NextRequest, context: unknown) {
         url: parsedUrl.toString(),
       },
     });
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/wishlists");
 
     void enrichWishlistItemFromUrl({
       itemId: inserted.id,

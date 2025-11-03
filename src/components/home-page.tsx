@@ -95,6 +95,7 @@ type DashboardWishlistItem = {
   url: string | null;
   wishlistTitle: string;
   status: string | null;
+  priceSnapshot: { amount?: string | number | null; currency?: string | null } | null;
 };
 
 type EventParticipant = {
@@ -111,6 +112,33 @@ type TrustedMemberContact = {
   lastName: string;
   email: string;
 };
+
+function formatWishlistPrice(
+  snapshot: { amount?: string | number | null; currency?: string | null } | null
+) {
+  if (!snapshot || snapshot.amount == null) {
+    return null;
+  }
+
+  const normalizedAmount =
+    typeof snapshot.amount === 'number'
+      ? snapshot.amount
+      : Number.parseFloat(String(snapshot.amount).replace(',', '.'));
+
+  if (!Number.isFinite(normalizedAmount)) {
+    return null;
+  }
+
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: snapshot.currency ? 'currency' : 'decimal',
+      currency: snapshot.currency ?? undefined,
+      maximumFractionDigits: 2,
+    }).format(normalizedAmount);
+  } catch {
+    return normalizedAmount.toFixed(2);
+  }
+}
 
 type NormalizedGarmentSize = {
   values: Record<string, number | string | null | undefined>;
@@ -1395,7 +1423,7 @@ export function HomePage({
               {wishlistItems.map((item) => {
                 const productName = item.productName?.trim() || 'Nowy pomysł na prezent';
                 const productBrand = item.productBrand?.trim();
-                const wishlistTitle = item.wishlistTitle || 'Lista marzeń';
+              const priceLabel = formatWishlistPrice(item.priceSnapshot);
                 const href = item.url ?? '#';
 
                 return (
@@ -1424,7 +1452,9 @@ export function HomePage({
                           {productBrand}
                         </p>
                       ) : null}
-                      <p className="mt-2 text-xs text-muted-foreground">Lista: {wishlistTitle}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Cena: {priceLabel ?? '—'}
+                      </p>
                     </div>
                   </a>
                 );

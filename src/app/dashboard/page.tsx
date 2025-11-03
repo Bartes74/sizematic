@@ -58,6 +58,7 @@ export default async function Home() {
     url: string | null;
     wishlistTitle: string;
     status: WishlistStatus | null;
+  priceSnapshot: Record<string, unknown> | null;
   }[] = [];
 
   const { data: profile } = await supabase
@@ -163,6 +164,7 @@ export default async function Home() {
         product_brand,
         image_url,
         url,
+        price_snapshot,
         wishlists!inner (
           id,
           title,
@@ -182,6 +184,7 @@ export default async function Home() {
       product_brand: string | null;
       image_url: string | null;
       url: string | null;
+    price_snapshot: Record<string, unknown> | null;
       wishlists: {
         id: string;
         title: string | null;
@@ -197,6 +200,7 @@ export default async function Home() {
       url: row.url ?? null,
       wishlistTitle: row.wishlists?.title ?? 'Lista marzeń',
       status: row.wishlists?.status ?? null,
+    priceSnapshot: row.price_snapshot ?? null,
     };
   });
 
