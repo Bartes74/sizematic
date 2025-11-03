@@ -551,7 +551,9 @@ export default function WishlistDashboard({
   const [wishlists, setWishlists] = useState<Wishlist[]>(allWishlists);
   const [activeWishlistId, setActiveWishlistId] = useState<string | null>(initialWishlist?.id ?? null);
   const [items, setItems] = useState<WishlistItemView[]>(() => initialItems.map(normalizeItem));
-  const [totalCount, setTotalCount] = useState<number>(initialTotal ?? initialItems.length);
+  const [totalCount, setTotalCount] = useState<number>(
+    typeof initialTotal === 'number' && Number.isFinite(initialTotal) ? initialTotal : initialItems.length
+  );
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [nextOffset, setNextOffset] = useState(initialItems.length);
   const [isFetching, setIsFetching] = useState(false);
@@ -587,8 +589,8 @@ export default function WishlistDashboard({
   const showSkeleton = isFetching && items.length === 0;
   const showEmptyState = !showSkeleton && totalCount === 0 && items.length === 0;
   const summaryLabel = t('summary', {
-    count: items.length,
-    total: totalCount,
+    count: Number.isFinite(items.length) ? items.length : 0,
+    total: Number.isFinite(totalCount) ? totalCount : 0,
   });
 
   const ensureDefaultWishlist = useCallback(async () => {
@@ -688,12 +690,13 @@ export default function WishlistDashboard({
         }
 
         const payload = (await response.json()) as {
-          items: WishlistItem[];
-          total: number | null | undefined;
-          hasMore: boolean;
+          items?: WishlistItem[] | null;
+          total?: number | null;
+          hasMore?: boolean | null;
         };
 
-        const normalized = payload.items.map(normalizeItem);
+        const sourceItems = Array.isArray(payload.items) ? payload.items : [];
+        const normalized = sourceItems.map(normalizeItem);
 
         if (reset) {
           setItems(normalized);
@@ -703,8 +706,18 @@ export default function WishlistDashboard({
           setNextOffset((prev) => prev + normalized.length);
         }
 
-        setTotalCount(payload.total ?? normalized.length);
-        setHasMore(payload.hasMore);
+        const totalValue =
+          typeof payload.total === 'number' && Number.isFinite(payload.total)
+            ? payload.total
+            : normalized.length;
+
+        setTotalCount(totalValue);
+        const hasMoreValue =
+          typeof payload.hasMore === 'boolean'
+            ? payload.hasMore
+            : resolvedOffset + normalized.length < totalValue;
+
+        setHasMore(hasMoreValue);
       } catch (error) {
         setListError(error instanceof Error ? error.message : t('errors.loadFailed'));
       } finally {
