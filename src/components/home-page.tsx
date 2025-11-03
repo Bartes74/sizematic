@@ -1415,9 +1415,9 @@ export function HomePage({
             </div>
             <Link
               href="/dashboard/wishlists"
-              className="text-sm font-semibold text-primary transition hover:text-primary/80"
+              className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
             >
-              Otwórz listę
+              Dodaj do listy
             </Link>
           </div>
 

@@ -267,28 +267,12 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
     setPreviewError(null);
   };
 
-  const scrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-3">
-          <h1 className="text-2xl font-semibold text-foreground">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow transition hover:bg-primary/90 disabled:opacity-70"
-            onClick={scrollToForm}
-            disabled={formLoading}
-          >
-            {t("form.submit")}
-          </button>
-        </div>
-      </header>
+      <div className="space-y-3">
+        <h1 className="text-2xl font-semibold text-foreground">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+      </div>
 
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-border bg-card p-6 shadow">
         <div className="grid gap-4 md:grid-cols-3">
