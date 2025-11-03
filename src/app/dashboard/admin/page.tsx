@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import { AdminUsersTable } from "@/components/admin-users-table";
 import { AdminBrandingForm } from "@/components/admin-branding-form";
-import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -48,16 +49,22 @@ export default async function AdminPage() {
     logo_path: brandingData?.logo_path ?? null,
   };
 
+  const t = await getTranslations('dashboard.admin');
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-3 transition-opacity hover:opacity-80"
+              aria-label={t('back')}
+            >
               <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
-              <span className="text-sm font-medium text-muted-foreground">Powrót do dashboardu</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('back')}</span>
             </Link>
           </div>
         </div>
@@ -65,16 +72,14 @@ export default async function AdminPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Panel Administratora</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Zarządzaj użytkownikami i ich rolami w systemie
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('pageTitle')}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{t('pageSubtitle')}</p>
         </div>
 
         <div className="space-y-10">
           <AdminBrandingForm initial={brandingSettings} />
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-foreground">Zarządzanie użytkownikami</h2>
+            <h2 className="mb-4 text-lg font-semibold text-foreground">{t('users.title')}</h2>
             <AdminUsersTable users={profiles || []} />
           </div>
         </div>

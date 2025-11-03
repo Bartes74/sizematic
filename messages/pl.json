@@ -240,6 +240,82 @@
         "logout": "Wyloguj"
       }
     },
+    "admin": {
+      "back": "Powrót do dashboardu",
+      "pageTitle": "Panel administratora",
+      "pageSubtitle": "Zarządzaj użytkownikami i ich rolami w systemie",
+      "branding": {
+        "title": "Branding aplikacji",
+        "subtitle": "Zarządzaj logo, nazwą oraz claimem widocznymi w nagłówku aplikacji.",
+        "preview": {
+          "title": "Aktualne logo",
+          "alt": "Podgląd logo",
+          "empty": "Brak logo"
+        },
+        "fields": {
+          "siteName": {
+            "label": "Nazwa (wyświetlana na górze)",
+            "placeholder": "Wpisz nazwę"
+          },
+          "siteClaim": {
+            "label": "Claim (wyświetlany pod nazwą)",
+            "placeholder": "Dodaj krótkie hasło"
+          },
+          "siteLogo": {
+            "label": "Logo nagłówka",
+            "note": "Maksymalna wysokość logo w nagłówku: {max}px. Rekomendowany format: SVG, PNG lub JPG (do {size}).",
+            "pending": "Nowe logo zostanie zapisane po kliknięciu „{action}”."
+          }
+        },
+        "errors": {
+          "invalidFileType": "Dozwolone są wyłącznie pliki graficzne (PNG, JPG, SVG).",
+          "fileTooLarge": "Plik jest za duży. Maksymalny rozmiar to {size}.",
+          "nameRequired": "Nazwa nie może być pusta.",
+          "saveFailed": "Nie udało się zapisać zmian."
+        },
+        "success": "Branding został zaktualizowany.",
+        "submit": {
+          "save": "Zapisz zmiany",
+          "saving": "Zapisywanie..."
+        }
+      },
+      "users": {
+        "title": "Zarządzanie użytkownikami",
+        "columns": {
+          "user": "Użytkownik",
+          "email": "Email",
+          "role": "Rola",
+          "createdAt": "Data rejestracji",
+          "actions": "Akcje"
+        },
+        "actions": {
+          "changeRole": "Zmień rolę"
+        },
+        "empty": "Brak użytkowników w systemie",
+        "modal": {
+          "title": "Zmień rolę użytkownika",
+          "current": "Obecna"
+        },
+        "errors": {
+          "updateFailed": "Nie udało się zmienić roli. Spróbuj ponownie.",
+          "updateFailedWithMessage": "Nie udało się zmienić roli. Szczegóły: {message}",
+          "unexpected": "Wystąpił błąd podczas zmiany roli."
+        },
+        "fallbacks": {
+          "noName": "Brak nazwy",
+          "noEmail": "Brak email",
+          "defaultUser": "Użytkownik",
+          "defaultInitial": "U"
+        },
+        "idLabel": "ID: {value}"
+      },
+      "roles": {
+        "free": "Free",
+        "premium": "Premium",
+        "premiumPlus": "Premium+",
+        "admin": "Admin"
+      }
+    },
     "events": {
       "title": "Nadchodzące wydarzenia",
       "subtitle": "Przygotuj się z wyprzedzeniem – zobacz, ile dni zostało do ważnych okazji.",

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import type { UserRole } from '@/lib/types';
 
 type Profile = {
@@ -16,11 +17,11 @@ type AdminUsersTableProps = {
   users: Profile[];
 };
 
-const ROLE_LABELS: Record<UserRole, string> = {
-  free: 'Free',
-  premium: 'Premium',
-  premium_plus: 'Premium+',
-  admin: 'Admin'
+const ROLE_TRANSLATION_KEYS: Record<UserRole, string> = {
+  free: 'free',
+  premium: 'premium',
+  premium_plus: 'premiumPlus',
+  admin: 'admin',
 };
 
 const ROLE_COLORS: Record<UserRole, string> = {
@@ -31,6 +32,10 @@ const ROLE_COLORS: Record<UserRole, string> = {
 };
 
 export function AdminUsersTable({ users }: AdminUsersTableProps) {
+  const locale = useLocale();
+  const t = useTranslations('dashboard.admin.users');
+  const tRoles = useTranslations('dashboard.admin.roles');
+  const tCommon = useTranslations('common');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>('');
   const [currentRole, setCurrentRole] = useState<UserRole>('free');
@@ -66,12 +71,22 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
         // Refresh the page to show updated data
         window.location.reload();
       } else {
-        const error = await response.json();
-        alert(`Błąd: ${error.message}`);
+        let message = '';
+        try {
+          const error = await response.json();
+          message = typeof error?.message === 'string' ? error.message : '';
+        } catch (parseError) {
+          console.error(parseError);
+        }
+        window.alert(
+          message
+            ? t('errors.updateFailedWithMessage', { message })
+            : t('errors.updateFailed')
+        );
       }
     } catch (error) {
-      alert('Wystąpił błąd podczas zmiany roli');
       console.error(error);
+      window.alert(t('errors.unexpected'));
     } finally {
       setIsChanging(false);
       setSelectedUserId(null);
@@ -85,19 +100,19 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
           <thead className="bg-muted/50 border-b border-border">
             <tr>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Użytkownik
+                {t('columns.user')}
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Email
+                {t('columns.email')}
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Rola
+                {t('columns.role')}
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Data rejestracji
+                {t('columns.createdAt')}
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Akcje
+                {t('columns.actions')}
               </th>
             </tr>
           </thead>
@@ -108,42 +123,48 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                       {(() => {
-                        const source = user.display_name?.trim() || user.email?.trim() || 'U';
+                        const source = user.display_name?.trim() || user.email?.trim() || t('fallbacks.defaultInitial');
                         return source.slice(0, 1).toUpperCase();
                       })()}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        {user.display_name || 'Brak nazwy'}
+                        {user.display_name || t('fallbacks.noName')}
                       </p>
-                      <p className="text-xs text-muted-foreground">ID: {user.id.slice(0, 8)}</p>
+                      <p className="text-xs text-muted-foreground">{t('idLabel', { value: user.id.slice(0, 8) })}</p>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <p className="text-sm text-foreground">{user.email || 'Brak email'}</p>
+                  <p className="text-sm text-foreground">{user.email || t('fallbacks.noEmail')}</p>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[user.role]}`}>
-                    {ROLE_LABELS[user.role]}
+                    {tRoles(ROLE_TRANSLATION_KEYS[user.role])}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <p className="text-sm text-muted-foreground">
-                    {new Date(user.created_at).toLocaleDateString('pl-PL', {
+                    {new Intl.DateTimeFormat(locale || undefined, {
                       year: 'numeric',
                       month: 'long',
-                      day: 'numeric'
-                    })}
+                      day: 'numeric',
+                    }).format(new Date(user.created_at))}
                   </p>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button
-                    onClick={() => openModal(user.id, user.display_name || user.email || 'Użytkownik', user.role)}
+                    onClick={() =>
+                      openModal(
+                        user.id,
+                        user.display_name || user.email || t('fallbacks.defaultUser'),
+                        user.role
+                      )
+                    }
                     disabled={isChanging}
                     className="text-sm font-medium text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Zmień rolę
+                    {t('actions.changeRole')}
                   </button>
                 </td>
               </tr>
@@ -154,7 +175,7 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
 
       {users.length === 0 && (
         <div className="px-6 py-12 text-center">
-          <p className="text-sm text-muted-foreground">Brak użytkowników w systemie</p>
+          <p className="text-sm text-muted-foreground">{t('empty')}</p>
         </div>
       )}
 
@@ -169,7 +190,7 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-foreground">Zmień rolę użytkownika</h3>
+              <h3 className="text-lg font-semibold text-foreground">{t('modal.title')}</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 {selectedUserName}
               </p>
@@ -188,10 +209,10 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">{ROLE_LABELS[role]}</span>
+                    <span className="font-medium">{tRoles(ROLE_TRANSLATION_KEYS[role])}</span>
                     {currentRole === role && (
                       <span className={`text-xs px-2 py-0.5 rounded-full ${ROLE_COLORS[role]}`}>
-                        Obecna
+                        {t('modal.current')}
                       </span>
                     )}
                   </div>
@@ -205,7 +226,7 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
                 disabled={isChanging}
                 className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
               >
-                Anuluj
+                {tCommon('cancel')}
               </button>
             </div>
           </div>

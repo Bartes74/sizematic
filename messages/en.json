@@ -240,6 +240,82 @@
         "logout": "Sign out"
       }
     },
+    "admin": {
+      "back": "Back to dashboard",
+      "pageTitle": "Admin panel",
+      "pageSubtitle": "Manage users and their roles across the system",
+      "branding": {
+        "title": "App branding",
+        "subtitle": "Control the logo, name and claim shown in the app header.",
+        "preview": {
+          "title": "Current logo",
+          "alt": "Logo preview",
+          "empty": "No logo"
+        },
+        "fields": {
+          "siteName": {
+            "label": "Name (shown at the top)",
+            "placeholder": "Enter the name"
+          },
+          "siteClaim": {
+            "label": "Claim (displayed under the name)",
+            "placeholder": "Add a short tagline"
+          },
+          "siteLogo": {
+            "label": "Header logo",
+            "note": "Maximum header logo height: {max}px. Recommended format: SVG, PNG or JPG (up to {size}).",
+            "pending": "The new logo will be saved after you click “{action}”."
+          }
+        },
+        "errors": {
+          "invalidFileType": "Only image files are allowed (PNG, JPG, SVG).",
+          "fileTooLarge": "The file is too large. Maximum size is {size}.",
+          "nameRequired": "Name cannot be empty.",
+          "saveFailed": "We couldn't save the changes."
+        },
+        "success": "Branding updated successfully.",
+        "submit": {
+          "save": "Save changes",
+          "saving": "Saving..."
+        }
+      },
+      "users": {
+        "title": "User management",
+        "columns": {
+          "user": "User",
+          "email": "Email",
+          "role": "Role",
+          "createdAt": "Date joined",
+          "actions": "Actions"
+        },
+        "actions": {
+          "changeRole": "Change role"
+        },
+        "empty": "There are no users in the system yet",
+        "modal": {
+          "title": "Change user role",
+          "current": "Current"
+        },
+        "errors": {
+          "updateFailed": "We couldn't change the role. Try again.",
+          "updateFailedWithMessage": "We couldn't change the role. Details: {message}",
+          "unexpected": "Something went wrong while updating the role."
+        },
+        "fallbacks": {
+          "noName": "No name",
+          "noEmail": "No email",
+          "defaultUser": "User",
+          "defaultInitial": "U"
+        },
+        "idLabel": "ID: {value}"
+      },
+      "roles": {
+        "free": "Free",
+        "premium": "Premium",
+        "premiumPlus": "Premium+",
+        "admin": "Admin"
+      }
+    },
     "events": {
       "title": "Upcoming events",
       "subtitle": "Plan ahead and see how many days remain until key occasions.",

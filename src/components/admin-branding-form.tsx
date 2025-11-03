@@ -3,6 +3,7 @@
 import { useState, useCallback, type ChangeEvent, type FormEvent } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import type { BrandingSettings } from '@/lib/types';
 
@@ -15,6 +16,7 @@ const MAX_LOGO_HEIGHT_PX = 48;
 
 export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
   const router = useRouter();
+  const t = useTranslations('dashboard.admin.branding');
   const [siteName, setSiteName] = useState(initial.site_name);
   const [siteClaim, setSiteClaim] = useState(initial.site_claim);
   const [logoUrl, setLogoUrl] = useState<string | null>(initial.logo_url);
@@ -41,12 +43,12 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
     }
 
     if (!file.type.startsWith('image/')) {
-      setError('Dozwolone są wyłącznie pliki graficzne (PNG, JPG, SVG).');
+      setError(t('errors.invalidFileType'));
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setError('Plik jest za duży. Maksymalny rozmiar to 2MB.');
+      setError(t('errors.fileTooLarge', { size: '2 MB' }));
       return;
     }
 
@@ -64,7 +66,7 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
     resetFeedback();
 
     if (!siteName.trim()) {
-      setError('Nazwa nie może być pusta.');
+      setError(t('errors.nameRequired'));
       return;
     }
 
@@ -123,19 +125,19 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
       setLogoPath(uploadedLogoPath);
       setLogoFile(null);
       setLogoPreview(null);
-      setSuccess('Branding został zaktualizowany.');
+      setSuccess(t('success'));
 
       setTimeout(() => {
         router.refresh();
       }, 800);
     } catch (error) {
       console.error(error);
-      const message = error instanceof Error ? error.message : 'Nie udało się zapisać zmian.';
-      setError(message);
+      const message = error instanceof Error ? error.message : null;
+      setError(message || t('errors.saveFailed'));
     } finally {
       setIsSaving(false);
     }
-  }, [logoFile, logoPath, logoUrl, router, siteClaim, siteName, resetFeedback]);
+  }, [logoFile, logoPath, logoUrl, router, siteClaim, siteName, resetFeedback, t]);
 
   return (
     <form
@@ -144,22 +146,20 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
     >
       <div className="flex flex-col gap-6">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Branding aplikacji</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Zarządzaj logo, nazwą oraz claimem widocznymi w nagłówku aplikacji.
-          </p>
+          <h2 className="text-xl font-semibold text-foreground">{t('title')}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
         </div>
 
         <div className="flex flex-col gap-6 lg:flex-row">
           <div className="w-full lg:w-1/3">
             <div className="rounded-2xl border border-dashed border-border/60 bg-background/70 p-4 text-center">
-              <p className="text-sm font-medium text-muted-foreground">Aktualne logo</p>
+              <p className="text-sm font-medium text-muted-foreground">{t('preview.title')}</p>
               <div className="mt-4 flex items-center justify-center">
                 {logoPreview || logoUrl ? (
                   <div className="relative h-16 w-24">
                     <Image
                       src={logoPreview || logoUrl || ''}
-                      alt="Podgląd logo"
+                      alt={t('preview.alt')}
                       fill
                       className="object-contain"
                       sizes="96px"
@@ -170,6 +170,7 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
                     <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 6h14l-1 10h-3l-1 5-3-4-3 4-1-5H6L5 6z" />
                     </svg>
+                    <span className="sr-only">{t('preview.empty')}</span>
                   </div>
                 )}
               </div>
@@ -179,7 +180,7 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
           <div className="flex-1 space-y-5">
             <div>
               <label htmlFor="siteName" className="text-sm font-semibold text-foreground">
-                Nazwa (wyświetlana na górze)
+                {t('fields.siteName.label')}
               </label>
               <input
                 id="siteName"
@@ -190,14 +191,14 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
                   setSiteName(event.target.value);
                 }}
                 className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="Wpisz nazwę"
+                placeholder={t('fields.siteName.placeholder')}
                 required
               />
             </div>
 
             <div>
               <label htmlFor="siteClaim" className="text-sm font-semibold text-foreground">
-                Claim (wyświetlany pod nazwą)
+                {t('fields.siteClaim.label')}
               </label>
               <input
                 id="siteClaim"
@@ -208,13 +209,13 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
                   setSiteClaim(event.target.value);
                 }}
                 className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="Dodaj krótkie hasło"
+                placeholder={t('fields.siteClaim.placeholder')}
               />
             </div>
 
             <div>
               <label htmlFor="siteLogo" className="text-sm font-semibold text-foreground">
-                Logo nagłówka
+                {t('fields.siteLogo.label')}
               </label>
               <input
                 id="siteLogo"
@@ -224,11 +225,11 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
                 className="mt-2 block w-full text-sm text-muted-foreground file:mr-4 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary hover:file:bg-primary/20"
               />
               <p className="mt-2 text-xs text-muted-foreground">
-                Maksymalna wysokość logo w nagłówku: {MAX_LOGO_HEIGHT_PX}px. Rekomendowany format: SVG, PNG lub JPG (do 2MB).
+                {t('fields.siteLogo.note', { max: MAX_LOGO_HEIGHT_PX, size: '2 MB' })}
               </p>
               {logoFile && (
                 <p className="mt-1 text-xs text-primary">
-                  Nowe logo zostanie zapisane po kliknięciu „Zapisz zmiany”.
+                  {t('fields.siteLogo.pending', { action: t('submit.save') })}
                 </p>
               )}
             </div>
@@ -253,7 +254,7 @@ export function AdminBrandingForm({ initial }: AdminBrandingFormProps) {
             disabled={isSaving}
             className="inline-flex items-center rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSaving ? 'Zapisywanie...' : 'Zapisz zmiany'}
+            {isSaving ? t('submit.saving') : t('submit.save')}
           </button>
         </div>
       </div>
