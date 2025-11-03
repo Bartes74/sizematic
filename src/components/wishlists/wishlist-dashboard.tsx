@@ -551,7 +551,7 @@ export default function WishlistDashboard({
   const [wishlists, setWishlists] = useState<Wishlist[]>(allWishlists);
   const [activeWishlistId, setActiveWishlistId] = useState<string | null>(initialWishlist?.id ?? null);
   const [items, setItems] = useState<WishlistItemView[]>(() => initialItems.map(normalizeItem));
-  const [totalCount, setTotalCount] = useState(initialTotal);
+  const [totalCount, setTotalCount] = useState<number>(initialTotal ?? initialItems.length);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [nextOffset, setNextOffset] = useState(initialItems.length);
   const [isFetching, setIsFetching] = useState(false);
@@ -584,6 +584,12 @@ export default function WishlistDashboard({
   }, [wishlists, activeWishlistId]);
 
   const hasPending = useMemo(() => items.some((item) => item.parse_status === 'pending'), [items]);
+  const showSkeleton = isFetching && items.length === 0;
+  const showEmptyState = !showSkeleton && totalCount === 0 && items.length === 0;
+  const summaryLabel = t('summary', {
+    count: items.length,
+    total: totalCount,
+  });
 
   const ensureDefaultWishlist = useCallback(async () => {
     if (activeWishlistId || bootstrapLoading) {
@@ -683,7 +689,7 @@ export default function WishlistDashboard({
 
         const payload = (await response.json()) as {
           items: WishlistItem[];
-          total: number;
+          total: number | null | undefined;
           hasMore: boolean;
         };
 
@@ -697,7 +703,7 @@ export default function WishlistDashboard({
           setNextOffset((prev) => prev + normalized.length);
         }
 
-        setTotalCount(payload.total);
+        setTotalCount(payload.total ?? normalized.length);
         setHasMore(payload.hasMore);
       } catch (error) {
         setListError(error instanceof Error ? error.message : t('errors.loadFailed'));
@@ -712,22 +718,12 @@ export default function WishlistDashboard({
     [activeWishlistId, appliedFilters, sortOption, nextOffset, pageSize, t]
   );
 
-  const skipInitialFetchRef = useRef(true);
-
   useEffect(() => {
     if (!activeWishlistId) {
       return;
     }
-
-    if (skipInitialFetchRef.current) {
-      skipInitialFetchRef.current = false;
-      if (initialItems.length > 0) {
-        return;
-      }
-    }
-
     void loadWishlistItems({ reset: true, offset: 0 });
-  }, [activeWishlistId, loadWishlistItems, initialItems.length]);
+  }, [activeWishlistId, loadWishlistItems]);
 
   useEffect(() => {
     if (!activeWishlistId || !hasPending) {
@@ -1408,9 +1404,7 @@ export default function WishlistDashboard({
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          {t('summary', { count: items.length, total: totalCount })}
-        </p>
+        <p className="text-sm text-muted-foreground">{summaryLabel}</p>
         {((isFetching && items.length > 0) || loadingMore) ? (
           <span className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="h-2.5 w-2.5 animate-ping rounded-full bg-primary/70" aria-hidden="true" />
@@ -1425,7 +1419,7 @@ export default function WishlistDashboard({
         </p>
       ) : null}
 
-      {isFetching && items.length === 0 ? (
+      {showSkeleton ? (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
             <div
@@ -1446,7 +1440,7 @@ export default function WishlistDashboard({
             </div>
           ))}
         </div>
-      ) : items.length === 0 ? (
+      ) : showEmptyState ? (
         <div className="rounded-3xl border border-dashed border-border bg-muted/30 p-10 text-center">
           <p className="text-sm font-medium text-muted-foreground">{t('emptyState')}</p>
         </div>
