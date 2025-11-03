@@ -20,10 +20,20 @@
     "title": "Wishlist",
     "subtitle": "Collect gift ideas and let GiftFit handle the details.",
     "form": {
-      "category": "Category",
-      "categoryPlaceholder": "e.g. Jewelry",
       "url": "Store link",
       "urlPlaceholder": "https://example.com/product",
+      "preview": "Fetch data from store",
+      "previewing": "Fetching data...",
+      "previewError": "We couldn't fetch store data. Fill the fields manually.",
+      "productName": "Product name",
+      "productNamePlaceholder": "e.g. Aurora ring",
+      "brand": "Store / brand",
+      "brandPlaceholder": "e.g. Apart",
+      "price": "Price",
+      "pricePlaceholder": "e.g. 199.00",
+      "currency": "Currency",
+      "image": "Image URL",
+      "imagePlaceholder": "https://example.com/product.jpg",
       "notes": "Description (optional)",
       "notesPlaceholder": "Add a short note for yourself",
       "submit": "Add to list",
@@ -41,7 +51,8 @@
       "addFailed": "We couldn't add the item to the list.",
       "refreshFailed": "We couldn't refresh product data.",
       "priceRange": "Check the price range.",
-      "loadFailed": "We couldn't load wishlist items."
+      "loadFailed": "We couldn't load wishlist items.",
+      "previewFailed": "We couldn't fetch store information."
     },
     "cards": {
       "noImage": "No image",
@@ -68,9 +79,7 @@
     },
     "filters": {
       "title": "Filters & sorting",
-      "subtitle": "Narrow the list by category, price or date.",
-      "categoryLabel": "Category",
-      "categoryAll": "All categories",
+      "subtitle": "Narrow the list by price or date.",
       "priceLabel": "Price",
       "min": "Min",
       "max": "Max",

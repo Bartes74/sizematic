@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent, MouseEvent as ReactMouseEvent, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { PRODUCT_TREE } from '@/data/product-tree';
 import type { Wishlist, WishlistItem } from '@/lib/types';
 
 type WishlistDashboardProps = {
@@ -15,7 +15,6 @@ type WishlistDashboardProps = {
   initialItems: WishlistItem[];
   initialTotal: number;
   initialHasMore: boolean;
-  initialCategories: string[];
   pageSize: number;
 };
 
@@ -28,7 +27,6 @@ type WishlistItemView = WishlistItem & {
 type SortOption = 'date_desc' | 'date_asc' | 'price_desc' | 'price_asc';
 
 type AppliedFilters = {
-  category: string | null;
   minPrice: number | null;
   maxPrice: number | null;
 };
@@ -53,8 +51,6 @@ type PriceSnapshot = {
   amount?: string | number | null;
   currency?: string | null;
 };
-
-const STATIC_WISHLIST_CATEGORIES = PRODUCT_TREE.map((category) => category.label);
 
 function normalizeItem(item: WishlistItem): WishlistItemView {
   return {
@@ -107,6 +103,34 @@ function getHostname(url: string) {
   } catch {
     return url;
   }
+}
+
+function normalizePriceInput(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const sanitized = trimmed.replace(/[^0-9.,-]/g, '').replace(/\s+/g, '');
+  if (!sanitized) {
+    return null;
+  }
+
+  let working = sanitized;
+  if (sanitized.includes(',') && sanitized.includes('.')) {
+    if (sanitized.lastIndexOf(',') > sanitized.lastIndexOf('.')) {
+      working = sanitized.replace(/\./g, '');
+    }
+  }
+
+  const normalized = working.replace(/,/g, '.');
+  const parsed = Number.parseFloat(normalized);
+
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return parsed.toFixed(2);
 }
 
 type ModalFrameProps = {
@@ -300,7 +324,6 @@ function WishlistItemDetailModal({
 }: DetailModalProps) {
   const t = useTranslations('wishlist');
   const tCommon = useTranslations('common');
-  const [category, setCategory] = useState(item.category ?? '');
   const [notes, setNotes] = useState(item.notes ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -319,7 +342,6 @@ function WishlistItemDetailModal({
           'content-type': 'application/json',
         },
         body: JSON.stringify({
-          category: category.trim() || null,
           notes: notes.trim() || null,
         }),
       });
@@ -414,26 +436,14 @@ function WishlistItemDetailModal({
           </div>
         ) : null}
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-muted-foreground" htmlFor={`${titleId}-category`}>
-              {t('details.categoryLabel')}
-            </label>
-            <input
-              id={`${titleId}-category`}
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              maxLength={120}
-            />
-          </div>
+        <div className="space-y-4">
           <div className="space-y-2">
             <span className="text-sm font-semibold text-muted-foreground">{t('details.priceLabel')}</span>
             <p className="rounded-2xl border border-border bg-muted px-4 py-3 text-sm text-foreground">
               {formattedPrice ?? t('details.priceUnavailable')}
             </p>
           </div>
-          <div className="md:col-span-2 space-y-2">
+          <div className="space-y-2">
             <label className="text-sm font-semibold text-muted-foreground" htmlFor={`${titleId}-notes`}>
               {t('details.notesLabel')}
             </label>
@@ -532,16 +542,15 @@ export default function WishlistDashboard({
   initialItems,
   initialTotal,
   initialHasMore,
-  initialCategories,
   pageSize,
 }: WishlistDashboardProps) {
   const t = useTranslations('wishlist');
   const tCommon = useTranslations('common');
   const locale = useLocale();
+  const router = useRouter();
   const [wishlists, setWishlists] = useState<Wishlist[]>(allWishlists);
   const [activeWishlistId, setActiveWishlistId] = useState<string | null>(initialWishlist?.id ?? null);
   const [items, setItems] = useState<WishlistItemView[]>(() => initialItems.map(normalizeItem));
-  const [availableCategories, setAvailableCategories] = useState<string[]>(initialCategories);
   const [totalCount, setTotalCount] = useState(initialTotal);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [nextOffset, setNextOffset] = useState(initialItems.length);
@@ -549,33 +558,26 @@ export default function WishlistDashboard({
   const [loadingMore, setLoadingMore] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('date_desc');
-  const [categoryFilter, setCategoryFilter] = useState('all');
   const [minPriceInput, setMinPriceInput] = useState('');
   const [maxPriceInput, setMaxPriceInput] = useState('');
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilters>({
-    category: null,
     minPrice: null,
     maxPrice: null,
   });
   const [shareState, setShareState] = useState<ShareState | null>(null);
-  const [formCategory, setFormCategory] = useState('');
   const [formUrl, setFormUrl] = useState('');
+  const [formName, setFormName] = useState('');
+  const [formBrand, setFormBrand] = useState('');
+  const [formPrice, setFormPrice] = useState('');
+  const [formCurrency, setFormCurrency] = useState('PLN');
+  const [formImage, setFormImage] = useState('');
   const [formNotes, setFormNotes] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [bootstrapLoading, setBootstrapLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<WishlistItemView | null>(null);
-
-  const categoryOptions = useMemo(() => {
-    const labels = new Set<string>();
-    STATIC_WISHLIST_CATEGORIES.forEach((label) => labels.add(label));
-    availableCategories.forEach((label) => {
-      if (label) {
-        labels.add(label);
-      }
-    });
-    return Array.from(labels).sort((a, b) => a.localeCompare(b, 'pl'));
-  }, [availableCategories]);
 
   const activeWishlist = useMemo(() => {
     return wishlists.find((entry) => entry.id === activeWishlistId) ?? null;
@@ -651,10 +653,6 @@ export default function WishlistDashboard({
         direction: config.direction,
       });
 
-      if (resolvedFilters.category) {
-        params.set('category', resolvedFilters.category);
-      }
-
       if (resolvedFilters.minPrice != null) {
         params.set('minPrice', resolvedFilters.minPrice.toString());
       }
@@ -687,7 +685,6 @@ export default function WishlistDashboard({
           items: WishlistItem[];
           total: number;
           hasMore: boolean;
-          categories: string[];
         };
 
         const normalized = payload.items.map(normalizeItem);
@@ -702,7 +699,6 @@ export default function WishlistDashboard({
 
         setTotalCount(payload.total);
         setHasMore(payload.hasMore);
-        setAvailableCategories(payload.categories);
       } catch (error) {
         setListError(error instanceof Error ? error.message : t('errors.loadFailed'));
       } finally {
@@ -868,9 +864,82 @@ export default function WishlistDashboard({
     setShareState(null);
   }, []);
 
+  const handlePreviewMetadata = async () => {
+    setPreviewError(null);
+    setFormError(null);
+
+    if (!formUrl.trim()) {
+      setFormError(t('errors.urlRequired'));
+      return;
+    }
+
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(formUrl.trim());
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        throw new Error('Invalid protocol');
+      }
+    } catch {
+      setFormError(t('errors.invalidUrl'));
+      return;
+    }
+
+    setPreviewLoading(true);
+
+    try {
+      const response = await fetch('/api/v1/wishlist-items/preview', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: parsedUrl.toString(),
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.message ?? t('errors.previewFailed'));
+      }
+
+      const payload = (await response.json()) as {
+        metadata: {
+          productName: string | null;
+          productBrand: string | null;
+          price: string | null;
+          currency: string | null;
+          imageUrl: string | null;
+        };
+      };
+
+      const { metadata } = payload;
+      if (metadata.productName) {
+        setFormName(metadata.productName);
+      }
+      if (metadata.productBrand) {
+        setFormBrand(metadata.productBrand);
+      }
+      if (metadata.price) {
+        setFormPrice(metadata.price);
+      }
+      if (metadata.currency) {
+        setFormCurrency(metadata.currency.toUpperCase());
+      }
+      if (metadata.imageUrl) {
+        setFormImage(metadata.imageUrl);
+      }
+      setPreviewError(null);
+    } catch (error) {
+      setPreviewError(error instanceof Error ? error.message : t('errors.previewFailed'));
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(null);
+    setPreviewError(null);
 
     if (!activeWishlist) {
       setFormError(t('errors.noWishlist'));
@@ -882,7 +951,7 @@ export default function WishlistDashboard({
       return;
     }
 
-    let parsedUrl: URL | null = null;
+    let parsedUrl: URL;
     try {
       parsedUrl = new URL(formUrl.trim());
     } catch {
@@ -890,22 +959,40 @@ export default function WishlistDashboard({
       return;
     }
 
+    const manualName = formName.trim();
+    const manualBrand = formBrand.trim();
+    const manualImage = formImage.trim();
+    const manualPrice = formPrice.trim();
+    const manualPriceNormalized = manualPrice ? normalizePriceInput(manualPrice) : null;
+    const manualCurrencyRaw = formCurrency.trim().toUpperCase();
+    const manualCurrency = manualCurrencyRaw && /^[A-Z]{3}$/.test(manualCurrencyRaw) ? manualCurrencyRaw : '';
+    const manualMetadataProvided = Boolean(
+      manualName || manualBrand || manualPriceNormalized || manualImage
+    );
+    const hasManualCoreMetadata = Boolean(
+      manualName && manualBrand && manualPriceNormalized && manualImage
+    );
+
     const optimisticId = `temp-${Date.now()}`;
     const optimisticItem: WishlistItemView = {
       id: optimisticId,
       tempId: optimisticId,
       wishlist_id: activeWishlist.id,
-      category: formCategory.trim() || null,
       url: parsedUrl.toString(),
-      product_name: null,
-      product_brand: null,
-      image_url: null,
-      price_snapshot: null,
-      parse_status: 'pending',
+      product_name: manualName || null,
+      product_brand: manualBrand || null,
+      image_url: manualImage || null,
+      price_snapshot: manualPriceNormalized
+        ? {
+            amount: manualPriceNormalized,
+            currency: manualCurrency || null,
+          }
+        : null,
+      parse_status: hasManualCoreMetadata ? 'success' : 'pending',
       parse_error: null,
-      parsed_at: null,
+      parsed_at: hasManualCoreMetadata ? new Date().toISOString() : null,
       matched_size: null,
-      size_confidence: 'missing',
+      size_confidence: manualMetadataProvided ? 'manual' : 'missing',
       notes: formNotes.trim() || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -925,7 +1012,11 @@ export default function WishlistDashboard({
         body: JSON.stringify({
           url: parsedUrl.toString(),
           notes: formNotes.trim() || null,
-          category: formCategory.trim() || null,
+          productName: manualName || null,
+          productBrand: manualBrand || null,
+          price: manualPrice || null,
+          currency: manualCurrency || null,
+          imageUrl: manualImage || null,
         }),
       });
 
@@ -943,18 +1034,14 @@ export default function WishlistDashboard({
         return nextItems;
       });
       setTotalCount((prev) => prev + 1);
-      if (payload.item.category) {
-        setAvailableCategories((prev) => {
-          if (prev.includes(payload.item.category as string)) {
-            return prev;
-          }
-          return [...prev, payload.item.category as string].sort((a, b) => a.localeCompare(b, 'pl'));
-        });
-      }
-
-      setFormCategory('');
       setFormUrl('');
+      setFormName('');
+      setFormBrand('');
+      setFormPrice('');
+      setFormCurrency('PLN');
+      setFormImage('');
       setFormNotes('');
+      router.refresh();
     } catch (error) {
       setItems((prev) => prev.filter((entry) => entry.id !== optimisticId));
       setFormError(error instanceof Error ? error.message : t('errors.addFailed'));
@@ -964,28 +1051,12 @@ export default function WishlistDashboard({
   };
 
   const handleItemUpdate = (updated: WishlistItemView) => {
-    setItems((prev) => {
-      const next = prev.map((entry) => (entry.id === updated.id ? normalizeItem(updated) : entry));
-      const categorySet = new Set(
-        next
-          .map((item) => item.category)
-          .filter((value): value is string => Boolean(value))
-      );
-      setAvailableCategories(Array.from(categorySet).sort((a, b) => a.localeCompare(b, 'pl')));
-      return next;
-    });
+    setItems((prev) => prev.map((entry) => (entry.id === updated.id ? normalizeItem(updated) : entry)));
   };
 
   const handleItemDelete = (itemId: string) => {
     setItems((prev) => {
-      const next = prev.filter((entry) => entry.id !== itemId);
-      const categorySet = new Set(
-        next
-          .map((item) => item.category)
-          .filter((value): value is string => Boolean(value))
-      );
-      setAvailableCategories(Array.from(categorySet).sort((a, b) => a.localeCompare(b, 'pl')));
-      return next;
+      return prev.filter((entry) => entry.id !== itemId);
     });
     setTotalCount((prev) => Math.max(0, prev - 1));
     setNextOffset((prev) => Math.max(0, prev - 1));
@@ -1044,7 +1115,6 @@ export default function WishlistDashboard({
     }
 
     const nextFilters: AppliedFilters = {
-      category: categoryFilter === 'all' ? null : categoryFilter,
       minPrice: parsedMin,
       maxPrice: parsedMax,
     };
@@ -1054,11 +1124,9 @@ export default function WishlistDashboard({
   };
 
   const handleClearFilters = () => {
-    setCategoryFilter('all');
     setMinPriceInput('');
     setMaxPriceInput('');
     const defaultFilters: AppliedFilters = {
-      category: null,
       minPrice: null,
       maxPrice: null,
     };
@@ -1109,38 +1177,107 @@ export default function WishlistDashboard({
 
       <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-border bg-card p-6 shadow">
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <label htmlFor="wishlist-category" className="text-sm font-semibold text-muted-foreground">
-              {t('form.category')}
-            </label>
-            <select
-              id="wishlist-category"
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              value={formCategory}
-              onChange={(event) => setFormCategory(event.target.value)}
-            >
-              <option value="">{t('form.categoryPlaceholder')}</option>
-              {categoryOptions.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2 md:col-span-2">
+          <div className="space-y-2 md:col-span-3">
             <label htmlFor="wishlist-url" className="text-sm font-semibold text-muted-foreground">
               {t('form.url')}
             </label>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                id="wishlist-url"
+                type="url"
+                required
+                className="w-full flex-1 rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                value={formUrl}
+                onChange={(event) => setFormUrl(event.target.value)}
+                placeholder={t('form.urlPlaceholder')}
+              />
+              <button
+                type="button"
+                className="rounded-full bg-secondary px-5 py-2 text-sm font-semibold text-secondary-foreground shadow transition hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-70"
+                onClick={handlePreviewMetadata}
+                disabled={previewLoading || formLoading || !formUrl.trim()}
+              >
+                {previewLoading ? t('form.previewing') : t('form.preview')}
+              </button>
+            </div>
+            {previewError ? (
+              <p className="text-sm text-destructive">{previewError}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="wishlist-name" className="text-sm font-semibold text-muted-foreground">
+              {t('form.productName')}
+            </label>
             <input
-              id="wishlist-url"
-              type="url"
-              required
+              id="wishlist-name"
               className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              value={formUrl}
-              onChange={(event) => setFormUrl(event.target.value)}
-              placeholder={t('form.urlPlaceholder')}
+              value={formName}
+              onChange={(event) => setFormName(event.target.value)}
+              placeholder={t('form.productNamePlaceholder')}
             />
           </div>
+
+          <div className="space-y-2">
+            <label htmlFor="wishlist-brand" className="text-sm font-semibold text-muted-foreground">
+              {t('form.brand')}
+            </label>
+            <input
+              id="wishlist-brand"
+              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              value={formBrand}
+              onChange={(event) => setFormBrand(event.target.value)}
+              placeholder={t('form.brandPlaceholder')}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="wishlist-price" className="text-sm font-semibold text-muted-foreground">
+              {t('form.price')}
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="wishlist-price"
+                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                value={formPrice}
+                onChange={(event) => setFormPrice(event.target.value)}
+                placeholder={t('form.pricePlaceholder')}
+                inputMode="decimal"
+              />
+              <input
+                id="wishlist-currency"
+                className="w-20 rounded-2xl border border-border bg-background px-3 py-3 text-center text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                value={formCurrency}
+                onChange={(event) => setFormCurrency(event.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3))}
+                placeholder={t('form.currency')}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 md:col-span-3">
+            <label htmlFor="wishlist-image" className="text-sm font-semibold text-muted-foreground">
+              {t('form.image')}
+            </label>
+            <input
+              id="wishlist-image"
+              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              value={formImage}
+              onChange={(event) => setFormImage(event.target.value)}
+              placeholder={t('form.imagePlaceholder')}
+            />
+            {formImage ? (
+              <div className="relative mt-2 h-48 w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/20">
+                <Image
+                  src={formImage}
+                  alt={formName || t('cards.noImage')}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+            ) : null}
+          </div>
+
           <div className="space-y-2 md:col-span-3">
             <label htmlFor="wishlist-notes" className="text-sm font-semibold text-muted-foreground">
               {t('form.notes')}
@@ -1167,14 +1304,19 @@ export default function WishlistDashboard({
             type="button"
             className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
             onClick={() => {
-              setFormCategory('');
               setFormUrl('');
+              setFormName('');
+              setFormBrand('');
+              setFormPrice('');
+              setFormCurrency('PLN');
+              setFormImage('');
               setFormNotes('');
               setFormError(null);
+              setPreviewError(null);
             }}
             disabled={formLoading}
           >
-          {tCommon('clear')}
+            {tCommon('clear')}
           </button>
           <button
             type="submit"
@@ -1212,49 +1354,38 @@ export default function WishlistDashboard({
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-2">
-            <label htmlFor="wishlist-filter-category" className="text-sm font-semibold text-muted-foreground">
-              {t('filters.categoryLabel')}
+            <label htmlFor="wishlist-filter-min" className="text-sm font-semibold text-muted-foreground">
+              {t('filters.min')}
             </label>
-            <select
-              id="wishlist-filter-category"
+            <input
+              id="wishlist-filter-min"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
               className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              value={categoryFilter}
-              onChange={(event: ChangeEvent<HTMLSelectElement>) => setCategoryFilter(event.target.value)}
-            >
-              <option value="all">{t('filters.categoryAll')}</option>
-              {categoryOptions.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+              placeholder={t('filters.min')}
+              value={minPriceInput}
+              onChange={(event) => setMinPriceInput(event.target.value)}
+            />
           </div>
-          <div className="space-y-2 md:col-span-2">
-            <span className="text-sm font-semibold text-muted-foreground">{t('filters.priceLabel')}</span>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.01"
-                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                placeholder={t('filters.min')}
-                value={minPriceInput}
-                onChange={(event) => setMinPriceInput(event.target.value)}
-              />
-              <input
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.01"
-                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                placeholder={t('filters.max')}
-                value={maxPriceInput}
-                onChange={(event) => setMaxPriceInput(event.target.value)}
-              />
-            </div>
+          <div className="space-y-2">
+            <label htmlFor="wishlist-filter-max" className="text-sm font-semibold text-muted-foreground">
+              {t('filters.max')}
+            </label>
+            <input
+              id="wishlist-filter-max"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              placeholder={t('filters.max')}
+              value={maxPriceInput}
+              onChange={(event) => setMaxPriceInput(event.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <label htmlFor="wishlist-sort" className="text-sm font-semibold text-muted-foreground">
@@ -1350,11 +1481,6 @@ export default function WishlistDashboard({
                         {t('cards.noImage')}
                       </div>
                     )}
-                    {item.category ? (
-                      <span className="absolute left-4 top-4 rounded-full bg-primary/90 px-3 py-1 text-xs font-semibold text-primary-foreground shadow">
-                        {item.category}
-                      </span>
-                    ) : null}
                   </div>
 
                   <div className="flex flex-1 flex-col gap-4 p-5">

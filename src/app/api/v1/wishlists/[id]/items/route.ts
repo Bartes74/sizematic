@@ -12,12 +12,17 @@ const DEFAULT_PAGE_SIZE = 12;
 type CreateItemPayload = {
   url: string;
   notes?: string | null;
-  category?: string | null;
+  productName?: string | null;
+  productBrand?: string | null;
+  price?: string | number | null;
+  currency?: string | null;
+  imageUrl?: string | null;
 };
 
 const MAX_URL_LENGTH = 2048;
-const MAX_CATEGORY_LENGTH = 120;
 const MAX_NOTES_LENGTH = 2000;
+const MAX_TEXT_FIELD_LENGTH = 300;
+const MAX_IMAGE_URL_LENGTH = 2048;
 
 function isLocalAddress(hostname: string) {
   if (!hostname) {
@@ -71,7 +76,8 @@ export async function POST(request: NextRequest, context: unknown) {
   const wishlistId = params.id;
 
   try {
-    const { url, notes, category } = (await request.json()) as CreateItemPayload;
+    const { url, notes, productName, productBrand, price, currency, imageUrl } =
+      (await request.json()) as CreateItemPayload;
 
     if (!url) {
       return NextResponse.json({ message: "Adres URL jest wymagany" }, { status: 400 });
@@ -103,11 +109,23 @@ export async function POST(request: NextRequest, context: unknown) {
     }
 
     const normalizedNotes = typeof notes === "string" ? notes.trim() : null;
-    const normalizedCategory = category?.trim() || null;
+    const normalizedName = typeof productName === "string" ? productName.trim() : null;
+    const normalizedBrand = typeof productBrand === "string" ? productBrand.trim() : null;
+    let normalizedImageUrl: string | null = null;
+    const normalizedCurrency = normalizeCurrency(currency);
+    const manualPriceAmount = normalizeManualPrice(price);
+    const safeCurrency = normalizedCurrency && normalizedCurrency !== "INVALID" ? normalizedCurrency : null;
 
-    if (normalizedCategory && normalizedCategory.length > MAX_CATEGORY_LENGTH) {
+    if (normalizedName && normalizedName.length > MAX_TEXT_FIELD_LENGTH) {
       return NextResponse.json(
-        { message: "Kategorie mogą mieć maksymalnie 120 znaków" },
+        { message: "Nazwa produktu jest zbyt długa" },
+        { status: 400 }
+      );
+    }
+
+    if (normalizedBrand && normalizedBrand.length > MAX_TEXT_FIELD_LENGTH) {
+      return NextResponse.json(
+        { message: "Nazwa sklepu lub marki jest zbyt długa" },
         { status: 400 }
       );
     }
@@ -115,6 +133,38 @@ export async function POST(request: NextRequest, context: unknown) {
     if (normalizedNotes && normalizedNotes.length > MAX_NOTES_LENGTH) {
       return NextResponse.json(
         { message: "Notatki mogą mieć maksymalnie 2000 znaków" },
+        { status: 400 }
+      );
+    }
+
+    if (typeof imageUrl === "string") {
+      const trimmed = imageUrl.trim();
+      if (trimmed) {
+        if (trimmed.length > MAX_IMAGE_URL_LENGTH) {
+          return NextResponse.json(
+            { message: "Adres zdjęcia jest zbyt długi" },
+            { status: 400 }
+          );
+        }
+
+        try {
+          const parsedImageUrl = new URL(trimmed, parsedUrl);
+          if (!['http:', 'https:'].includes(parsedImageUrl.protocol)) {
+            throw new Error("Nieobsługiwany protokół obrazu");
+          }
+          normalizedImageUrl = parsedImageUrl.toString();
+        } catch {
+          return NextResponse.json(
+            { message: "Adres zdjęcia jest nieprawidłowy" },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
+    if (normalizedCurrency === "INVALID") {
+      return NextResponse.json(
+        { message: "Waluta musi składać się z trzech liter" },
         { status: 400 }
       );
     }
@@ -148,13 +198,36 @@ export async function POST(request: NextRequest, context: unknown) {
 
     const profile = await getProfileForUser(adminClient, user.id);
 
+    const manualMetadataProvided = Boolean(
+      normalizedName || normalizedBrand || manualPriceAmount || normalizedImageUrl
+    );
+    const hasManualCoreMetadata = Boolean(
+      normalizedName && normalizedBrand && manualPriceAmount && normalizedImageUrl
+    );
+
+    const initialParseStatus = hasManualCoreMetadata ? "success" : "pending";
+    const manualPriceSnapshot = manualPriceAmount
+      ? {
+          amount: manualPriceAmount,
+          currency: safeCurrency,
+          extracted_at: new Date().toISOString(),
+        }
+      : null;
+
     const { data: inserted, error: insertError } = await adminClient
       .from("wishlist_items")
       .insert({
         wishlist_id: wishlistId,
         url: parsedUrl.toString(),
         notes: normalizedNotes,
-        category: normalizedCategory,
+        product_name: normalizedName,
+        product_brand: normalizedBrand,
+        image_url: normalizedImageUrl,
+        price_snapshot: manualPriceSnapshot,
+        parse_status: initialParseStatus,
+        parse_error: null,
+        parsed_at: initialParseStatus === "success" ? new Date().toISOString() : null,
+        size_confidence: manualMetadataProvided ? "manual" : "missing",
       })
       .select("*")
       .single();
@@ -170,22 +243,26 @@ export async function POST(request: NextRequest, context: unknown) {
       eventType: "wishlist_item_added",
       source: "owner",
       metadata: {
-        category: normalizedCategory,
         url: parsedUrl.toString(),
+        productName: normalizedName,
+        productBrand: normalizedBrand,
+        priceSnapshot: manualPriceSnapshot,
       },
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/wishlists");
+    await revalidatePath("/dashboard");
+    await revalidatePath("/dashboard/wishlists");
 
-    void enrichWishlistItemFromUrl({
-      itemId: inserted.id,
-      wishlistId,
-      url: parsedUrl.toString(),
-      ownerProfileId: wishlist.owner_profile_id ?? profile.id,
-    }).catch((error) => {
-      console.error("Failed to enrich wishlist item:", error);
-    });
+    if (initialParseStatus === "pending") {
+      void enrichWishlistItemFromUrl({
+        itemId: inserted.id,
+        wishlistId,
+        url: parsedUrl.toString(),
+        ownerProfileId: wishlist.owner_profile_id ?? profile.id,
+      }).catch((error) => {
+        console.error("Failed to enrich wishlist item:", error);
+      });
+    }
 
     return NextResponse.json({ item: inserted }, { status: 201 });
   } catch (error) {
@@ -211,7 +288,6 @@ export async function GET(request: NextRequest, context: unknown) {
     const offset = Math.max(0, Number.parseInt(url.searchParams.get("offset") ?? "0", 10) || 0);
     const sortParam = url.searchParams.get("sort") ?? "created_at";
     const directionParam = url.searchParams.get("direction") ?? "desc";
-    const categoryFilter = url.searchParams.get("category");
     const minPriceParam = url.searchParams.get("minPrice");
     const maxPriceParam = url.searchParams.get("maxPrice");
 
@@ -259,17 +335,7 @@ export async function GET(request: NextRequest, context: unknown) {
 
     const items = (data ?? []) as Array<Record<string, unknown>>;
 
-    const filtered = items
-      .filter((raw) => filterByCategory(raw, categoryFilter))
-      .filter((raw) => filterByPriceRange(raw, minPrice, maxPrice));
-
-    const categories = Array.from(
-      new Set(
-        items
-          .map((entry) => (typeof entry.category === "string" ? entry.category : null))
-          .filter((value): value is string => Boolean(value))
-      )
-    ).sort((a, b) => a.localeCompare(b, "pl"));
+    const filtered = items.filter((raw) => filterByPriceRange(raw, minPrice, maxPrice));
 
     const sorted = filtered.sort((a, b) => compareItems(a, b, sortField, sortDirection));
 
@@ -279,7 +345,6 @@ export async function GET(request: NextRequest, context: unknown) {
       items: slice,
       total: filtered.length,
       hasMore: offset + slice.length < filtered.length,
-      categories,
     });
   } catch (error) {
     console.error(`GET /v1/wishlists/${wishlistId}/items failed:`, error);
@@ -316,6 +381,67 @@ function parsePriceQuery(value: string | null) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function normalizeManualPrice(value: unknown) {
+  if (value == null) {
+    return null;
+  }
+
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value.toFixed(2) : null;
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const sanitized = trimmed.replace(/[^0-9.,-]/g, "").replace(/\s+/g, "");
+  if (!sanitized) {
+    return null;
+  }
+
+  let working = sanitized;
+  if (sanitized.includes(",") && sanitized.includes(".")) {
+    if (sanitized.lastIndexOf(",") > sanitized.lastIndexOf(".")) {
+      working = sanitized.replace(/\./g, "");
+    }
+  }
+
+  const normalized = working.replace(/,/g, ".");
+  const parsed = Number.parseFloat(normalized);
+
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return parsed.toFixed(2);
+}
+
+function normalizeCurrency(value: unknown) {
+  if (value == null) {
+    return null;
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim().toUpperCase();
+  if (!trimmed) {
+    return null;
+  }
+
+  if (!/^[A-Z]{3}$/.test(trimmed)) {
+    return "INVALID";
+  }
+
+  return trimmed;
+}
+
 function extractPrice(entry: Record<string, unknown>) {
   const snapshot = entry.price_snapshot as Record<string, unknown> | null | undefined;
   if (!snapshot) {
@@ -333,14 +459,6 @@ function extractPrice(entry: Record<string, unknown>) {
   }
 
   return numeric;
-}
-
-function filterByCategory(entry: Record<string, unknown>, categoryFilter: string | null) {
-  if (!categoryFilter) {
-    return true;
-  }
-  const value = typeof entry.category === "string" ? entry.category : null;
-  return value === categoryFilter;
 }
 
 function filterByPriceRange(entry: Record<string, unknown>, min: number | null, max: number | null) {

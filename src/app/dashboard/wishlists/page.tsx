@@ -108,8 +108,6 @@ export default async function DashboardWishlistsPage() {
   let items: WishlistItem[] = [];
   let totalItems = 0;
   let hasMore = false;
-  let categories: string[] = [];
-
   if (activeWishlist) {
     const { data: itemsData, count, error: itemsError } = await supabase
       .from("wishlist_items")
@@ -125,24 +123,6 @@ export default async function DashboardWishlistsPage() {
     items = (itemsData ?? []) as WishlistItem[];
     totalItems = count ?? items.length;
     hasMore = items.length < totalItems;
-
-    const { data: categoryRows, error: categoriesError } = await supabase
-      .from("wishlist_items")
-      .select("category")
-      .eq("wishlist_id", activeWishlist.id)
-      .not("category", "is", null);
-
-    if (categoriesError) {
-      console.error("Failed to fetch wishlist categories:", categoriesError.message);
-    }
-
-    categories = Array.from(
-      new Set(
-        (categoryRows ?? [])
-          .map((row) => (typeof row.category === "string" ? row.category : null))
-          .filter((value): value is string => Boolean(value))
-      )
-    ).sort((a, b) => a.localeCompare(b, "pl"));
   }
 
   return (
@@ -161,7 +141,6 @@ export default async function DashboardWishlistsPage() {
           initialItems={items}
           initialTotal={totalItems}
           initialHasMore={hasMore}
-          initialCategories={categories}
           pageSize={PAGE_SIZE}
         />
       </main>

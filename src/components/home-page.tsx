@@ -11,6 +11,7 @@ import {
 } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { GlobalHeader } from '@/components/global-header';
 import {
   QUICK_CATEGORY_CONFIGS,
@@ -114,7 +115,8 @@ type TrustedMemberContact = {
 };
 
 function formatWishlistPrice(
-  snapshot: { amount?: string | number | null; currency?: string | null } | null
+  snapshot: { amount?: string | number | null; currency?: string | null } | null,
+  locale: string
 ) {
   if (!snapshot || snapshot.amount == null) {
     return null;
@@ -130,7 +132,7 @@ function formatWishlistPrice(
   }
 
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(locale || undefined, {
       style: snapshot.currency ? 'currency' : 'decimal',
       currency: snapshot.currency ?? undefined,
       maximumFractionDigits: 2,
@@ -538,6 +540,7 @@ export function HomePage({
   trustedCircleInitial,
   bodyMeasurements: bodyMeasurementsProp = null,
 }: HomePageProps) {
+  const locale = useLocale();
   void _measurements;
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
@@ -1423,7 +1426,7 @@ export function HomePage({
               {wishlistItems.map((item) => {
                 const productName = item.productName?.trim() || 'Nowy pomysł na prezent';
                 const productBrand = item.productBrand?.trim();
-              const priceLabel = formatWishlistPrice(item.priceSnapshot);
+                const priceLabel = formatWishlistPrice(item.priceSnapshot, locale);
                 const href = item.url ?? '#';
 
                 return (

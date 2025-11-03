@@ -20,10 +20,20 @@
     "title": "Lista marzeń",
     "subtitle": "Dodawaj pomysły na prezenty, a my zadbamy o szczegóły.",
     "form": {
-      "category": "Kategoria",
-      "categoryPlaceholder": "np. Biżuteria",
       "url": "Link do sklepu",
       "urlPlaceholder": "https://przykład.pl/produkt",
+      "preview": "Pobierz dane ze sklepu",
+      "previewing": "Pobieram dane...",
+      "previewError": "Nie udało się pobrać informacji ze sklepu. Uzupełnij pola ręcznie.",
+      "productName": "Nazwa produktu",
+      "productNamePlaceholder": "np. Pierścionek Aurora",
+      "brand": "Sklep / marka",
+      "brandPlaceholder": "np. Apart",
+      "price": "Cena",
+      "pricePlaceholder": "np. 199,00",
+      "currency": "Waluta",
+      "image": "Adres zdjęcia",
+      "imagePlaceholder": "https://example.com/produkt.jpg",
       "notes": "Opis (opcjonalnie)",
       "notesPlaceholder": "Krótka notatka lub szczegóły dla Ciebie",
       "submit": "Dodaj do listy",
@@ -41,7 +51,8 @@
       "addFailed": "Nie udało się dodać pozycji do listy.",
       "refreshFailed": "Nie udało się odświeżyć danych produktu.",
       "priceRange": "Podaj poprawny zakres ceny.",
-      "loadFailed": "Nie udało się pobrać elementów listy."
+      "loadFailed": "Nie udało się pobrać elementów listy.",
+      "previewFailed": "Nie udało się pobrać informacji ze sklepu."
     },
     "cards": {
       "noImage": "Brak zdjęcia",
@@ -68,9 +79,7 @@
     },
     "filters": {
       "title": "Filtry i sortowanie",
-      "subtitle": "Zawęź listę według kategorii, ceny lub daty dodania.",
-      "categoryLabel": "Kategoria",
-      "categoryAll": "Wszystkie kategorie",
+      "subtitle": "Zawęź listę według ceny lub daty dodania.",
       "priceLabel": "Cena",
       "min": "Min",
       "max": "Maks",

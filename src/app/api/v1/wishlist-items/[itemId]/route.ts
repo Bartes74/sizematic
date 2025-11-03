@@ -8,7 +8,6 @@ type UpdatePayload = Partial<{
   product_brand: string | null;
   matched_size: string | null;
   notes: string | null;
-  category: string | null;
   size_confidence: SizeMatchConfidence;
 }>;
 
@@ -17,11 +16,9 @@ const ALLOWED_FIELDS = new Set([
   "product_brand",
   "matched_size",
   "notes",
-  "category",
   "size_confidence",
 ]);
 
-const MAX_CATEGORY_LENGTH = 120;
 const MAX_NOTES_LENGTH = 2000;
 
 export async function GET(_request: NextRequest, context: unknown) {
@@ -131,15 +128,6 @@ export async function PATCH(request: NextRequest, context: unknown) {
     for (const key of Object.keys(body) as Array<keyof UpdatePayload>) {
       if (key === "size_confidence") {
         payload.size_confidence = body.size_confidence;
-      } else if (key === "category") {
-        const normalized = body.category?.trim() || null;
-        if (normalized && normalized.length > MAX_CATEGORY_LENGTH) {
-          return NextResponse.json(
-            { message: "Kategorie mogą mieć maksymalnie 120 znaków" },
-            { status: 400 }
-          );
-        }
-        payload.category = normalized;
       } else if (key === "notes") {
         const normalizedNotes = body.notes?.trim() || null;
         if (normalizedNotes && normalizedNotes.length > MAX_NOTES_LENGTH) {
