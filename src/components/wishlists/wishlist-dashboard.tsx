@@ -5,15 +5,16 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
-import type { Wishlist } from "@/lib/types";
+import type { Wishlist, WishlistItem } from "@/lib/types";
 
 type WishlistDashboardProps = {
   initialWishlist: Wishlist | null;
   allWishlists: Wishlist[];
-  initialItems: unknown[];
-  initialTotal: number;
-  initialHasMore: boolean;
-  pageSize: number;
+  initialItems?: unknown[];
+  initialTotal?: number;
+  initialHasMore?: boolean;
+  pageSize?: number;
+  editItem?: WishlistItem | null;
 };
 
 function normalizePriceInput(value: string) {
@@ -44,7 +45,42 @@ function normalizePriceInput(value: string) {
   return parsed.toFixed(2);
 }
 
-export default function WishlistDashboard({ initialWishlist, allWishlists }: WishlistDashboardProps) {
+type PriceSnapshot = {
+  amount?: string | number | null;
+  currency?: string | null;
+};
+
+function extractPriceAmount(snapshot: unknown) {
+  if (!snapshot || typeof snapshot !== "object") {
+    return "";
+  }
+
+  const payload = snapshot as PriceSnapshot;
+  if (payload.amount == null) {
+    return "";
+  }
+
+  if (typeof payload.amount === "number") {
+    return Number.isFinite(payload.amount) ? payload.amount.toFixed(2) : "";
+  }
+
+  return String(payload.amount);
+}
+
+function extractCurrency(snapshot: unknown, fallback = "PLN") {
+  if (!snapshot || typeof snapshot !== "object") {
+    return fallback;
+  }
+
+  const payload = snapshot as PriceSnapshot;
+  if (!payload.currency || typeof payload.currency !== "string") {
+    return fallback;
+  }
+
+  return payload.currency.toUpperCase();
+}
+
+export default function WishlistDashboard({ initialWishlist, allWishlists, editItem }: WishlistDashboardProps) {
   const t = useTranslations("wishlist");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -59,6 +95,8 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
   const [formCurrency, setFormCurrency] = useState("PLN");
   const [formImage, setFormImage] = useState("");
   const [formNotes, setFormNotes] = useState("");
+
+  const [editingItemId, setEditingItemId] = useState<string | null>(editItem?.id ?? null);
 
   const [formError, setFormError] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -113,6 +151,30 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
       void ensureDefaultWishlist();
     }
   }, [initialWishlist, ensureDefaultWishlist]);
+
+  useEffect(() => {
+    if (!editItem || !initialWishlist) {
+      setEditingItemId(null);
+      return;
+    }
+
+    if (editItem.wishlist_id !== initialWishlist.id) {
+      setEditingItemId(null);
+      return;
+    }
+
+    setEditingItemId(editItem.id);
+    setFormUrl(editItem.url ?? "");
+    setFormName(editItem.product_name ?? "");
+    setFormBrand(editItem.product_brand ?? "");
+    setFormNotes(editItem.notes ?? "");
+    setFormPrice(extractPriceAmount(editItem.price_snapshot));
+    setFormCurrency(extractCurrency(editItem.price_snapshot));
+    setFormImage(editItem.image_url ?? "");
+    setFormError(null);
+    setPreviewError(null);
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [editItem, initialWishlist]);
 
   const handlePreviewMetadata = async () => {
     setPreviewError(null);
@@ -195,17 +257,21 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
       return;
     }
 
-    if (!formUrl.trim()) {
+    const isEditing = Boolean(editingItemId);
+
+    if (!formUrl.trim() && !isEditing) {
       setFormError(t("errors.urlRequired"));
       return;
     }
 
-    let parsedUrl: URL;
+    let parsedUrl: URL | null = null;
     try {
       parsedUrl = new URL(formUrl.trim());
     } catch {
-      setFormError(t("errors.invalidUrl"));
-      return;
+      if (!isEditing) {
+        setFormError(t("errors.invalidUrl"));
+        return;
+      }
     }
 
     const manualName = formName.trim();
@@ -219,35 +285,53 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
     setFormLoading(true);
 
     try {
-      const response = await fetch(`/api/v1/wishlists/${activeWishlist.id}/items`, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          url: parsedUrl.toString(),
+      if (isEditing && editingItemId) {
+        const payload: Record<string, unknown> = {
+          product_name: manualName || null,
+          product_brand: manualBrand || null,
           notes: formNotes.trim() || null,
-          productName: manualName || null,
-          productBrand: manualBrand || null,
-          price: (manualPriceNormalized ?? manualPriceRaw) || null,
-          currency: manualCurrency || null,
-          imageUrl: manualImage || null,
-        }),
-      });
+        };
 
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message ?? t("errors.addFailed"));
+        const response = await fetch(`/api/v1/wishlist-items/${editingItemId}`, {
+          method: "PATCH",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const payloadData = await response.json().catch(() => null);
+          throw new Error(payloadData?.message ?? t("errors.addFailed"));
+        }
+
+        handleClear();
+        router.refresh();
+      } else {
+        const response = await fetch(`/api/v1/wishlists/${activeWishlist.id}/items`, {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            url: (parsedUrl ? parsedUrl.toString() : formUrl.trim()),
+            notes: formNotes.trim() || null,
+            productName: manualName || null,
+            productBrand: manualBrand || null,
+            price: (manualPriceNormalized ?? manualPriceRaw) || null,
+            currency: manualCurrency || null,
+            imageUrl: manualImage || null,
+          }),
+        });
+
+        if (!response.ok) {
+          const payloadData = await response.json().catch(() => null);
+          throw new Error(payloadData?.message ?? t("errors.addFailed"));
+        }
+
+        handleClear();
+        router.refresh();
       }
-
-      setFormUrl("");
-      setFormName("");
-      setFormBrand("");
-      setFormPrice("");
-      setFormCurrency("PLN");
-      setFormImage("");
-      setFormNotes("");
-      router.refresh();
     } catch (error) {
       setFormError(error instanceof Error ? error.message : t("errors.addFailed"));
     } finally {
@@ -255,7 +339,8 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
     }
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
+    const wasEditing = Boolean(editingItemId);
     setFormUrl("");
     setFormName("");
     setFormBrand("");
@@ -263,9 +348,13 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
     setFormCurrency("PLN");
     setFormImage("");
     setFormNotes("");
+    setEditingItemId(null);
     setFormError(null);
     setPreviewError(null);
-  };
+    if (wasEditing) {
+      router.replace("/dashboard/wishlists");
+    }
+  }, [editingItemId, router]);
 
   return (
     <div className="space-y-8">
@@ -289,12 +378,13 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
                 value={formUrl}
                 onChange={(event) => setFormUrl(event.target.value)}
                 placeholder={t("form.urlPlaceholder")}
+                disabled={Boolean(editingItemId)}
               />
               <button
                 type="button"
                 className="rounded-full bg-secondary px-5 py-2 text-sm font-semibold text-secondary-foreground shadow transition hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-70"
                 onClick={handlePreviewMetadata}
-                disabled={previewLoading || formLoading || !formUrl.trim()}
+                disabled={Boolean(editingItemId) || previewLoading || formLoading || !formUrl.trim()}
               >
                 {previewLoading ? t("form.previewing") : t("form.preview")}
               </button>
@@ -340,6 +430,7 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
                 onChange={(event) => setFormPrice(event.target.value)}
                 placeholder={t("form.pricePlaceholder")}
                 inputMode="decimal"
+                disabled={Boolean(editingItemId)}
               />
               <input
                 id="wishlist-currency"
@@ -349,6 +440,7 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
                   setFormCurrency(event.target.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3))
                 }
                 placeholder={t("form.currency")}
+                disabled={Boolean(editingItemId)}
               />
             </div>
           </div>
@@ -363,6 +455,7 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
               value={formImage}
               onChange={(event) => setFormImage(event.target.value)}
               placeholder={t("form.imagePlaceholder")}
+              disabled={Boolean(editingItemId)}
             />
             {formImage ? (
               <div className="relative mt-2 h-48 w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/20">
@@ -406,7 +499,7 @@ export default function WishlistDashboard({ initialWishlist, allWishlists }: Wis
             className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
             disabled={formLoading || bootstrapLoading}
           >
-            {formLoading ? t("form.saving") : t("form.submit")}
+            {formLoading ? t("form.saving") : editingItemId ? tCommon("save") : t("form.submit")}
           </button>
         </div>
       </form>

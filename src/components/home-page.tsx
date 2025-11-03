@@ -667,7 +667,46 @@ export function HomePage({
   }, [createEmptyParticipant]);
 
   const bodyMeasurements = bodyMeasurementsProp ?? null;
-  const wishlistItems = wishlistItemsProp;
+  const [wishlistItems, setWishlistItems] = useState(wishlistItemsProp);
+  useEffect(() => {
+    setWishlistItems(wishlistItemsProp);
+  }, [wishlistItemsProp]);
+
+  const handleWishlistEdit = useCallback(
+    (item: DashboardWishlistItem) => {
+      router.push(`/dashboard/wishlists?edit=${item.id}`);
+    },
+    [router]
+  );
+
+  const handleWishlistDelete = useCallback(
+    async (item: DashboardWishlistItem) => {
+      const confirmed = window.confirm("Czy na pewno chcesz usunąć ten produkt z Listy Marzeń?");
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/v1/wishlist-items/${item.id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => null);
+          throw new Error(payload?.message ?? "Nie udało się usunąć produktu z listy");
+        }
+
+        setWishlistItems((previous) => previous.filter((entry) => entry.id !== item.id));
+        router.refresh();
+      } catch (error) {
+        console.error("Failed to delete wishlist item", error);
+        const message =
+          error instanceof Error ? error.message : "Nie udało się usunąć produktu z listy";
+        window.alert(message);
+      }
+    },
+    [router]
+  );
 
   const sizeLabelsById = useMemo(() => {
     const map = new Map<string, SizeLabel>();
@@ -1430,36 +1469,57 @@ export function HomePage({
                 const href = item.url ?? '#';
 
                 return (
-                  <a
+                  <div
                     key={item.id}
-                    href={href}
-                    target={item.url ? '_blank' : undefined}
-                    rel={item.url ? 'noopener noreferrer' : undefined}
-                    className="flex items-center gap-4 rounded-[24px] border border-border/70 bg-[var(--surface-interactive)] px-4 py-4 transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                    className="group flex flex-col rounded-[24px] border border-border/70 bg-[var(--surface-interactive)] px-4 py-4 transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
                   >
-                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
-                      {item.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.imageUrl} alt={productName} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                          Brak zdjęcia
-                        </div>
-                      )}
-                    </div>
+                    <a
+                      href={href}
+                      target={item.url ? '_blank' : undefined}
+                      rel={item.url ? 'noopener noreferrer' : undefined}
+                      className="flex items-center gap-4"
+                    >
+                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
+                        {item.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.imageUrl} alt={productName} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                            Brak zdjęcia
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">{productName}</p>
-                      {productBrand ? (
-                        <p className="truncate text-xs uppercase tracking-wide text-muted-foreground">
-                          {productBrand}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-foreground">{productName}</p>
+                        {productBrand ? (
+                          <p className="truncate text-xs uppercase tracking-wide text-muted-foreground">
+                            {productBrand}
+                          </p>
+                        ) : null}
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Cena: {priceLabel ?? '—'}
                         </p>
-                      ) : null}
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Cena: {priceLabel ?? '—'}
-                      </p>
+                      </div>
+                    </a>
+
+                    <div className="mt-4 flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+                        onClick={() => handleWishlistEdit(item)}
+                      >
+                        Edytuj
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-full border border-destructive/30 px-4 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10"
+                        onClick={() => handleWishlistDelete(item)}
+                      >
+                        Usuń
+                      </button>
                     </div>
-                  </a>
+                  </div>
                 );
               })}
             </div>

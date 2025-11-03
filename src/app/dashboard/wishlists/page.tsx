@@ -17,7 +17,15 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 12;
 const DEFAULT_WISHLIST_TITLE = "Moja lista marzeń";
 
-export default async function DashboardWishlistsPage() {
+type PageSearchParams = {
+  edit?: string | string[];
+};
+
+export default async function DashboardWishlistsPage({
+  searchParams,
+}: {
+  searchParams?: PageSearchParams;
+}) {
   const supabase = await createClient();
   const adminClient = createSupabaseAdminClient();
   const {
@@ -104,7 +112,35 @@ export default async function DashboardWishlistsPage() {
     }
   }
 
-  const activeWishlist = wishlists.length > 0 ? wishlists[0] : null;
+  const editParam = searchParams?.edit;
+  const editItemId = Array.isArray(editParam) ? editParam[0] : editParam ?? null;
+
+  let editItem: WishlistItem | null = null;
+  let activeWishlist: Wishlist | null = null;
+
+  if (editItemId) {
+    const { data: fetchedItem, error: fetchItemError } = await adminClient
+      .from("wishlist_items")
+      .select("*")
+      .eq("id", editItemId)
+      .maybeSingle();
+
+    if (fetchItemError) {
+      console.error("Failed to fetch wishlist item for editing:", fetchItemError.message);
+    }
+
+    if (fetchedItem) {
+      const matchedWishlist = wishlists.find((entry) => entry.id === (fetchedItem as WishlistItem).wishlist_id) ?? null;
+      if (matchedWishlist) {
+        editItem = fetchedItem as WishlistItem;
+        activeWishlist = matchedWishlist;
+      }
+    }
+  }
+
+  if (!activeWishlist) {
+    activeWishlist = wishlists.length > 0 ? wishlists[0] : null;
+  }
 
   let items: WishlistItem[] = [];
   let totalItems = 0;
@@ -143,6 +179,7 @@ export default async function DashboardWishlistsPage() {
           initialTotal={totalItems}
           initialHasMore={hasMore}
           pageSize={PAGE_SIZE}
+          editItem={editItem}
         />
       </main>
       <SiteFooter />
