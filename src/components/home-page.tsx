@@ -1489,10 +1489,6 @@ export function HomePage({
         ) : null}
 
         <SectionCard>
-          <TrustedCircle initialData={trustedCircleInitial ?? undefined} />
-        </SectionCard>
-
-        <SectionCard>
           <div className="flex items-center justify-between gap-3 pb-4">
             <div>
               <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tEvents('title')}</h2>
@@ -1580,6 +1576,10 @@ export function HomePage({
               </p>
             </div>
           )}
+        </SectionCard>
+
+        <SectionCard>
+          <TrustedCircle initialData={trustedCircleInitial ?? undefined} />
         </SectionCard>
 
         <SectionCard>

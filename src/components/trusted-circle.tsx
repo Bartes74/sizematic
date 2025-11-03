@@ -217,120 +217,126 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
         <p className="mt-1 text-sm text-muted-foreground">{t('circle.subtitle')}</p>
       </header>
 
-      <form onSubmit={handleSendInvite} className="space-y-3 rounded-2xl border border-border bg-card p-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <div className="flex-1 space-y-2">
-            <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              {t('circle.emailLabel')}
-            </label>
-            <input
-              type="email"
-              value={inviteEmail}
-              onChange={(event) => setInviteEmail(event.target.value)}
-              placeholder={t('circle.emailPlaceholder')}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-3">
+          <form onSubmit={handleSendInvite} className="space-y-3 rounded-2xl border border-border bg-card p-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+              <div className="flex-1 space-y-2">
+                <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                  {t('circle.emailLabel')}
+                </label>
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(event) => setInviteEmail(event.target.value)}
+                  placeholder={t('circle.emailPlaceholder')}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
+                  disabled={!canInvite}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={!canInvite}
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {canInvite ? t('circle.addPerson') : t('circle.limitReachedButton')}
+              </button>
+            </div>
+            <textarea
+              value={inviteMessage}
+              onChange={(event) => setInviteMessage(event.target.value)}
+              placeholder={t('circle.messagePlaceholder')}
+              rows={2}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
-              disabled={!canInvite}
             />
+            {inviteStatus ? <p className="text-xs text-emerald-500">{inviteStatus}</p> : null}
+            {inviteError ? <p className="text-xs text-destructive">{inviteError}</p> : null}
+            <p className="text-xs text-muted-foreground">{limitLabel}</p>
+          </form>
+
+          {pendingInvites.length > 0 ? (
+            <div className="space-y-3 rounded-2xl border border-border bg-card p-6">
+              <h4 className="text-sm font-semibold text-foreground">{t('circle.pendingTitle')}</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                {pendingInvites.map((invite) => {
+                  const sentAt = new Date(invite.created_at).toLocaleDateString();
+                  return (
+                    <li
+                      key={invite.id}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-muted/20 px-4 py-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <TrustedCircleAvatar
+                          name={invite.invitee_email}
+                          email={invite.invitee_email}
+                          src={null}
+                          size="sm"
+                        />
+                        <div>
+                          <p className="font-medium text-foreground">{invite.invitee_email}</p>
+                          <p className="text-xs text-muted-foreground">{sentAt}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleCancelInvite(invite.id)}
+                        className="text-xs font-medium text-destructive hover:underline"
+                      >
+                        {t('circle.cancelInvite')}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h4 className="text-sm font-semibold text-foreground">{t('circle.membersTitle')}</h4>
+          <div className="mt-3">
+            {error ? (
+              <p className="text-sm text-destructive">{(error as Error).message}</p>
+            ) : isLoading ? (
+              <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+            ) : members.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t('circle.noPeople')}</p>
+            ) : (
+              <ul className="space-y-3">
+                {members.map((member) => {
+                  const displayName = member.profile.display_name ?? member.profile.email ?? 'GiftFit user';
+                  const connectedAt = new Date(member.connected_at).toLocaleDateString();
+                  const connectedLabel = `${t('circle.connectedSince')} ${connectedAt}`;
+                  return (
+                    <li key={member.profile.id}>
+                      <button
+                        type="button"
+                        onClick={() => setActiveMember(member)}
+                        className="flex w-full items-center justify-between gap-3 rounded-xl border border-border/40 bg-muted/20 px-4 py-3 text-left transition hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                      >
+                        <span className="flex items-center gap-3">
+                          <TrustedCircleAvatar
+                            name={member.profile.display_name}
+                            email={member.profile.email}
+                            src={member.profile.avatar_url}
+                            size="md"
+                          />
+                          <span>
+                            <span className="block font-medium text-foreground">{displayName}</span>
+                            <span className="text-xs text-muted-foreground">{connectedLabel}</span>
+                          </span>
+                        </span>
+                        <span className="rounded-full border border-primary/40 px-3 py-1 text-xs font-medium text-primary">
+                          {t('circle.manage')}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
-          <button
-            type="submit"
-            disabled={!canInvite}
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {canInvite ? t('circle.addPerson') : t('circle.limitReachedButton')}
-          </button>
         </div>
-        <textarea
-          value={inviteMessage}
-          onChange={(event) => setInviteMessage(event.target.value)}
-          placeholder={t('circle.messagePlaceholder')}
-          rows={2}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
-        />
-        {inviteStatus ? <p className="text-xs text-emerald-500">{inviteStatus}</p> : null}
-        {inviteError ? <p className="text-xs text-destructive">{inviteError}</p> : null}
-        <p className="text-xs text-muted-foreground">{limitLabel}</p>
-      </form>
-
-      {pendingInvites.length > 0 ? (
-        <div className="space-y-3 rounded-2xl border border-border bg-card p-6">
-          <h4 className="text-sm font-semibold text-foreground">{t('circle.pendingTitle')}</h4>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            {pendingInvites.map((invite) => {
-              const sentAt = new Date(invite.created_at).toLocaleDateString();
-              return (
-                <li
-                  key={invite.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-muted/20 px-4 py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <TrustedCircleAvatar
-                      name={invite.invitee_email}
-                      email={invite.invitee_email}
-                      src={null}
-                      size="sm"
-                    />
-                    <div>
-                      <p className="font-medium text-foreground">{invite.invitee_email}</p>
-                      <p className="text-xs text-muted-foreground">{sentAt}</p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleCancelInvite(invite.id)}
-                    className="text-xs font-medium text-destructive hover:underline"
-                  >
-                    {t('circle.cancelInvite')}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : null}
-
-      <div className="space-y-3 rounded-2xl border border-border bg-card p-6">
-        <h4 className="text-sm font-semibold text-foreground">{t('circle.membersTitle')}</h4>
-        {error ? (
-          <p className="text-sm text-destructive">{(error as Error).message}</p>
-        ) : isLoading ? (
-          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
-        ) : members.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t('circle.noPeople')}</p>
-        ) : (
-          <ul className="space-y-3">
-            {members.map((member) => {
-              const displayName = member.profile.display_name ?? member.profile.email ?? 'GiftFit user';
-              const connectedAt = new Date(member.connected_at).toLocaleDateString();
-              const connectedLabel = `${t('circle.connectedSince')} ${connectedAt}`;
-              return (
-                <li key={member.profile.id}>
-                  <button
-                    type="button"
-                    onClick={() => setActiveMember(member)}
-                    className="flex w-full items-center justify-between gap-3 rounded-xl border border-border/40 bg-muted/20 px-4 py-3 text-left transition hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
-                  >
-                    <span className="flex items-center gap-3">
-                      <TrustedCircleAvatar
-                        name={member.profile.display_name}
-                        email={member.profile.email}
-                        src={member.profile.avatar_url}
-                        size="md"
-                      />
-                      <span>
-                        <span className="block font-medium text-foreground">{displayName}</span>
-                        <span className="text-xs text-muted-foreground">{connectedLabel}</span>
-                      </span>
-                    </span>
-                    <span className="rounded-full border border-primary/40 px-3 py-1 text-xs font-medium text-primary">
-                      {t('circle.manage')}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
       </div>
 
       {activeMember ? (
