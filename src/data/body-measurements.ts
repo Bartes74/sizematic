@@ -4,6 +4,7 @@ export type BodyMeasurementUnit = 'cm' | 'mm';
 
 export type BodyMeasurementDefinition = {
   id: string;
+  translationKey?: string;
   label: string;
   purpose: string;
   how: string[];
@@ -20,6 +21,7 @@ const DEFAULT_REQUIRED = true;
 export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   {
     id: 'height',
+    translationKey: 'height',
     label: 'Wzrost',
     purpose: 'Dobór długości ubrań, tabele wzrostowe, rajstopy.',
     how: [
@@ -32,6 +34,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'chest',
+    translationKey: 'chest',
     label: 'Obwód klatki piersiowej',
     purpose: 'T-shirty, bluzy, swetry, kurtki, marynarki.',
     how: [
@@ -44,6 +47,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'waist',
+    translationKey: 'waist',
     label: 'Obwód talii',
     purpose: 'Spodnie, spódnice, taliowanie sukienek/płaszczy.',
     how: [
@@ -56,6 +60,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'waist_pants',
+    translationKey: 'waist_pants',
     label: 'Obwód pasa (do spodni)',
     purpose: 'Jeansy, chinosy, spodnie garniturowe – dopasowanie w miejscu, w którym faktycznie je nosisz.',
     how: [
@@ -68,6 +73,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'hips',
+    translationKey: 'hips',
     label: 'Obwód bioder',
     purpose: 'Jeansy/spodnie, spódnice, sukienki, stroje kąpielowe.',
     how: [
@@ -80,6 +86,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'shoulder',
+    translationKey: 'shoulder',
     label: 'Szerokość barków',
     purpose: 'Koszule, marynarki, okrycia wierzchnie.',
     how: [
@@ -92,6 +99,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'sleeve',
+    translationKey: 'sleeve',
     label: 'Długość rękawa',
     purpose: 'Koszule, marynarki, kurtki, swetry/bluzy.',
     how: [
@@ -104,6 +112,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'neck',
+    translationKey: 'neck',
     label: 'Obwód szyi / kołnierzyka',
     purpose: 'Rozmiar kołnierzyka koszul.',
     how: [
@@ -116,6 +125,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'bust',
+    translationKey: 'bust',
     label: 'Obwód w biuście',
     purpose: 'Sukienki, bluzki/top-y, swetry, stroje kąpielowe.',
     how: [
@@ -130,6 +140,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'underbust',
+    translationKey: 'underbust',
     label: 'Obwód pod biustem',
     purpose: 'Biustonosze (obwód), topy sportowe, stroje jednoczęściowe.',
     how: [
@@ -144,6 +155,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'torso_girth',
+    translationKey: 'torso_girth',
     label: 'Długość tułowia (torso girth)',
     purpose: 'Kombinezony, stroje jednoczęściowe, stroje kąpielowe.',
     how: [
@@ -156,6 +168,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'inseam',
+    translationKey: 'inseam',
     label: 'Długość wewnętrzna nogawki',
     purpose: 'Wszystkie spodnie/jeansy (długość).',
     how: [
@@ -168,6 +181,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'thigh',
+    translationKey: 'thigh',
     label: 'Obwód uda',
     purpose: 'Krój spodni i komfort w udzie.',
     how: [
@@ -180,6 +194,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'foot_length',
+    translationKey: 'foot_length',
     label: 'Długość stopy',
     purpose: 'Rozmiary obuwia i wkładek.',
     how: [
@@ -200,6 +215,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'foot_width',
+    translationKey: 'foot_width',
     label: 'Szerokość / tęgość stopy',
     purpose: 'Dobór butów do szerokości przodostopia.',
     how: [
@@ -212,6 +228,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'finger',
+    translationKey: 'finger',
     label: 'Obwód palca',
     purpose: 'Rozmiary pierścionków (mapowanie EU/US/UK).',
     how: [
@@ -224,6 +241,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'wrist',
+    translationKey: 'wrist',
     label: 'Obwód nadgarstka',
     purpose: 'Bransoletki, zegarki/smartwatche (długość paska).',
     how: [
@@ -236,6 +254,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'hand_circumference',
+    translationKey: 'hand_circumference',
     label: 'Obwód dłoni (bez kciuka)',
     purpose: 'Główny parametr rękawiczek.',
     how: [
@@ -248,6 +267,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'hand_length',
+    translationKey: 'hand_length',
     label: 'Długość dłoni',
     purpose: 'Dodatkowa kalibracja rękawic (sport/robocze).',
     how: [
@@ -260,6 +280,7 @@ export const BODY_MEASUREMENT_DEFINITIONS: BodyMeasurementDefinition[] = [
   },
   {
     id: 'head',
+    translationKey: 'head',
     label: 'Obwód głowy',
     purpose: 'Czapki, kapelusze, czapki „fitted”.',
     how: [

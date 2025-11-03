@@ -341,6 +341,31 @@ function BodyMeasurementQuickModal({
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const tMeasurementsForm = useTranslations('measurementsForm');
+  const tMeasurementDefinitions = useTranslations('measurements.definitions');
+  const tCommon = useTranslations('common');
+
+  const measurementCopy = useMemo(() => {
+    const translationKey = definition.translationKey ?? definition.id;
+    let label = definition.label;
+    let purpose = definition.purpose;
+    let how = definition.how;
+
+    try {
+      label = tMeasurementDefinitions(`${translationKey}.label`);
+    } catch {}
+    try {
+      purpose = tMeasurementDefinitions(`${translationKey}.purpose`);
+    } catch {}
+    try {
+      const raw = tMeasurementDefinitions.raw(`${translationKey}.how`, { returnObjects: true }) as unknown;
+      if (Array.isArray(raw)) {
+        how = raw as string[];
+      }
+    } catch {}
+
+    return { label, purpose, how };
+  }, [definition, tMeasurementDefinitions]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -395,18 +420,20 @@ function BodyMeasurementQuickModal({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-3">
-        <h2 className="text-2xl font-semibold text-foreground">{definition.label}</h2>
+        <h2 className="text-2xl font-semibold text-foreground">{measurementCopy.label}</h2>
         <p className="text-sm text-muted-foreground">
-          <span className="font-semibold text-foreground">Po co?</span>
+          <span className="font-semibold text-foreground">{tMeasurementsForm('instructions.purposeLabel')}</span>
           <br />
-          {definition.purpose}
+          {measurementCopy.purpose}
         </p>
       </div>
 
       <div className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] p-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Jak mierzyć?</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          {tMeasurementsForm('instructions.title')}
+        </p>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-          {definition.how.map((step, index) => (
+          {measurementCopy.how.map((step, index) => (
             <li key={index} className="flex gap-2">
               <span className="text-primary">•</span>
               <span>{step}</span>
@@ -417,7 +444,7 @@ function BodyMeasurementQuickModal({
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">
-          Wprowadź wartość ({definition.unit})
+          {tMeasurementsForm('valueLabel', { unit: definition.unit })}
         </label>
         <div className="relative">
           <input
@@ -425,7 +452,9 @@ function BodyMeasurementQuickModal({
             step={definition.unit === 'mm' ? 1 : 0.1}
             value={value}
             onChange={(event) => setValue(event.target.value)}
-            placeholder={definition.unit === 'mm' ? 'np. 55' : 'np. 92.5'}
+            placeholder={definition.unit === 'mm'
+              ? tMeasurementsForm('formatHint.mm')
+              : tMeasurementsForm('formatHint.cm')}
             className="w-full rounded-xl border border-input bg-background px-4 py-3 pr-12 text-sm font-medium text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -446,14 +475,14 @@ function BodyMeasurementQuickModal({
           onClick={onCancel}
           className="flex-1 rounded-full border border-border/60 px-6 py-3 text-sm font-semibold text-muted-foreground transition hover:border-primary/50 hover:text-primary"
         >
-          Anuluj
+          {tCommon('cancel')}
         </button>
         <button
           type="submit"
           disabled={loading}
           className="flex-1 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-black/10 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? 'Zapisywanie...' : 'Zapisz pomiar'}
+          {loading ? tMeasurementsForm('submit.saving') : tMeasurementsForm('submit.save')}
         </button>
       </div>
     </form>
@@ -552,6 +581,7 @@ export function HomePage({
   const tSizesSection = useTranslations('dashboard.sizesSection');
   const tDataGaps = useTranslations('dashboard.dataGaps');
   const tMeasurementsForm = useTranslations('measurementsForm');
+  const tMeasurementDefinitions = useTranslations('measurements.definitions');
   const tWishlistSection = useTranslations('dashboard.wishlistSection');
   void _measurements;
   const router = useRouter();
@@ -1403,21 +1433,33 @@ export function HomePage({
               </span>
             </div>
             <div className="grid gap-3 pt-2 md:grid-cols-3">
-              {missingMeasurements.map((definition) => (
+            {missingMeasurements.map((definition) => {
+              const translationKey = definition.translationKey ?? definition.id;
+              let localizedLabel = definition.label;
+              let localizedPurpose = definition.purpose;
+              try {
+                localizedLabel = tMeasurementDefinitions(`${translationKey}.label`);
+              } catch {}
+              try {
+                localizedPurpose = tMeasurementDefinitions(`${translationKey}.purpose`);
+              } catch {}
+
+              return (
                 <button
                   type="button"
                   key={definition.id}
                   onClick={() => setActiveBodyMeasurementDefinition(definition)}
                   className="data-gap-card flex h-full flex-col rounded-[26px] border border-dashed border-border/60 bg-[var(--surface-interactive)] px-6 py-5 text-left text-sm transition hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
                 >
-                  <h3 className="text-base font-semibold text-foreground">{definition.label}</h3>
+                  <h3 className="text-base font-semibold text-foreground">{localizedLabel}</h3>
                   <p className="mt-3 text-xs text-muted-foreground">
                     <span className="font-semibold text-foreground">{tMeasurementsForm('instructions.purposeLabel')}</span>
                     <br />
-                    {definition.purpose}
+                    {localizedPurpose}
                   </p>
                 </button>
-              ))}
+              );
+            })}
             </div>
           </SectionCard>
         ) : null}

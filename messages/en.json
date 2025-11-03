@@ -464,7 +464,189 @@
     "label": "Label",
     "value": "Value",
     "notes": "Notes",
-    "recordedAt": "Recorded at"
+    "recordedAt": "Recorded at",
+    "definitions": {
+      "height": {
+        "label": "Height",
+        "purpose": "Choosing garment lengths, size charts and tights.",
+        "how": [
+          "Stand barefoot with your heels, seat and shoulder blades against a wall.",
+          "Keep your head level (Frankfurt plane).",
+          "Place a book on the crown, mark the point on the wall and measure down to the floor."
+        ]
+      },
+      "chest": {
+        "label": "Chest circumference",
+        "purpose": "T-shirts, sweatshirts, knitwear, jackets, blazers.",
+        "how": [
+          "Stand relaxed and exhale.",
+          "Wrap the tape around the fullest part of the chest, under the arms, level to the floor.",
+          "Join the ends without squeezing and read the value."
+        ]
+      },
+      "waist": {
+        "label": "Waist circumference",
+        "purpose": "Trousers, skirts, tailoring dresses/coats.",
+        "how": [
+          "Find the narrowest part of your torso (usually above the navel).",
+          "Wrap the tape horizontally, snug but not tight, without sucking in your stomach.",
+          "Read while breathing naturally."
+        ]
+      },
+      "waist_pants": {
+        "label": "Waist (for trousers)",
+        "purpose": "Jeans, chinos, suit trousers – measured exactly where you wear them.",
+        "how": [
+          "Stand relaxed and locate the level where you normally wear trousers.",
+          "Wrap the tape horizontally around that line, keeping it level at the back.",
+          "Do not suck in your stomach; leave the amount of ease you find comfortable."
+        ]
+      },
+      "hips": {
+        "label": "Hip circumference",
+        "purpose": "Jeans/trousers, skirts, dresses, swimwear.",
+        "how": [
+          "Stand with your feet together.",
+          "Loop the tape around the fullest part of the seat, level to the floor.",
+          "Make sure the tape doesn’t drop at the back; read the value."
+        ]
+      },
+      "shoulder": {
+        "label": "Shoulder width",
+        "purpose": "Shirts, blazers, outerwear.",
+        "how": [
+          "Stand upright and ask someone to help.",
+          "Place the tape on one shoulder tip (acromion).",
+          "Run straight across to the opposite shoulder tip and read the value."
+        ]
+      },
+      "sleeve": {
+        "label": "Sleeve length",
+        "purpose": "Shirts, blazers, jackets, sweaters/sweatshirts.",
+        "how": [
+          "Bend the elbow slightly (~15°).",
+          "Measure from the shoulder edge to the wrist along the outside of the arm.",
+          "Optional: shoulder → top of elbow → wrist in two segments."
+        ]
+      },
+      "neck": {
+        "label": "Neck / collar circumference",
+        "purpose": "Collar size for shirts.",
+        "how": [
+          "Wrap the tape at the base of the neck where the collar sits.",
+          "Insert one finger under the tape (about 1–2 cm ease).",
+          "Read the value."
+        ]
+      },
+      "bust": {
+        "label": "Bust circumference",
+        "purpose": "Dresses, tops, sweaters, swimwear.",
+        "how": [
+          "Stand upright and breathe normally.",
+          "Wrap the tape around the fullest part of the bust, level to the floor.",
+          "Ensure the tape stays level at the back and read without squeezing."
+        ]
+      },
+      "underbust": {
+        "label": "Underbust circumference",
+        "purpose": "Bras (band size), sports tops, one-piece suits.",
+        "how": [
+          "Wrap the tape firmly just under the bust, level to the floor.",
+          "Exhale and tighten slightly (without discomfort).",
+          "Read the value in centimetres."
+        ]
+      },
+      "torso_girth": {
+        "label": "Torso girth",
+        "purpose": "Jumpsuits, one-piece outfits, swimwear.",
+        "how": [
+          "Place the start of the tape at the base of the neck (front).",
+          "Bring it through the legs to the nape, closing the loop.",
+          "Keep the tape close to the body and read the total length."
+        ]
+      },
+      "inseam": {
+        "label": "Inseam length",
+        "purpose": "All trousers/jeans (length).",
+        "how": [
+          "Stand upright and barefoot.",
+          "Place the tape at the crotch seam and run it down the inner leg to the ankle.",
+          "Read at the point where you want the hem to end."
+        ]
+      },
+      "thigh": {
+        "label": "Thigh circumference",
+        "purpose": "Trousers cut and comfort at the thigh.",
+        "how": [
+          "Stand relaxed.",
+          "Wrap the tape around the fullest part of the thigh, level to the floor.",
+          "Do not squeeze; read the value."
+        ]
+      },
+      "foot_length": {
+        "label": "Foot length",
+        "purpose": "Shoe sizes and insoles.",
+        "how": [
+          "Place your heel against a wall with your foot on a sheet of paper.",
+          "Mark the tip of the longest toe.",
+          "Measure from the wall to the mark in cm (measure both feet and take the larger value)."
+        ]
+      },
+      "foot_width": {
+        "label": "Foot width / girth",
+        "purpose": "Matching shoes to forefoot width.",
+        "how": [
+          "Stand with weight evenly distributed on both feet.",
+          "Wrap the tape around the widest part of the forefoot or measure the flat width.",
+          "Record the circumference or width in centimetres."
+        ]
+      },
+      "finger": {
+        "label": "Finger circumference",
+        "purpose": "Ring sizing (EU/US/UK mapping).",
+        "how": [
+          "Wrap a strip of paper or tape at the base of the finger.",
+          "Mark where the ends meet, unroll it and measure the length.",
+          "Measure in the evening with warm hands; take the larger of two attempts."
+        ]
+      },
+      "wrist": {
+        "label": "Wrist circumference",
+        "purpose": "Bracelets, watches/smartwatches (strap length).",
+        "how": [
+          "Wrap the tape above the wrist bone.",
+          "Add your preferred ease (0–2 cm).",
+          "Record the result and preferred comfort level."
+        ]
+      },
+      "hand_circumference": {
+        "label": "Hand circumference (without thumb)",
+        "purpose": "Primary sizing for gloves.",
+        "how": [
+          "Relax the hand and keep the fingers together.",
+          "Wrap the tape around the knuckles (excluding the thumb).",
+          "Gently clench a fist, ensure it isn’t tight, then read the value."
+        ]
+      },
+      "hand_length": {
+        "label": "Hand length",
+        "purpose": "Additional glove calibration (sports/work).",
+        "how": [
+          "Place the start of the tape on the wrist crease (palm side).",
+          "Run it straight to the tip of the middle finger.",
+          "Read the value in centimetres."
+        ]
+      },
+      "head": {
+        "label": "Head circumference",
+        "purpose": "Beanies, hats, fitted caps.",
+        "how": [
+          "Position the tape 1–2 cm above the eyebrows and over the ears.",
+          "Wrap it horizontally around the largest part of the head.",
+          "Join the ends without pressure and read the value."
+        ]
+      }
+    }
   },
   "form": {
     "title": "Add New Measurement",
@@ -508,6 +690,7 @@
       "label": "Notes",
       "placeholder": "Eg. time of day, posture notes"
     },
+    "valueLabel": "Enter value ({unit})",
     "submit": {
       "save": "Save measurements",
       "update": "Update measurements",

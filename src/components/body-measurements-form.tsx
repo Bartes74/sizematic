@@ -20,6 +20,7 @@ type BodyMeasurementsFormProps = {
 export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurementsFormProps) {
   const router = useRouter();
   const t = useTranslations('measurementsForm');
+  const tDefinitions = useTranslations('measurements.definitions');
 
   const NUMBER_FORMAT_HINT: Record<'cm' | 'mm', string> = {
     cm: t('formatHint.cm'),
@@ -139,13 +140,31 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
             const value = formData[definition.id] ?? '';
             const placeholder = NUMBER_FORMAT_HINT[definition.unit] ?? 'np. 0';
             const required = isDefinitionRequired(definition);
+            const translationKey = definition.translationKey ?? definition.id;
+
+            let localizedLabel = definition.label;
+            let localizedPurpose = definition.purpose;
+            let localizedHow = definition.how;
+
+            try {
+              localizedLabel = tDefinitions(`${translationKey}.label`);
+            } catch {}
+            try {
+              localizedPurpose = tDefinitions(`${translationKey}.purpose`);
+            } catch {}
+            try {
+              const raw = tDefinitions.raw(`${translationKey}.how`, { returnObjects: true }) as unknown;
+              if (Array.isArray(raw)) {
+                localizedHow = raw as string[];
+              }
+            } catch {}
 
             return (
               <div key={definition.id} className="space-y-2">
                 <div className="flex items-start gap-2">
                   <div className="flex-1">
                     <label className="flex items-center gap-2 text-sm font-medium text-foreground">
-                      {definition.label}
+                      {localizedLabel}
                       {required && <span className="text-destructive">*</span>}
                       {definition.femaleOnly && (
                         <span className="text-xs text-muted-foreground">{t('instructions.femaleOnly')}</span>
@@ -154,7 +173,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
                     <p className="mt-1 text-xs text-muted-foreground">
                       <span className="font-semibold text-foreground">{t('instructions.purposeLabel')}</span>
                       <br />
-                      {definition.purpose}
+                      {localizedPurpose}
                     </p>
                   </div>
                   <button
@@ -173,7 +192,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-foreground">
                     <p className="mb-2 font-medium">{t('instructions.title')}</p>
                     <ul className="space-y-1">
-                      {definition.how.map((step, index) => (
+                      {localizedHow.map((step, index) => (
                         <li key={index} className="flex gap-2">
                           <span className="text-primary">•</span>
                           <span>{step}</span>

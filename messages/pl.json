@@ -464,7 +464,189 @@
     "label": "Etykieta",
     "value": "Wartość",
     "notes": "Notatki",
-    "recordedAt": "Zapisano"
+    "recordedAt": "Zapisano",
+    "definitions": {
+      "height": {
+        "label": "Wzrost",
+        "purpose": "Dobór długości ubrań, tabele wzrostowe, rajstopy.",
+        "how": [
+          "Stań boso plecami do ściany, pięty/pośladki/łopatki przy ścianie.",
+          "Ustaw głowę prosto (płaszczyzna frankfurcka).",
+          "Połóż książkę na czubku głowy, zaznacz punkt na ścianie i zmierz do podłogi."
+        ]
+      },
+      "chest": {
+        "label": "Obwód klatki piersiowej",
+        "purpose": "T-shirty, bluzy, swetry, kurtki, marynarki.",
+        "how": [
+          "Stań luźno, wypuść powietrze.",
+          "Owiń taśmę przez najszerszą część klatki, pod pachami, poziomo.",
+          "Złącz końce bez ściskania i odczytaj."
+        ]
+      },
+      "waist": {
+        "label": "Obwód talii",
+        "purpose": "Spodnie, spódnice, taliowanie sukienek/płaszczy.",
+        "how": [
+          "Znajdź najwęższy punkt tułowia (zwykle nad pępkiem).",
+          "Owiń taśmę poziomo, przylegająco, bez wciągania brzucha.",
+          "Odczytaj przy naturalnym oddechu."
+        ]
+      },
+      "waist_pants": {
+        "label": "Obwód pasa (do spodni)",
+        "purpose": "Jeansy, chinosy, spodnie garniturowe – dopasowanie w miejscu, w którym faktycznie je nosisz.",
+        "how": [
+          "Stań swobodnie i zlokalizuj linię, na której zwykle nosisz spodnie.",
+          "Owiń taśmę poziomo wokół ciała, pilnując by nie opadała z tyłu.",
+          "Nie wciągaj brzucha; pozostaw niewielki luz odpowiadający preferencjom komfortu."
+        ]
+      },
+      "hips": {
+        "label": "Obwód bioder",
+        "purpose": "Jeansy/spodnie, spódnice, sukienki, stroje kąpielowe.",
+        "how": [
+          "Stań ze złączonymi stopami.",
+          "Owiń taśmę przez najszerszą część pośladków, poziomo.",
+          "Upewnij się, że taśma nie opada z tyłu; odczytaj."
+        ]
+      },
+      "shoulder": {
+        "label": "Szerokość barków",
+        "purpose": "Koszule, marynarki, okrycia wierzchnie.",
+        "how": [
+          "Stań prosto; poproś kogoś o pomoc.",
+          "Przyłóż taśmę do końca jednego barku (wyrostek barkowy).",
+          "Poprowadź w linii prostej do końca drugiego barku i odczytaj."
+        ]
+      },
+      "sleeve": {
+        "label": "Długość rękawa",
+        "purpose": "Koszule, marynarki, kurtki, swetry/bluzy.",
+        "how": [
+          "Lekko ugnij łokieć (~15°).",
+          "Zmierz od krawędzi barku do nadgarstka po zewnętrznej stronie ręki.",
+          "Opcjonalnie: bark → szczyt łokcia → nadgarstek (dwa odcinki)."
+        ]
+      },
+      "neck": {
+        "label": "Obwód szyi / kołnierzyka",
+        "purpose": "Rozmiar kołnierzyka koszul.",
+        "how": [
+          "Owiń taśmę u podstawy szyi, gdzie leży kołnierzyk.",
+          "Wsuń palec pod taśmę (1–2 cm luzu).",
+          "Odczytaj wynik."
+        ]
+      },
+      "bust": {
+        "label": "Obwód w biuście",
+        "purpose": "Sukienki, bluzki/top-y, swetry, stroje kąpielowe.",
+        "how": [
+          "Stań prosto, oddychaj swobodnie.",
+          "Owiń taśmę przez pełnię biustu, poziomo.",
+          "Zadbaj, by taśma nie opadała z tyłu; odczytaj bez ścisku."
+        ]
+      },
+      "underbust": {
+        "label": "Obwód pod biustem",
+        "purpose": "Biustonosze (obwód), topy sportowe, stroje jednoczęściowe.",
+        "how": [
+          "Owiń taśmę ciasno tuż pod biustem, poziomo.",
+          "Zrób wydech i dociągnij taśmę (bez bólu).",
+          "Odczytaj w cm."
+        ]
+      },
+      "torso_girth": {
+        "label": "Długość tułowia (torso girth)",
+        "purpose": "Kombinezony, stroje jednoczęściowe, stroje kąpielowe.",
+        "how": [
+          "Przyłóż początek taśmy w dołku szyi (przód).",
+          "Poprowadź taśmę między nogami do punktu na karku (zamknij pętlę).",
+          "Utrzymaj taśmę przy ciele; odczytaj całkowitą długość pętli."
+        ]
+      },
+      "inseam": {
+        "label": "Długość wewnętrzna nogawki",
+        "purpose": "Wszystkie spodnie/jeansy (długość).",
+        "how": [
+          "Stań prosto, boso.",
+          "Przyłóż taśmę w kroku (szew) i prowadź po wewnętrznej stronie do kostki.",
+          "Odczytaj do punktu, gdzie chcesz, by kończyła się nogawka."
+        ]
+      },
+      "thigh": {
+        "label": "Obwód uda",
+        "purpose": "Krój spodni i komfort w udzie.",
+        "how": [
+          "Stań swobodnie.",
+          "Owiń taśmę wokół najszerszego miejsca uda, poziomo.",
+          "Nie ściskaj; odczytaj."
+        ]
+      },
+      "foot_length": {
+        "label": "Długość stopy",
+        "purpose": "Rozmiary obuwia i wkładek.",
+        "how": [
+          "Ustaw piętę przy ścianie, stopa na kartce.",
+          "Zaznacz czubek najdłuższego palca.",
+          "Zmierz od ściany do zaznaczenia i zapisz w centymetrach (powtórz dla obu stóp, weź większą wartość)."
+        ]
+      },
+      "foot_width": {
+        "label": "Szerokość / tęgość stopy",
+        "purpose": "Dobór butów do szerokości przodostopia.",
+        "how": [
+          "Stań, obciąż równomiernie stopy.",
+          "Owiń taśmę przez najszerszą część śródstopia lub zmierz szerokość „na płasko”.",
+          "Zapisz obwód albo szerokość w cm."
+        ]
+      },
+      "finger": {
+        "label": "Obwód palca",
+        "purpose": "Rozmiary pierścionków (mapowanie EU/US/UK).",
+        "how": [
+          "Owiń pasek papieru/taśmę u podstawy palca.",
+          "Zaznacz punkt styku, rozwiń i zmierz długość.",
+          "Mierz wieczorem i przy ciepłych dłoniach; weź większą z dwóch prób."
+        ]
+      },
+      "wrist": {
+        "label": "Obwód nadgarstka",
+        "purpose": "Bransoletki, zegarki/smartwatche (długość paska).",
+        "how": [
+          "Owiń taśmę nad kością nadgarstka (promieniową).",
+          "Dodaj preferowany luz (0–2 cm).",
+          "Zapisz wynik i preferencję dopasowania."
+        ]
+      },
+      "hand_circumference": {
+        "label": "Obwód dłoni (bez kciuka)",
+        "purpose": "Główny parametr rękawiczek.",
+        "how": [
+          "Rozluźnij dłoń, palce razem.",
+          "Owiń taśmę wokół kostek (knuckles), nie obejmując kciuka.",
+          "Zaciśnij lekko pięść, sprawdź, czy nie uciska; odczytaj."
+        ]
+      },
+      "hand_length": {
+        "label": "Długość dłoni",
+        "purpose": "Dodatkowa kalibracja rękawic (sport/robocze).",
+        "how": [
+          "Oprzyj początek taśmy na linii nadgarstka (wewnętrzna strona).",
+          "Prowadź do czubka środkowego palca po prostej.",
+          "Odczytaj w cm."
+        ]
+      },
+      "head": {
+        "label": "Obwód głowy",
+        "purpose": "Czapki, kapelusze, czapki „fitted”.",
+        "how": [
+          "Ułóż taśmę 1–2 cm nad brwiami, nad uszami.",
+          "Poprowadź poziomo wokół największego obwodu głowy.",
+          "Złącz końcówki bez ucisku i odczytaj."
+        ]
+      }
+    }
   },
   "form": {
     "title": "Dodaj nowy pomiar",
@@ -508,6 +690,7 @@
       "label": "Notatki dotyczące pomiarów",
       "placeholder": "Np. pora dnia, uwagi o postawie"
     },
+    "valueLabel": "Wprowadź wartość ({unit})",
     "submit": {
       "save": "Zapisz pomiary",
       "update": "Aktualizuj pomiary",
