@@ -123,7 +123,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
       <div className="rounded-xl border border-border bg-card p-6">
         <h2 className="mb-4 text-lg font-semibold text-foreground">{t('basics.title')}</h2>
         <ul className="space-y-2 text-sm text-muted-foreground">
-          {(t('basics.items', { returnObjects: true }) as unknown as string[]).map((item, index) => (
+          {(t.raw('basics.items') as string[]).map((item, index) => (
             <li key={index} className="flex gap-2">
               <span className="text-primary">•</span>
               <span>{item}</span>
@@ -163,7 +163,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
                       setShowInstructions((prev) => (prev === definition.id ? null : definition.id))
                     }
                     className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted text-xs text-muted-foreground hover:bg-muted/80"
-                    title={t('instructions.title')}
+                    title={t('instructions.toggle')}
                   >
                     ?
                   </button>
