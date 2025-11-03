@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { GlobalHeader } from '@/components/global-header';
+import { TrustedCircle } from '@/components/trusted-circle';
 import {
   QUICK_CATEGORY_CONFIGS,
   PRODUCT_TYPE_MAP,
@@ -1486,6 +1487,10 @@ export function HomePage({
             </div>
           </SectionCard>
         ) : null}
+
+        <SectionCard>
+          <TrustedCircle initialData={trustedCircleInitial ?? undefined} />
+        </SectionCard>
 
         <SectionCard>
           <div className="flex items-center justify-between gap-3 pb-4">
