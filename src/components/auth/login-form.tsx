@@ -252,17 +252,6 @@ export function LoginForm() {
         </button>
       </form>
 
-      <div className="rounded-xl border border-border bg-muted/30 p-4">
-        <p className="text-xs font-medium text-muted-foreground">{t('auth.login.testAccountsTitle')}</p>
-        <div className="mt-2 space-y-1 text-xs text-muted-foreground">
-          <p>
-            <strong>{t('auth.login.adminLabel')}:</strong> admin@sizehub.local / Admin@123
-          </p>
-          <p>
-            <strong>{t('auth.login.demoLabel')}:</strong> demo@sizehub.local / Demo@123
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
