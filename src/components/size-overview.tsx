@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useLocale } from "@/providers/locale-provider";
+import { useTranslations } from 'next-intl';
 import type { Category } from "@/lib/types";
 
 type SizeData = {
@@ -17,7 +17,7 @@ type SizeOverviewProps = {
 };
 
 export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
-  const { t } = useLocale();
+  const t = useTranslations('sizeOverview');
 
   const categories: Category[] = ['tops', 'bottoms', 'footwear', 'headwear', 'accessories', 'outerwear', 'kids'];
 
@@ -26,10 +26,10 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-            {t('sizeOverview.title')}
+            {t('title')}
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            {t('sizeOverview.subtitle')}
+            {t('subtitle')}
           </p>
         </div>
       </div>
@@ -37,7 +37,7 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
         {sizes.length === 0 ? (
           <div className="col-span-full rounded-2xl border border-dashed border-border bg-muted/30 p-12 text-center">
-            <p className="text-sm text-muted-foreground">{t('sizeOverview.noData')}</p>
+            <p className="text-sm text-muted-foreground">{t('noData')}</p>
           </div>
         ) : (
           categories.map((category) => {
@@ -53,7 +53,7 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {t(`sizeOverview.categories.${category}`)}
+                        {t(`categories.${category}`)}
                       </p>
                       <p className="mt-2 text-sm text-muted-foreground">—</p>
                     </div>
@@ -71,11 +71,11 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
                 <div className="flex flex-col gap-2">
                   <div className="flex items-start justify-between">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t(`sizeOverview.categories.${category}`)}
+                      {t(`categories.${category}`)}
                     </p>
                     {sizeData.isOutdated && (
                       <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[9px] font-medium text-accent">
-                        {t('sizeOverview.outdatedBadge')}
+                        {t('outdatedBadge')}
                       </span>
                     )}
                   </div>
@@ -104,9 +104,9 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
               </div>
               <div className="relative z-10 opacity-50">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t('sizeOverview.addPartner')}
+                  {t('addPartner')}
                 </p>
-                <p className="mt-2 text-sm text-muted-foreground">{t('sizeOverview.premiumOnly')}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{t('premiumOnly')}</p>
               </div>
             </div>
           </>
@@ -123,7 +123,7 @@ export function SizeOverview({ sizes, plan = 'free' }: SizeOverviewProps) {
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            Zarządzaj rozmiarami
+            {t('manageSizes')}
           </Link>
         </div>
       )}

@@ -170,7 +170,8 @@
     },
     "addPartner": "Dodaj rozmiary partnera",
     "addChild": "Dodaj rozmiary dziecka",
-    "premiumOnly": "dostępne w Premium"
+    "premiumOnly": "dostępne w Premium",
+    "manageSizes": "Zarządzaj rozmiarami"
   },
   "giftsAndOccasions": {
     "title": "Prezenty i ważne daty",

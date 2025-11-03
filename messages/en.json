@@ -170,7 +170,8 @@
     },
     "addPartner": "Add partner's sizes",
     "addChild": "Add child's sizes",
-    "premiumOnly": "available in Premium"
+    "premiumOnly": "available in Premium",
+    "manageSizes": "Manage sizes"
   },
   "giftsAndOccasions": {
     "title": "Gifts and Important Dates",
