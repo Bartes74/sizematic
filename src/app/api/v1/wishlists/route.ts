@@ -100,7 +100,7 @@ async function generateUniqueSlug(
   ownerProfileId: string,
   title: string
 ) {
-  let base = slugifyTitle(title);
+  let base = (await slugifyTitle(title)) || "";
 
   if (!base) {
     base = `lista-${Math.random().toString(36).slice(2, 8)}`;
