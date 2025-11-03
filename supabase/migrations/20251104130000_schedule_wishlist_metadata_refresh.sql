@@ -1,5 +1,7 @@
 set check_function_bodies = off;
 
+create extension if not exists pg_cron with schema extensions;
+
 create or replace function public.refresh_stale_wishlist_metadata(limit_records integer default 50)
 returns void
 language plpgsql
@@ -28,11 +30,22 @@ $$;
 comment on function public.refresh_stale_wishlist_metadata(integer) is
   'Marks stale wishlist items for metadata refresh. Default limit 50 rows per invocation.';
 
-select cron.unschedule('wishlist_metadata_refresh');
+do
+$$
+begin
+  if exists (
+    select 1
+    from cron.job
+    where jobname = 'wishlist_metadata_refresh'
+  ) then
+    perform cron.unschedule('wishlist_metadata_refresh');
+  end if;
 
-select cron.schedule(
-  'wishlist_metadata_refresh',
-  '0 */12 * * *',
-  $$call public.refresh_stale_wishlist_metadata(50);$$
-);
+  perform cron.schedule(
+    'wishlist_metadata_refresh',
+    '0 */12 * * *',
+    'call public.refresh_stale_wishlist_metadata(50);'
+  );
+end;
+$$;
 
