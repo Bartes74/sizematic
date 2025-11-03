@@ -19,6 +19,7 @@ const DEFAULT_WISHLIST_TITLE = "Moja lista marzeń";
 
 export default async function DashboardWishlistsPage() {
   const supabase = await createClient();
+  const adminClient = createSupabaseAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -109,7 +110,7 @@ export default async function DashboardWishlistsPage() {
   let totalItems = 0;
   let hasMore = false;
   if (activeWishlist) {
-    const { data: itemsData, count, error: itemsError } = await supabase
+    const { data: itemsData, count, error: itemsError } = await adminClient
       .from("wishlist_items")
       .select("*", { count: "exact" })
       .eq("wishlist_id", activeWishlist.id)
