@@ -381,6 +381,13 @@
       "footwear_derby": "Derby shoes",
       "footwear_loafers": "Loafers / moccasins"
     },
+    "sizesDirectory": {
+      "title": "Your sizes",
+      "subtitle": "Browse every category and update labels to keep all data handy.",
+      "back": "Back to dashboard",
+      "configure": "Configure shortcuts",
+      "categoryHeading": "{category} • {count, plural, one {# type} other {# types}}"
+    },
     "events": {
       "title": "Upcoming events",
       "subtitle": "Plan ahead and see how many days remain until key occasions.",

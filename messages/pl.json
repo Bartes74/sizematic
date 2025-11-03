@@ -381,6 +381,13 @@
       "footwear_derby": "Derby",
       "footwear_loafers": "Loafersy / mokasyny"
     },
+    "sizesDirectory": {
+      "title": "Twoje rozmiary",
+      "subtitle": "Przeglądaj wszystkie kategorie i aktualizuj etykiety, aby mieć komplet danych pod ręką.",
+      "back": "Wróć do dashboardu",
+      "configure": "Konfiguruj skróty",
+      "categoryHeading": "{category} • {count, plural, one {# typ} few {# typy} many {# typów} other {# typów}}"
+    },
     "events": {
       "title": "Nadchodzące wydarzenia",
       "subtitle": "Przygotuj się z wyprzedzeniem – zobacz, ile dni zostało do ważnych okazji.",

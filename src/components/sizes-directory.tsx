@@ -3,6 +3,7 @@
 import { type ReactNode, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   QUICK_CATEGORY_CONFIGS,
   CATEGORY_LABEL_MAP,
@@ -193,6 +194,10 @@ export function SizesDirectory({
 }: SizesDirectoryProps) {
   const router = useRouter();
   const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const tSizesDirectory = useTranslations('sizesDirectory');
+  const tQuickCategories = useTranslations('dashboard.quickCategories');
+  const tProductTypes = useTranslations('dashboard.productTypes');
+  const tCommon = useTranslations('common');
 
   const measurementByCategory = useMemo(() => {
     const sorted = [...measurements].sort(
@@ -294,24 +299,22 @@ export function SizesDirectory({
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pb-16 pt-12 lg:px-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Twoje rozmiary</h1>
-          <p className="text-sm text-muted-foreground">
-            Przeglądaj wszystkie kategorie i aktualizuj metki, aby mieć komplet danych pod ręką.
-          </p>
+          <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">{tSizesDirectory('title')}</h1>
+          <p className="text-sm text-muted-foreground">{tSizesDirectory('subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
             className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:border-primary hover:text-primary"
           >
-            Wróć do dashboardu
+            {tSizesDirectory('back')}
           </Link>
           <button
             type="button"
             onClick={() => setPreferencesOpen(true)}
             className="rounded-full border border-primary/50 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/20"
           >
-            Konfiguruj skróty
+            {tSizesDirectory('configure')}
           </button>
         </div>
       </header>
@@ -320,7 +323,18 @@ export function SizesDirectory({
         {categoryTiles.map(({ category, productTiles }) => (
           <section key={category.id} className="space-y-3">
             <h2 className="text-lg font-semibold text-foreground">
-              {CATEGORY_LABEL_MAP[category.id]} • <span className="text-muted-foreground">{category.productTypes.length} typów</span>
+              {(() => {
+                let categoryLabel: string;
+                try {
+                  categoryLabel = tQuickCategories(category.id as any);
+                } catch {
+                  categoryLabel = CATEGORY_LABEL_MAP[category.id];
+                }
+                return tSizesDirectory('categoryHeading', {
+                  category: categoryLabel,
+                  count: category.productTypes.length,
+                });
+              })()}
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {productTiles.map((tile) => (
@@ -343,7 +357,18 @@ export function SizesDirectory({
                       : 'border-border/70 bg-[var(--surface-interactive)] hover:border-[#48A9A6]/30'
                   }`}
                 >
-                  <span className="text-sm font-semibold text-foreground">{tile.label}</span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {(() => {
+                      if (!tile.productTypeId) {
+                        return tile.label;
+                      }
+                      try {
+                        return tProductTypes(tile.productTypeId as any);
+                      } catch {
+                        return tile.label;
+                      }
+                    })()}
+                  </span>
                   <span className="text-3xl font-semibold text-foreground">
                     {tile.sizeValue}
                     {tile.sizeUnit ? (
@@ -357,7 +382,11 @@ export function SizesDirectory({
         ))}
       </div>
       {preferencesOpen ? (
-        <ModalShell onClose={() => setPreferencesOpen(false)} maxWidth="max-w-3xl">
+        <ModalShell
+          onClose={() => setPreferencesOpen(false)}
+          maxWidth="max-w-3xl"
+          closeLabel={tCommon('close')}
+        >
           <QuickSizePreferencesModal
             profileId={profileId}
             sizeLabels={sizeLabels}
@@ -379,9 +408,10 @@ type ModalShellProps = {
   onClose: () => void;
   children: ReactNode;
   maxWidth?: string;
+  closeLabel?: string;
 };
 
-function ModalShell({ onClose, children, maxWidth = 'max-w-2xl' }: ModalShellProps) {
+function ModalShell({ onClose, children, maxWidth = 'max-w-2xl', closeLabel = 'Close' }: ModalShellProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className={`w-full ${maxWidth} rounded-3xl border border-border bg-card p-6 shadow-2xl`}>
@@ -390,7 +420,7 @@ function ModalShell({ onClose, children, maxWidth = 'max-w-2xl' }: ModalShellPro
             type="button"
             onClick={onClose}
             className="rounded-full border border-border/60 p-2 text-muted-foreground transition hover:border-primary hover:text-primary"
-            aria-label="Zamknij"
+            aria-label={closeLabel}
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />
