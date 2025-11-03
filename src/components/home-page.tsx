@@ -1369,10 +1369,19 @@ export function HomePage({
           </div>
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
             {quickSizeTiles.map((tile) => {
-              const categoryLabel = tQuickCategories.optional(tile.categoryId) ?? tile.label;
-              const translatedProductType = tile.productTypeId
-                ? tProductTypes.optional(tile.productTypeId) ?? tile.productTypeLabel
-                : tile.productTypeLabel;
+              let categoryLabel: string;
+              try {
+                categoryLabel = tQuickCategories(tile.categoryId as any);
+              } catch {
+                categoryLabel = tile.label;
+              }
+
+              let translatedProductType = tile.productTypeLabel;
+              if (tile.productTypeId) {
+                try {
+                  translatedProductType = tProductTypes(tile.productTypeId as any);
+                } catch {}
+              }
 
               return (
               <button
