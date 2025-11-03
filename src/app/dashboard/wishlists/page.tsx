@@ -24,8 +24,12 @@ type PageSearchParams = {
 export default async function DashboardWishlistsPage({
   searchParams,
 }: {
-  searchParams?: Promise<PageSearchParams>;
+  searchParams?: Promise<PageSearchParams> | PageSearchParams;
 }) {
+  const resolvedSearchParams = searchParams
+    ? await (searchParams instanceof Promise ? searchParams : Promise.resolve(searchParams))
+    : undefined;
+
   const supabase = await createClient();
   const adminClient = createSupabaseAdminClient();
   const {
@@ -112,7 +116,6 @@ export default async function DashboardWishlistsPage({
     }
   }
 
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const editParam = resolvedSearchParams?.edit;
   const editItemId = Array.isArray(editParam) ? editParam[0] : editParam ?? null;
 
@@ -181,6 +184,7 @@ export default async function DashboardWishlistsPage({
           initialHasMore={hasMore}
           pageSize={PAGE_SIZE}
           editItem={editItem}
+          editItemId={editItemId}
         />
       </main>
       <SiteFooter />

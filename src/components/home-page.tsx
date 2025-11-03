@@ -668,8 +668,17 @@ export function HomePage({
 
   const bodyMeasurements = bodyMeasurementsProp ?? null;
   const [wishlistItems, setWishlistItems] = useState(wishlistItemsProp);
+  const [wishlistError, setWishlistError] = useState<string | null>(null);
+  const [pendingDeleteItem, setPendingDeleteItem] = useState<DashboardWishlistItem | null>(null);
+  const [isDeletingWishlistItem, setIsDeletingWishlistItem] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   useEffect(() => {
     setWishlistItems(wishlistItemsProp);
+    setWishlistError(null);
+    setPendingDeleteItem(null);
+    setDeleteError(null);
+    setIsDeletingWishlistItem(false);
   }, [wishlistItemsProp]);
 
   const handleWishlistEdit = useCallback(
@@ -679,34 +688,54 @@ export function HomePage({
     [router]
   );
 
-  const handleWishlistDelete = useCallback(
-    async (item: DashboardWishlistItem) => {
-      const confirmed = window.confirm("Czy na pewno chcesz usunąć ten produkt z Listy Marzeń?");
-      if (!confirmed) {
-        return;
+  const handleOpenWishlistDelete = useCallback((item: DashboardWishlistItem) => {
+    setDeleteError(null);
+    setWishlistError(null);
+    setPendingDeleteItem(item);
+  }, []);
+
+  const handleCancelWishlistDelete = useCallback(() => {
+    if (isDeletingWishlistItem) {
+      return;
+    }
+    setPendingDeleteItem(null);
+    setDeleteError(null);
+  }, [isDeletingWishlistItem]);
+
+  const handleConfirmWishlistDelete = useCallback(async () => {
+    if (!pendingDeleteItem) {
+      return;
+    }
+
+    setIsDeletingWishlistItem(true);
+    setDeleteError(null);
+
+    try {
+      const response = await fetch(`/api/v1/wishlist-items/${pendingDeleteItem.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.message ?? "Nie udało się usunąć produktu z listy");
       }
 
-      try {
-        const response = await fetch(`/api/v1/wishlist-items/${item.id}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          const payload = await response.json().catch(() => null);
-          throw new Error(payload?.message ?? "Nie udało się usunąć produktu z listy");
-        }
-
-        setWishlistItems((previous) => previous.filter((entry) => entry.id !== item.id));
-        router.refresh();
-      } catch (error) {
-        console.error("Failed to delete wishlist item", error);
-        const message =
-          error instanceof Error ? error.message : "Nie udało się usunąć produktu z listy";
-        window.alert(message);
-      }
-    },
-    [router]
-  );
+      setWishlistItems((previous) => previous.filter((entry) => entry.id !== pendingDeleteItem.id));
+      setWishlistError(null);
+      setDeleteError(null);
+      setPendingDeleteItem(null);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to delete wishlist item", error);
+      const message =
+        error instanceof Error ? error.message : "Nie udało się usunąć produktu z listy";
+      setDeleteError(message);
+      setWishlistError(message);
+    } finally {
+      setIsDeletingWishlistItem(false);
+    }
+  }, [pendingDeleteItem, router]);
 
   const sizeLabelsById = useMemo(() => {
     const map = new Map<string, SizeLabel>();
@@ -1460,6 +1489,12 @@ export function HomePage({
             </Link>
           </div>
 
+          {wishlistError ? (
+            <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {wishlistError}
+            </div>
+          ) : null}
+
           {wishlistItems.length ? (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {wishlistItems.map((item) => {
@@ -1514,7 +1549,7 @@ export function HomePage({
                       <button
                         type="button"
                         className="rounded-full border border-destructive/30 px-4 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10"
-                        onClick={() => handleWishlistDelete(item)}
+                        onClick={() => handleOpenWishlistDelete(item)}
                       >
                         Usuń
                       </button>
@@ -1540,6 +1575,49 @@ export function HomePage({
         </SectionCard>
 
       </main>
+
+      {pendingDeleteItem ? (
+        <ModalShell
+          onClose={handleCancelWishlistDelete}
+          maxWidth="max-w-md"
+        >
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-foreground">Usuń produkt z Listy Marzeń</h3>
+              <p className="text-sm text-muted-foreground">
+                Czy na pewno chcesz usunąć
+                <span className="font-semibold text-foreground"> {pendingDeleteItem.productName ?? 'ten produkt'} </span>
+                z Listy Marzeń? Tej operacji nie można cofnąć.
+              </p>
+            </div>
+
+            {deleteError ? (
+              <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {deleteError}
+              </div>
+            ) : null}
+
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={handleCancelWishlistDelete}
+                disabled={isDeletingWishlistItem}
+              >
+                Anuluj
+              </button>
+              <button
+                type="button"
+                className="rounded-full bg-destructive px-5 py-2 text-sm font-semibold text-destructive-foreground shadow transition hover:bg-destructive/90 disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={handleConfirmWishlistDelete}
+                disabled={isDeletingWishlistItem}
+              >
+                {isDeletingWishlistItem ? 'Usuwanie…' : 'Usuń'}
+              </button>
+            </div>
+          </div>
+        </ModalShell>
+      ) : null}
 
       {isAddEventOpen ? (
         <ModalShell onClose={handleCloseEventModal} maxWidth="max-w-2xl">

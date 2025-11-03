@@ -15,6 +15,7 @@ type WishlistDashboardProps = {
   initialHasMore?: boolean;
   pageSize?: number;
   editItem?: WishlistItem | null;
+  editItemId?: string | null;
 };
 
 function normalizePriceInput(value: string) {
@@ -80,7 +81,12 @@ function extractCurrency(snapshot: unknown, fallback = "PLN") {
   return payload.currency.toUpperCase();
 }
 
-export default function WishlistDashboard({ initialWishlist, allWishlists, editItem }: WishlistDashboardProps) {
+export default function WishlistDashboard({
+  initialWishlist,
+  allWishlists,
+  editItem,
+  editItemId,
+}: WishlistDashboardProps) {
   const t = useTranslations("wishlist");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -95,8 +101,11 @@ export default function WishlistDashboard({ initialWishlist, allWishlists, editI
   const [formCurrency, setFormCurrency] = useState("PLN");
   const [formImage, setFormImage] = useState("");
   const [formNotes, setFormNotes] = useState("");
-
-  const [editingItemId, setEditingItemId] = useState<string | null>(editItem?.id ?? null);
+  const [editingItemId, setEditingItemId] = useState<string | null>(() => editItem?.id ?? editItemId ?? null);
+  const [isLoadingEditItem, setIsLoadingEditItem] = useState(false);
+  const lastPrefilledEditItemIdRef = useRef<string | null>(null);
+  const pendingEditFetchRef = useRef<string | null>(null);
+  const suppressPrefillRef = useRef(false);
 
   const [formError, setFormError] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -152,29 +161,93 @@ export default function WishlistDashboard({ initialWishlist, allWishlists, editI
     }
   }, [initialWishlist, ensureDefaultWishlist]);
 
+  const applyEditPrefill = useCallback(
+    (item: WishlistItem) => {
+      if (!initialWishlist || item.wishlist_id !== initialWishlist.id) {
+        setFormError(t("errors.noWishlist"));
+        return;
+      }
+
+      lastPrefilledEditItemIdRef.current = item.id;
+      setEditingItemId(item.id);
+      setFormUrl(item.url ?? "");
+      setFormName(item.product_name ?? "");
+      setFormBrand(item.product_brand ?? "");
+      setFormNotes(item.notes ?? "");
+      setFormPrice(extractPriceAmount(item.price_snapshot));
+      setFormCurrency(extractCurrency(item.price_snapshot));
+      setFormImage(item.image_url ?? "");
+      setFormError(null);
+      setPreviewError(null);
+      setIsLoadingEditItem(false);
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+    [initialWishlist, t]
+  );
+
   useEffect(() => {
-    if (!editItem || !initialWishlist) {
-      setEditingItemId(null);
+    if (suppressPrefillRef.current) {
+      if (!editItem && !editItemId) {
+        suppressPrefillRef.current = false;
+      }
       return;
     }
 
-    if (editItem.wishlist_id !== initialWishlist.id) {
-      setEditingItemId(null);
+    if (editItem && editItem.id !== lastPrefilledEditItemIdRef.current) {
+      applyEditPrefill(editItem);
       return;
     }
 
-    setEditingItemId(editItem.id);
-    setFormUrl(editItem.url ?? "");
-    setFormName(editItem.product_name ?? "");
-    setFormBrand(editItem.product_brand ?? "");
-    setFormNotes(editItem.notes ?? "");
-    setFormPrice(extractPriceAmount(editItem.price_snapshot));
-    setFormCurrency(extractCurrency(editItem.price_snapshot));
-    setFormImage(editItem.image_url ?? "");
-    setFormError(null);
-    setPreviewError(null);
-    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [editItem, initialWishlist]);
+    if (
+      !editItem &&
+      editItemId &&
+      editItemId !== lastPrefilledEditItemIdRef.current &&
+      pendingEditFetchRef.current !== editItemId
+    ) {
+      const targetEditId = editItemId;
+      pendingEditFetchRef.current = targetEditId;
+      setIsLoadingEditItem(true);
+      setFormError(null);
+      setPreviewError(null);
+
+      void fetch(`/api/v1/wishlist-items/${targetEditId}`, {
+        method: "GET",
+        headers: {
+          "cache-control": "no-store",
+        },
+        credentials: "include",
+      })
+        .then(async (response) => {
+          if (!response.ok) {
+            const payload = await response.json().catch(() => null);
+            const message = payload?.message ?? t("errors.loadFailed");
+            setFormError(message);
+            return;
+          }
+
+          const payload = (await response.json()) as { item?: WishlistItem };
+          if (payload?.item) {
+            applyEditPrefill(payload.item);
+          } else {
+            setFormError(t("errors.loadFailed"));
+          }
+        })
+        .catch((error: unknown) => {
+          const message =
+            error instanceof Error ? error.message : t("errors.loadFailed");
+          setFormError(message);
+        })
+        .finally(() => {
+          setIsLoadingEditItem(false);
+          if (pendingEditFetchRef.current === targetEditId) {
+            pendingEditFetchRef.current = null;
+          }
+          if (!lastPrefilledEditItemIdRef.current) {
+            lastPrefilledEditItemIdRef.current = targetEditId;
+          }
+        });
+    }
+  }, [applyEditPrefill, editItem, editItemId, t]);
 
   const handlePreviewMetadata = async () => {
     setPreviewError(null);
@@ -259,6 +332,10 @@ export default function WishlistDashboard({ initialWishlist, allWishlists, editI
 
     const isEditing = Boolean(editingItemId);
 
+    if (isLoadingEditItem) {
+      return;
+    }
+
     if (!formUrl.trim() && !isEditing) {
       setFormError(t("errors.urlRequired"));
       return;
@@ -297,6 +374,7 @@ export default function WishlistDashboard({ initialWishlist, allWishlists, editI
           headers: {
             "content-type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify(payload),
         });
 
@@ -313,6 +391,7 @@ export default function WishlistDashboard({ initialWishlist, allWishlists, editI
           headers: {
             "content-type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({
             url: (parsedUrl ? parsedUrl.toString() : formUrl.trim()),
             notes: formNotes.trim() || null,
@@ -341,6 +420,10 @@ export default function WishlistDashboard({ initialWishlist, allWishlists, editI
 
   const handleClear = useCallback(() => {
     const wasEditing = Boolean(editingItemId);
+    suppressPrefillRef.current = true;
+    lastPrefilledEditItemIdRef.current = null;
+    pendingEditFetchRef.current = null;
+    setIsLoadingEditItem(false);
     setFormUrl("");
     setFormName("");
     setFormBrand("");
@@ -364,6 +447,11 @@ export default function WishlistDashboard({ initialWishlist, allWishlists, editI
       </div>
 
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-border bg-card p-6 shadow">
+        {isLoadingEditItem ? (
+          <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-2 text-sm text-muted-foreground">
+            {tCommon("loading")}
+          </div>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-2 md:col-span-3">
             <label htmlFor="wishlist-url" className="text-sm font-semibold text-muted-foreground">
@@ -384,7 +472,7 @@ export default function WishlistDashboard({ initialWishlist, allWishlists, editI
                 type="button"
                 className="rounded-full bg-secondary px-5 py-2 text-sm font-semibold text-secondary-foreground shadow transition hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-70"
                 onClick={handlePreviewMetadata}
-                disabled={Boolean(editingItemId) || previewLoading || formLoading || !formUrl.trim()}
+                disabled={Boolean(editingItemId) || previewLoading || formLoading || isLoadingEditItem || !formUrl.trim()}
               >
                 {previewLoading ? t("form.previewing") : t("form.preview")}
               </button>
@@ -490,14 +578,14 @@ export default function WishlistDashboard({ initialWishlist, allWishlists, editI
             type="button"
             className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
             onClick={handleClear}
-            disabled={formLoading}
+            disabled={formLoading || isLoadingEditItem}
           >
             {tCommon("clear")}
           </button>
           <button
             type="submit"
             className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-            disabled={formLoading || bootstrapLoading}
+            disabled={formLoading || bootstrapLoading || isLoadingEditItem}
           >
             {formLoading ? t("form.saving") : editingItemId ? tCommon("save") : t("form.submit")}
           </button>
