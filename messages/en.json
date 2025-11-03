@@ -230,6 +230,16 @@
     "noActivity": "No activity this week",
     "premiumFeature": "In Premium+ you'll see exactly who and when viewed your sizes"
   },
+  "dashboard": {
+    "header": {
+      "menu": {
+        "measurements": "My measurements",
+        "profile": "Edit profile",
+        "admin": "Admin panel",
+        "logout": "Sign out"
+      }
+    }
+  },
   "measurements": {
     "title": "Your measurements",
     "addFirst": "Add your first measurement",

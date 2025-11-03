@@ -230,6 +230,16 @@
     "noActivity": "Brak aktywności w tym tygodniu",
     "premiumFeature": "W Premium+ zobaczysz kto dokładnie i kiedy oglądał Twoje rozmiary"
   },
+  "dashboard": {
+    "header": {
+      "menu": {
+        "measurements": "Moje wymiary",
+        "profile": "Edytuj profil",
+        "admin": "Panel administratora",
+        "logout": "Wyloguj"
+      }
+    }
+  },
   "measurements": {
     "title": "Twoje pomiary",
     "addFirst": "Dodaj pierwszy pomiar",

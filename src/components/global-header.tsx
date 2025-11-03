@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { createClient } from "@/lib/supabase/client";
 import type { BrandingSettings, UserRole } from "@/lib/types";
+import { useTranslations } from "next-intl";
 
 type GlobalHeaderProps = {
   userName?: string | null;
@@ -22,6 +23,7 @@ export function GlobalHeader({
   branding,
 }: GlobalHeaderProps) {
   const router = useRouter();
+  const t = useTranslations("dashboard.header");
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const brandingConfig: BrandingSettings = branding ?? {
@@ -127,7 +129,7 @@ export function GlobalHeader({
                       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M8 18h12" />
                       </svg>
-                      Moje wymiary
+                      {t("menu.measurements")}
                     </button>
                     <button
                       type="button"
@@ -140,7 +142,7 @@ export function GlobalHeader({
                       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 6c-3.314 0-6 2.239-6 5h12c0-2.761-2.686-5-6-5z" />
                       </svg>
-                      Edytuj profil
+                      {t("menu.profile")}
                     </button>
                     {role === "admin" && (
                       <button
@@ -155,7 +157,7 @@ export function GlobalHeader({
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75h4.5v4.5h-4.5z" />
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 9.75h-4.5v-4.5h3a1.5 1.5 0 011.5 1.5v3zm-10.5-4.5v4.5H4.5v-3a1.5 1.5 0 011.5-1.5h3zM4.5 14.25h4.5v4.5h-3a1.5 1.5 0 01-1.5-1.5v-3zm10.5 4.5v-4.5h4.5v3a1.5 1.5 0 01-1.5 1.5h-3z" />
                         </svg>
-                        Panel administratora
+                        {t("menu.admin")}
                       </button>
                     )}
                     <button
@@ -166,7 +168,7 @@ export function GlobalHeader({
                       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 6h6M9 18h6M16 12l4-4m0 0l-4-4m4 4H8" />
                       </svg>
-                      Wyloguj
+                      {t("menu.logout")}
                     </button>
                   </div>
                 </div>
