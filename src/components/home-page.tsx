@@ -150,23 +150,23 @@ type NormalizedGarmentSize = {
 
 type GiftCalendarSeedEvent = {
   id: string;
-  title: string;
+  translationKey: string;
   month: number;
   day: number;
 };
 
 const DEFAULT_GIFTING_EVENTS: GiftCalendarSeedEvent[] = [
-  { id: 'mikolajki', title: 'Mikołajki', month: 12, day: 6 },
-  { id: 'wigilia', title: 'Wigilia Bożego Narodzenia', month: 12, day: 24 },
-  { id: 'boze-narodzenie', title: 'Boże Narodzenie', month: 12, day: 25 },
-  { id: 'walentynki', title: 'Walentynki', month: 2, day: 14 },
-  { id: 'dzien-kobiet', title: 'Dzień Kobiet', month: 3, day: 8 },
-  { id: 'dzien-matki', title: 'Dzień Matki', month: 5, day: 26 },
-  { id: 'dzien-dziecka', title: 'Dzień Dziecka', month: 6, day: 1 },
-  { id: 'dzien-ojca', title: 'Dzień Ojca', month: 6, day: 23 },
-  { id: 'dzien-chlopaka', title: 'Dzień Chłopaka', month: 9, day: 30 },
-  { id: 'dzien-babci', title: 'Dzień Babci', month: 1, day: 21 },
-  { id: 'dzien-dziadka', title: 'Dzień Dziadka', month: 1, day: 22 },
+  { id: 'mikolajki', translationKey: 'mikolajki', month: 12, day: 6 },
+  { id: 'wigilia', translationKey: 'wigilia', month: 12, day: 24 },
+  { id: 'boze-narodzenie', translationKey: 'bozeNarodzenie', month: 12, day: 25 },
+  { id: 'walentynki', translationKey: 'walentynki', month: 2, day: 14 },
+  { id: 'dzien-kobiet', translationKey: 'dzienKobiet', month: 3, day: 8 },
+  { id: 'dzien-matki', translationKey: 'dzienMatki', month: 5, day: 26 },
+  { id: 'dzien-dziecka', translationKey: 'dzienDziecka', month: 6, day: 1 },
+  { id: 'dzien-ojca', translationKey: 'dzienOjca', month: 6, day: 23 },
+  { id: 'dzien-chlopaka', translationKey: 'dzienChlopaka', month: 9, day: 30 },
+  { id: 'dzien-babci', translationKey: 'dzienBabci', month: 1, day: 21 },
+  { id: 'dzien-dziadka', translationKey: 'dzienDziadka', month: 1, day: 22 },
 ];
 
 function normalizeGarmentSize(size: unknown): NormalizedGarmentSize | null {
@@ -575,6 +575,8 @@ export function HomePage({
   const tEventsModal = useTranslations('dashboard.events.modal');
   const tEventsDetails = useTranslations('dashboard.events.details');
   const tEvents = useTranslations('dashboard.events');
+  const tEventsCard = useTranslations('dashboard.events.card');
+  const tEventsDefaultTitles = useTranslations('dashboard.events.defaultTitles');
   const tWishlist = useTranslations('wishlist');
   const tQuickCategories = useTranslations('dashboard.quickCategories');
   const tProductTypes = useTranslations('dashboard.productTypes');
@@ -1036,9 +1038,18 @@ export function HomePage({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const userEventKeys = new Set(
-      eventRecords.map((event) => `${event.event_date}-${(event.title ?? '').toLowerCase()}`)
-    );
+    const dateFormatter = new Intl.DateTimeFormat(locale || undefined, {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    const buildCountdown = (diffDays: number) =>
+      diffDays === 0
+        ? tEventsCard('today')
+        : tEventsCard('daysRemaining', { count: diffDays });
+
+    const userEventTitlesByDate = new Map<string, Set<string>>();
 
     const entries: Array<{ sortKey: number; item: CalendarEvent }> = [];
 
@@ -1061,23 +1072,28 @@ export function HomePage({
         return;
       }
 
+      const dateKey = eventDate.toISOString().slice(0, 10);
+      const eventTitle = (event.title ?? '').trim() || tEventsCard('untitled');
+      const normalizedTitle = eventTitle.toLowerCase();
+      if (normalizedTitle) {
+        if (!userEventTitlesByDate.has(dateKey)) {
+          userEventTitlesByDate.set(dateKey, new Set());
+        }
+        userEventTitlesByDate.get(dateKey)!.add(normalizedTitle);
+      }
+
       const diffTime = eventDate.getTime() - today.getTime();
       const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
-      const formattedDate = eventDate.toLocaleDateString('pl-PL', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
-
-      const contextLabel = diffDays === 0 ? 'Dziś' : `Za ${diffDays} dni`;
+      const formattedDate = dateFormatter.format(eventDate);
+      const contextLabel = buildCountdown(diffDays);
 
       entries.push({
         sortKey: eventDate.getTime(),
         item: {
           id: event.id,
           date: formattedDate,
-          title: event.title,
+          title: eventTitle,
           context: contextLabel,
           kind: 'user',
           eventDateISO: eventDate.toISOString(),
@@ -1096,28 +1112,25 @@ export function HomePage({
         baseDate.setFullYear(today.getFullYear() + 1);
       }
 
-      const dateKey = `${baseDate.toISOString().slice(0, 10)}-${event.title.toLowerCase()}`;
-      if (userEventKeys.has(dateKey)) {
+      const dateKey = baseDate.toISOString().slice(0, 10);
+      const seedTitle = tEventsDefaultTitles(event.translationKey);
+      const normalizedSeedTitle = seedTitle.toLowerCase().trim();
+      if (normalizedSeedTitle && userEventTitlesByDate.get(dateKey)?.has(normalizedSeedTitle)) {
         return;
       }
 
       const diffTime = baseDate.getTime() - today.getTime();
       const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
-      const formattedDate = baseDate.toLocaleDateString('pl-PL', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
-
-      const contextLabel = diffDays === 0 ? 'Dziś' : `Za ${diffDays} dni`;
+      const formattedDate = dateFormatter.format(baseDate);
+      const contextLabel = buildCountdown(diffDays);
 
       entries.push({
         sortKey: baseDate.getTime(),
         item: {
           id: `default-${event.id}-${baseDate.getFullYear()}`,
           date: formattedDate,
-          title: event.title,
+          title: seedTitle,
           context: contextLabel,
           kind: 'default',
           eventDateISO: baseDate.toISOString(),
@@ -1129,7 +1142,7 @@ export function HomePage({
     return entries
       .sort((a, b) => a.sortKey - b.sortKey)
       .map((entry) => entry.item);
-  }, [eventRecords]);
+  }, [eventRecords, locale, tEventsCard, tEventsDefaultTitles]);
 
   useEffect(() => {
     const container = eventsScrollRef.current;

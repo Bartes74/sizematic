@@ -451,6 +451,24 @@
         "autoSeedInfo": "This event was added automatically. Create your own event to add notes and invitees.",
         "edit": "Edit event",
         "personalize": "Personalize event"
+      },
+      "card": {
+        "today": "Today",
+        "daysRemaining": "{count, plural, one {# day left} other {# days left}}",
+        "untitled": "Untitled event"
+      },
+      "defaultTitles": {
+        "mikolajki": "St. Nicholas Day",
+        "wigilia": "Christmas Eve",
+        "bozeNarodzenie": "Christmas Day",
+        "walentynki": "Valentine's Day",
+        "dzienKobiet": "Women's Day",
+        "dzienMatki": "Mother's Day",
+        "dzienDziecka": "Children's Day",
+        "dzienOjca": "Father's Day",
+        "dzienChlopaka": "Boyfriend's Day",
+        "dzienBabci": "Grandmother's Day",
+        "dzienDziadka": "Grandfather's Day"
       }
     },
     "wishlistSection": {

@@ -451,6 +451,24 @@
         "autoSeedInfo": "To wydarzenie zostało dodane automatycznie. Możesz zapisać dodatkowe informacje, dodając własne wydarzenie z listą uczestników i notatkami.",
         "edit": "Edytuj wydarzenie",
         "personalize": "Personalizuj wydarzenie"
+      },
+      "card": {
+        "today": "Dziś",
+        "daysRemaining": "{count, plural, one {Pozostał # dzień} few {Pozostały # dni} many {Pozostało # dni} other {Pozostało # dni}}",
+        "untitled": "Wydarzenie bez nazwy"
+      },
+      "defaultTitles": {
+        "mikolajki": "Mikołajki",
+        "wigilia": "Wigilia Bożego Narodzenia",
+        "bozeNarodzenie": "Boże Narodzenie",
+        "walentynki": "Walentynki",
+        "dzienKobiet": "Dzień Kobiet",
+        "dzienMatki": "Dzień Matki",
+        "dzienDziecka": "Dzień Dziecka",
+        "dzienOjca": "Dzień Ojca",
+        "dzienChlopaka": "Dzień Chłopaka",
+        "dzienBabci": "Dzień Babci",
+        "dzienDziadka": "Dzień Dziadka"
       }
     },
     "wishlistSection": {
