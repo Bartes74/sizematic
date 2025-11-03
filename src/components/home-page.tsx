@@ -1506,6 +1506,8 @@ export function HomePage({
                 return (
                   <div
                     key={item.id}
+                    data-testid="wishlist-card"
+                    data-item-id={item.id}
                     className="group flex flex-col rounded-[24px] border border-border/70 bg-[var(--surface-interactive)] px-4 py-4 transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
                   >
                     <a
@@ -1541,6 +1543,7 @@ export function HomePage({
                     <div className="mt-4 flex items-center justify-end gap-2">
                       <button
                         type="button"
+                        data-testid="wishlist-card-edit"
                         className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
                         onClick={() => handleWishlistEdit(item)}
                       >
@@ -1548,6 +1551,7 @@ export function HomePage({
                       </button>
                       <button
                         type="button"
+                        data-testid="wishlist-card-delete"
                         className="rounded-full border border-destructive/30 px-4 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10"
                         onClick={() => handleOpenWishlistDelete(item)}
                       >
