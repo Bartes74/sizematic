@@ -52,7 +52,14 @@
       "refreshFailed": "We couldn't refresh product data.",
       "priceRange": "Check the price range.",
       "loadFailed": "We couldn't load wishlist items.",
-      "previewFailed": "We couldn't fetch store information."
+      "previewFailed": "We couldn't fetch store information.",
+      "deleteFailed": "We couldn't remove the item from the list."
+    },
+    "deleteModal": {
+      "title": "Remove item from wishlist",
+      "body": "Are you sure you want to remove {name} from your wishlist? This action cannot be undone.",
+      "fallbackName": "this item",
+      "deleting": "Removing…"
     },
     "cards": {
       "noImage": "No image",

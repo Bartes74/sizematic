@@ -11,7 +11,7 @@ import {
 } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { GlobalHeader } from '@/components/global-header';
 import {
   QUICK_CATEGORY_CONFIGS,
@@ -541,6 +541,8 @@ export function HomePage({
   bodyMeasurements: bodyMeasurementsProp = null,
 }: HomePageProps) {
   const locale = useLocale();
+  const tCommon = useTranslations('common');
+  const tWishlist = useTranslations('wishlist');
   void _measurements;
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
@@ -718,7 +720,7 @@ export function HomePage({
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message ?? "Nie udało się usunąć produktu z listy");
+        throw new Error(payload?.message ?? tWishlist('errors.deleteFailed'));
       }
 
       setWishlistItems((previous) => previous.filter((entry) => entry.id !== pendingDeleteItem.id));
@@ -729,7 +731,9 @@ export function HomePage({
     } catch (error) {
       console.error("Failed to delete wishlist item", error);
       const message =
-        error instanceof Error ? error.message : "Nie udało się usunąć produktu z listy";
+        error instanceof Error && error.message
+          ? error.message
+          : tWishlist('errors.deleteFailed');
       setDeleteError(message);
       setWishlistError(message);
     } finally {
@@ -1581,17 +1585,16 @@ export function HomePage({
       </main>
 
       {pendingDeleteItem ? (
-        <ModalShell
-          onClose={handleCancelWishlistDelete}
-          maxWidth="max-w-md"
-        >
+        <ModalShell onClose={handleCancelWishlistDelete} maxWidth="max-w-md">
           <div className="space-y-5">
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-foreground">Usuń produkt z Listy Marzeń</h3>
+              <h3 className="text-lg font-semibold text-foreground">
+                {tWishlist('deleteModal.title')}
+              </h3>
               <p className="text-sm text-muted-foreground">
-                Czy na pewno chcesz usunąć
-                <span className="font-semibold text-foreground"> {pendingDeleteItem.productName ?? 'ten produkt'} </span>
-                z Listy Marzeń? Tej operacji nie można cofnąć.
+                {tWishlist('deleteModal.body', {
+                  name: pendingDeleteItem.productName ?? tWishlist('deleteModal.fallbackName'),
+                })}
               </p>
             </div>
 
@@ -1608,7 +1611,7 @@ export function HomePage({
                 onClick={handleCancelWishlistDelete}
                 disabled={isDeletingWishlistItem}
               >
-                Anuluj
+                {tCommon('cancel')}
               </button>
               <button
                 type="button"
@@ -1616,7 +1619,7 @@ export function HomePage({
                 onClick={handleConfirmWishlistDelete}
                 disabled={isDeletingWishlistItem}
               >
-                {isDeletingWishlistItem ? 'Usuwanie…' : 'Usuń'}
+                {isDeletingWishlistItem ? tWishlist('deleteModal.deleting') : tCommon('delete')}
               </button>
             </div>
           </div>

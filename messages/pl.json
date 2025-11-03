@@ -52,7 +52,14 @@
       "refreshFailed": "Nie udało się odświeżyć danych produktu.",
       "priceRange": "Podaj poprawny zakres ceny.",
       "loadFailed": "Nie udało się pobrać elementów listy.",
-      "previewFailed": "Nie udało się pobrać informacji ze sklepu."
+      "previewFailed": "Nie udało się pobrać informacji ze sklepu.",
+      "deleteFailed": "Nie udało się usunąć produktu z listy."
+    },
+    "deleteModal": {
+      "title": "Usuń produkt z Listy Marzeń",
+      "body": "Czy na pewno chcesz usunąć {name} z Listy Marzeń? Tej operacji nie można cofnąć.",
+      "fallbackName": "ten produkt",
+      "deleting": "Usuwanie…"
     },
     "cards": {
       "noImage": "Brak zdjęcia",
