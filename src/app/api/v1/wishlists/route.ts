@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import { getProfileForUser } from "@/server/profiles";
 import { slugifyTitle } from "@/server/wishlists";
 
@@ -54,6 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient();
+    const adminClient = createSupabaseAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -62,10 +65,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
     }
 
-    const profile = await getProfileForUser(supabase, user.id);
-    const slug = await generateUniqueSlug(supabase, profile.id, title);
+    const profile = await getProfileForUser(adminClient, user.id);
+    const slug = await generateUniqueSlug(adminClient, profile.id, title);
 
-    const { data, error } = await supabase
+    const { data, error } = await adminClient
       .from("wishlists")
       .insert({
         owner_id: user.id,
@@ -93,7 +96,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function generateUniqueSlug(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: SupabaseClient,
   ownerProfileId: string,
   title: string
 ) {

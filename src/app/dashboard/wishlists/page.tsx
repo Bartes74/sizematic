@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { GlobalHeader } from "@/components/global-header";
 import { SiteFooter } from "@/components/site-footer";
 import WishlistDashboard from "@/components/wishlists/wishlist-dashboard";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import type {
   BrandingSettings,
   UserRole,
@@ -79,10 +79,11 @@ export default async function DashboardWishlistsPage() {
   let wishlists = (wishlistsData ?? []) as Wishlist[];
 
   if (wishlists.length === 0) {
+    const adminClient = createSupabaseAdminClient();
     const slugBase = slugifyTitle(DEFAULT_WISHLIST_TITLE) || "lista-marzen";
     const slug = `${slugBase}-${Date.now().toString(36)}`;
 
-    const { data: createdWishlist, error: createError } = await supabase
+    const { data: createdWishlist, error: createError } = await adminClient
       .from("wishlists")
       .insert({
         owner_id: user.id,
