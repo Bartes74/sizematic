@@ -979,6 +979,7 @@ export default function WishlistDashboard({
       tempId: optimisticId,
       wishlist_id: activeWishlist.id,
       url: parsedUrl.toString(),
+      category: null,
       product_name: manualName || null,
       product_brand: manualBrand || null,
       image_url: manualImage || null,
