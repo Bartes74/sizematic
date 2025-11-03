@@ -169,6 +169,7 @@ export default function WishlistDashboard({
       }
 
       lastPrefilledEditItemIdRef.current = item.id;
+      setActiveWishlistId((current) => (current === item.wishlist_id ? current : item.wishlist_id));
       setEditingItemId(item.id);
       setFormUrl(item.url ?? "");
       setFormName(item.product_name ?? "");
@@ -182,7 +183,7 @@ export default function WishlistDashboard({
       setIsLoadingEditItem(false);
       formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     },
-    [initialWishlist, t]
+    [initialWishlist, setActiveWishlistId, t]
   );
 
   useEffect(() => {
