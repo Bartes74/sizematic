@@ -506,7 +506,7 @@ function normalizeOfferCurrency(value: unknown) {
   return undefined;
 }
 
-function normalizeOfferSeller(value: unknown) {
+function normalizeOfferSeller(value: unknown): string | undefined {
   if (!value || typeof value !== "object") {
     return undefined;
   }
