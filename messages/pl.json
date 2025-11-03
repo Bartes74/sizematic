@@ -316,6 +316,16 @@
         "admin": "Admin"
       }
     },
+    "sizesSection": {
+      "title": "Zapisz swoje rozmiary",
+      "cta": "Zobacz wszystkie",
+      "configure": "Konfiguruj skróty rozmiarów"
+    },
+    "dataGaps": {
+      "title": "Uzupełnij wymiary ciała",
+      "subtitle": "Zacznij od najważniejszych pomiarów, aby dopasowania i rekomendacje były jeszcze trafniejsze.",
+      "progressLabel": "Pozostało {remaining} z {total} wymaganych pomiarów"
+    },
     "events": {
       "title": "Nadchodzące wydarzenia",
       "subtitle": "Przygotuj się z wyprzedzeniem – zobacz, ile dni zostało do ważnych okazji.",

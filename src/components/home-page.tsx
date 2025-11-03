@@ -547,6 +547,9 @@ export function HomePage({
   const tEvents = useTranslations('dashboard.events');
   const tEventsModal = useTranslations('dashboard.events.modal');
   const tEventsDetails = useTranslations('dashboard.events.details');
+  const tSizesSection = useTranslations('dashboard.sizesSection');
+  const tDataGaps = useTranslations('dashboard.dataGaps');
+  const tMeasurementsForm = useTranslations('measurementsForm');
   const tWishlistSection = useTranslations('dashboard.wishlistSection');
   void _measurements;
   const router = useRouter();
@@ -1313,12 +1316,12 @@ export function HomePage({
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <h2 className="text-lg font-semibold text-foreground sm:text-xl">Zapisz swoje rozmiary</h2>
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tSizesSection('title')}</h2>
               <button
                 type="button"
                 onClick={() => setPreferencesOpen(true)}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-[var(--surface-muted)] text-muted-foreground shadow-sm transition hover:border-[#48A9A6] hover:text-[#48A9A6]"
-                aria-label="Konfiguruj skróty rozmiarów"
+                aria-label={tSizesSection('configure')}
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h5m11 0h-6m-4 0v10m2 0h9m-13 0H4M9 7a2 2 0 114 0 2 2 0 11-4 0zm6 10a2 2 0 114 0 2 2 0 11-4 0z" />
@@ -1329,7 +1332,7 @@ export function HomePage({
               href="/dashboard/sizes"
               className="text-sm font-semibold text-primary transition hover:text-primary/80"
             >
-              Zobacz wszystkie
+              {tSizesSection('cta')}
             </Link>
           </div>
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
@@ -1374,12 +1377,16 @@ export function HomePage({
           <SectionCard>
             <div className="flex items-center justify-between gap-3 pb-2">
               <div>
-                <h2 className="text-lg font-semibold text-foreground sm:text-xl">Uzupełnij wymiary ciała</h2>
-                <p className="text-sm text-muted-foreground">
-                  Zacznij od najważniejszych pomiarów, aby dopasowania i rekomendacje były jeszcze trafniejsze.
-                </p>
+                <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tDataGaps('title')}</h2>
+                <p className="text-sm text-muted-foreground">{tDataGaps('subtitle')}</p>
               </div>
-              <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              <span
+                className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
+                aria-label={tDataGaps('progressLabel', {
+                  remaining: missingMeasurements.length,
+                  total: totalRequiredDefinitions,
+                })}
+              >
                 {missingMeasurements.length} / {totalRequiredDefinitions}
               </span>
             </div>
@@ -1392,11 +1399,11 @@ export function HomePage({
                   className="data-gap-card flex h-full flex-col rounded-[26px] border border-dashed border-border/60 bg-[var(--surface-interactive)] px-6 py-5 text-left text-sm transition hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
                 >
                   <h3 className="text-base font-semibold text-foreground">{definition.label}</h3>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  <span className="font-semibold text-foreground">Po co?</span>
-                  <br />
-                  {definition.purpose}
-                </p>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    <span className="font-semibold text-foreground">{tMeasurementsForm('instructions.purposeLabel')}</span>
+                    <br />
+                    {definition.purpose}
+                  </p>
                 </button>
               ))}
             </div>

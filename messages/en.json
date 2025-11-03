@@ -316,6 +316,16 @@
         "admin": "Admin"
       }
     },
+    "sizesSection": {
+      "title": "Save your sizes",
+      "cta": "View all",
+      "configure": "Configure quick size shortcuts"
+    },
+    "dataGaps": {
+      "title": "Fill in your body measurements",
+      "subtitle": "Start with the essentials to make recommendations and matches even more accurate.",
+      "progressLabel": "{remaining} of {total} required measurements remaining"
+    },
     "events": {
       "title": "Upcoming events",
       "subtitle": "Plan ahead and see how many days remain until key occasions.",
