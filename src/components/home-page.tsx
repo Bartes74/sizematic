@@ -543,6 +543,8 @@ export function HomePage({
   const locale = useLocale();
   const tCommon = useTranslations('common');
   const tWishlist = useTranslations('wishlist');
+  const tEvents = useTranslations('dashboard.events');
+  const tWishlistSection = useTranslations('dashboard.wishlistSection');
   void _measurements;
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
@@ -1390,9 +1392,9 @@ export function HomePage({
         <SectionCard>
           <div className="flex items-center justify-between gap-3 pb-4">
             <div>
-              <h2 className="text-lg font-semibold text-foreground sm:text-xl">Nadchodzące wydarzenia</h2>
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tEvents('title')}</h2>
               <p className="text-sm text-muted-foreground">
-                Przygotuj się z wyprzedzeniem – zobacz, ile dni zostało do ważnych okazji.
+                {tEvents('subtitle')}
               </p>
             </div>
           <button
@@ -1403,7 +1405,7 @@ export function HomePage({
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
             </svg>
-            Dodaj wydarzenie
+            {tEvents('add')}
           </button>
           </div>
           {calendarItems.length ? (
@@ -1443,7 +1445,7 @@ export function HomePage({
                 {eventsCanScrollLeft ? (
                   <button
                     type="button"
-                    aria-label="Przewiń wydarzenia w lewo"
+                  aria-label={tEvents('ariaLeft')}
                     onClick={() => handleEventScroll('left')}
                     className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-2xl bg-background/90 p-2 text-foreground shadow-lg shadow-primary/10 transition hover:bg-background group-hover:flex"
                   >
@@ -1456,7 +1458,7 @@ export function HomePage({
                 {eventsCanScrollRight ? (
                   <button
                     type="button"
-                    aria-label="Przewiń wydarzenia w prawo"
+                  aria-label={tEvents('ariaRight')}
                     onClick={() => handleEventScroll('right')}
                     className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-2xl bg-background/90 p-2 text-foreground shadow-lg shadow-primary/10 transition hover:bg-background group-hover:flex"
                   >
@@ -1469,9 +1471,9 @@ export function HomePage({
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center rounded-[26px] border border-dashed border-border/70 bg-[var(--surface-interactive)] px-6 py-10 text-center">
-              <h3 className="text-base font-semibold text-foreground">Brak zaplanowanych wydarzeń</h3>
+              <h3 className="text-base font-semibold text-foreground">{tEvents('emptyTitle')}</h3>
               <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                Dodaj pierwsze wydarzenie, aby zawsze mieć wgląd w nadchodzące okazje.
+                {tEvents('emptyBody')}
               </p>
             </div>
           )}
@@ -1480,16 +1482,16 @@ export function HomePage({
         <SectionCard>
           <div className="flex items-center justify-between gap-3 pb-4">
             <div>
-              <h2 className="text-lg font-semibold text-foreground sm:text-xl">Lista marzeń</h2>
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tWishlistSection('title')}</h2>
               <p className="text-sm text-muted-foreground">
-                Zapisuj pomysły na prezenty i udostępniaj je bliskim, by ułatwić im wybór idealnej rzeczy.
+                {tWishlistSection('subtitle')}
               </p>
             </div>
             <Link
               href="/dashboard/wishlists"
               className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
             >
-              Dodaj do listy
+              {tWishlistSection('addButton')}
             </Link>
           </div>
 
@@ -1502,7 +1504,7 @@ export function HomePage({
           {wishlistItems.length ? (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {wishlistItems.map((item) => {
-                const productName = item.productName?.trim() || 'Nowy pomysł na prezent';
+                const productName = item.productName?.trim() || tWishlistSection('fallbackName');
                 const productBrand = item.productBrand?.trim();
                 const priceLabel = formatWishlistPrice(item.priceSnapshot, locale);
                 const href = item.url ?? '#';
@@ -1526,7 +1528,7 @@ export function HomePage({
                           <img src={item.imageUrl} alt={productName} className="h-full w-full object-cover" />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                            Brak zdjęcia
+                            {tWishlist('cards.noImage')}
                           </div>
                         )}
                       </div>
@@ -1539,7 +1541,7 @@ export function HomePage({
                           </p>
                         ) : null}
                         <p className="mt-2 text-xs text-muted-foreground">
-                          Cena: {priceLabel ?? '—'}
+                          {tWishlistSection('priceLabel', { value: priceLabel ?? '—' })}
                         </p>
                       </div>
                     </a>
@@ -1551,7 +1553,7 @@ export function HomePage({
                         className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
                         onClick={() => handleWishlistEdit(item)}
                       >
-                        Edytuj
+                        {tCommon('edit')}
                       </button>
                       <button
                         type="button"
@@ -1559,7 +1561,7 @@ export function HomePage({
                         className="rounded-full border border-destructive/30 px-4 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10"
                         onClick={() => handleOpenWishlistDelete(item)}
                       >
-                        Usuń
+                        {tCommon('delete')}
                       </button>
                     </div>
                   </div>
@@ -1568,15 +1570,15 @@ export function HomePage({
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center rounded-[26px] border border-dashed border-border/70 bg-[var(--surface-interactive)] px-6 py-10 text-center">
-              <h3 className="text-base font-semibold text-foreground">Twoja lista marzeń czeka na pierwsze pozycje</h3>
+              <h3 className="text-base font-semibold text-foreground">{tWishlistSection('emptyTitle')}</h3>
               <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                Zanotuj link, produkt lub inspirację – wystarczy kilka kliknięć, by inni wiedzieli, co sprawi Ci radość.
+                {tWishlistSection('emptyBody')}
               </p>
               <Link
                 href="/dashboard/wishlists"
                 className="mt-4 inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
               >
-                Dodaj pierwszy prezent
+                {tWishlistSection('addFirst')}
               </Link>
             </div>
           )}

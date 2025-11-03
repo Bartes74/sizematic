@@ -239,6 +239,25 @@
         "admin": "Panel administratora",
         "logout": "Wyloguj"
       }
+    },
+    "events": {
+      "title": "Nadchodzące wydarzenia",
+      "subtitle": "Przygotuj się z wyprzedzeniem – zobacz, ile dni zostało do ważnych okazji.",
+      "add": "Dodaj wydarzenie",
+      "ariaLeft": "Przewiń wydarzenia w lewo",
+      "ariaRight": "Przewiń wydarzenia w prawo",
+      "emptyTitle": "Brak zaplanowanych wydarzeń",
+      "emptyBody": "Dodaj pierwsze wydarzenie, aby zawsze mieć wgląd w nadchodzące okazje."
+    },
+    "wishlistSection": {
+      "title": "Lista marzeń",
+      "subtitle": "Zapisuj pomysły na prezenty i udostępniaj je bliskim, by ułatwić im wybór idealnej rzeczy.",
+      "addButton": "Dodaj do listy",
+      "emptyTitle": "Twoja lista marzeń czeka na pierwsze pozycje",
+      "emptyBody": "Zanotuj link, produkt lub inspirację – wystarczy kilka kliknięć, by inni wiedzieli, co sprawi Ci radość.",
+      "addFirst": "Dodaj pierwszy prezent",
+      "priceLabel": "Cena: {value}",
+      "fallbackName": "Nowy pomysł na prezent"
     }
   },
   "measurements": {

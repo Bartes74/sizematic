@@ -239,6 +239,25 @@
         "admin": "Admin panel",
         "logout": "Sign out"
       }
+    },
+    "events": {
+      "title": "Upcoming events",
+      "subtitle": "Plan ahead and see how many days remain until key occasions.",
+      "add": "Add event",
+      "ariaLeft": "Scroll events to the left",
+      "ariaRight": "Scroll events to the right",
+      "emptyTitle": "No events scheduled",
+      "emptyBody": "Add your first event to keep an eye on upcoming occasions."
+    },
+    "wishlistSection": {
+      "title": "Wishlist",
+      "subtitle": "Collect gift ideas and share them with your circle to make picking the perfect present easy.",
+      "addButton": "Add to list",
+      "emptyTitle": "Your wishlist is waiting for its first items",
+      "emptyBody": "Save a link, product or idea – just a few clicks let others know what will make you happy.",
+      "addFirst": "Add the first gift",
+      "priceLabel": "Price: {value}",
+      "fallbackName": "New gift idea"
     }
   },
   "measurements": {
