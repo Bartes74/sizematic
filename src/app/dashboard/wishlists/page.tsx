@@ -24,7 +24,7 @@ type PageSearchParams = {
 export default async function DashboardWishlistsPage({
   searchParams,
 }: {
-  searchParams?: PageSearchParams;
+  searchParams?: Promise<PageSearchParams>;
 }) {
   const supabase = await createClient();
   const adminClient = createSupabaseAdminClient();
@@ -112,7 +112,8 @@ export default async function DashboardWishlistsPage({
     }
   }
 
-  const editParam = searchParams?.edit;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const editParam = resolvedSearchParams?.edit;
   const editItemId = Array.isArray(editParam) ? editParam[0] : editParam ?? null;
 
   let editItem: WishlistItem | null = null;
