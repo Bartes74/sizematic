@@ -384,7 +384,7 @@ export default function WishlistDashboard({
           notes: formNotes.trim() || null,
           productName: manualName || null,
           productBrand: manualBrand || null,
-          price: manualPriceNormalized ?? manualPriceRaw || null,
+          price: (manualPriceNormalized ?? manualPriceRaw) || null,
           currency: manualCurrency || null,
           imageUrl: manualImage || null,
         }),
