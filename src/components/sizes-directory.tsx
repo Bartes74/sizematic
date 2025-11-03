@@ -194,7 +194,7 @@ export function SizesDirectory({
 }: SizesDirectoryProps) {
   const router = useRouter();
   const [preferencesOpen, setPreferencesOpen] = useState(false);
-  const tSizesDirectory = useTranslations('sizesDirectory');
+  const tSizesDirectory = useTranslations('dashboard.sizesDirectory');
   const tQuickCategories = useTranslations('dashboard.quickCategories');
   const tProductTypes = useTranslations('dashboard.productTypes');
   const tCommon = useTranslations('common');
