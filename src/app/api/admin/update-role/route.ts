@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import type { UserRole } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
+    const adminClient = createSupabaseAdminClient();
 
     // Check if user is authenticated
     const { data: { user } } = await supabase.auth.getUser();
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user role
-    const { error } = await supabase
+    const { error } = await adminClient
       .from('profiles')
       .update({ role: newRole })
       .eq('id', userId);

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import { AdminUsersTable } from "@/components/admin-users-table";
 import { AdminBrandingForm } from "@/components/admin-branding-form";
 import { redirect } from "next/navigation";
@@ -8,7 +8,9 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/');
@@ -27,12 +29,14 @@ export default async function AdminPage() {
   }
 
   // Get all users with their profiles
-  const { data: profiles } = await supabase
+  const adminClient = createSupabaseAdminClient();
+
+  const { data: profiles } = await adminClient
     .from('profiles')
     .select('id, display_name, email, role, created_at, owner_id')
     .order('created_at', { ascending: false });
 
-  const { data: brandingData } = await supabase
+  const { data: brandingData } = await adminClient
     .from('branding_settings')
     .select('site_name, site_claim, logo_url, logo_path')
     .single();
