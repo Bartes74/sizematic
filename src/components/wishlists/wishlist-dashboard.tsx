@@ -1,18 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type FormEvent,
-} from "react";
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
-import type { Wishlist, WishlistItem } from "@/lib/types";
+import type { Wishlist } from "@/lib/types";
 
 type WishlistDashboardProps = {
   initialWishlist: Wishlist | null;
@@ -21,13 +14,6 @@ type WishlistDashboardProps = {
   initialTotal: number;
   initialHasMore: boolean;
   pageSize: number;
-};
-
-type WishlistItemView = WishlistItem;
-
-type PriceSnapshot = {
-  amount?: string | number | null;
-  currency?: string | null;
 };
 
 function normalizePriceInput(value: string) {
@@ -58,91 +44,13 @@ function normalizePriceInput(value: string) {
   return parsed.toFixed(2);
 }
 
-function normalizeItem(item: WishlistItem): WishlistItemView {
-  return item;
-}
-
-function getHostname(url: string) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return url;
-  }
-}
-
-function formatPrice(snapshot: WishlistItem["price_snapshot"], locale: string) {
-  if (!snapshot) {
-    return null;
-  }
-
-  const payload = snapshot as PriceSnapshot;
-  const amountRaw = payload.amount;
-  if (amountRaw == null) {
-    return null;
-  }
-
-  const numeric = typeof amountRaw === "number" ? amountRaw : Number.parseFloat(amountRaw);
-  if (!Number.isFinite(numeric)) {
-    return null;
-  }
-
-  const currency = payload.currency ?? undefined;
-
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: currency ? "currency" : "decimal",
-      currency,
-      maximumFractionDigits: 2,
-    }).format(numeric);
-  } catch {
-    return numeric.toFixed(2);
-  }
-}
-
-function extractPriceAmount(snapshot: WishlistItem["price_snapshot"]) {
-  if (!snapshot) {
-    return "";
-  }
-  const payload = snapshot as PriceSnapshot;
-  if (payload.amount == null) {
-    return "";
-  }
-  return typeof payload.amount === "number"
-    ? payload.amount.toFixed(2)
-    : payload.amount ?? "";
-}
-
-function extractCurrency(snapshot: WishlistItem["price_snapshot"], fallback = "PLN") {
-  if (!snapshot) {
-    return fallback;
-  }
-  const payload = snapshot as PriceSnapshot;
-  return payload.currency ?? fallback;
-}
-
-export default function WishlistDashboard({
-  initialWishlist,
-  allWishlists,
-  initialItems,
-  pageSize,
-}: WishlistDashboardProps) {
+export default function WishlistDashboard({ initialWishlist, allWishlists }: WishlistDashboardProps) {
   const t = useTranslations("wishlist");
   const tCommon = useTranslations("common");
-  const locale = useLocale();
   const router = useRouter();
 
   const [wishlists, setWishlists] = useState<Wishlist[]>(allWishlists);
   const [activeWishlistId, setActiveWishlistId] = useState<string | null>(initialWishlist?.id ?? null);
-
-  const initialNormalizedItems = useMemo(() => {
-    return Array.isArray(initialItems)
-      ? (initialItems as WishlistItem[]).map(normalizeItem)
-      : [];
-  }, [initialItems]);
-
-  const [items, setItems] = useState<WishlistItemView[]>(initialNormalizedItems);
-  const [listError, setListError] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [formUrl, setFormUrl] = useState("");
   const [formName, setFormName] = useState("");
@@ -151,9 +59,6 @@ export default function WishlistDashboard({
   const [formCurrency, setFormCurrency] = useState("PLN");
   const [formImage, setFormImage] = useState("");
   const [formNotes, setFormNotes] = useState("");
-
-  const [editingItemId, setEditingItemId] = useState<string | null>(null);
-  const [editingItem, setEditingItem] = useState<WishlistItemView | null>(null);
 
   const [formError, setFormError] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -168,54 +73,6 @@ export default function WishlistDashboard({
   const activeWishlist = useMemo(() => {
     return wishlists.find((entry) => entry.id === activeWishlistId) ?? null;
   }, [wishlists, activeWishlistId]);
-
-  const refreshItems = useCallback(async () => {
-    if (!activeWishlistId) {
-      return;
-    }
-
-    setIsRefreshing(true);
-    setListError(null);
-    try {
-      const response = await fetch(
-        `/api/v1/wishlists/${activeWishlistId}/items?limit=${pageSize}&offset=0&sort=created_at&direction=desc`,
-        {
-          method: "GET",
-          headers: { "cache-control": "no-store" },
-        },
-      );
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message ?? t("errors.loadFailed"));
-      }
-
-      const payload = (await response.json()) as {
-        items?: WishlistItem[] | null;
-      };
-
-      const list = Array.isArray(payload.items) ? payload.items.map(normalizeItem) : [];
-      setItems(list);
-    } catch (error) {
-      setListError(error instanceof Error ? error.message : t("errors.loadFailed"));
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [activeWishlistId, pageSize, t]);
-
-  const resetForm = useCallback(() => {
-    setEditingItemId(null);
-    setEditingItem(null);
-    setFormUrl("");
-    setFormName("");
-    setFormBrand("");
-    setFormPrice("");
-    setFormCurrency("PLN");
-    setFormImage("");
-    setFormNotes("");
-    setFormError(null);
-    setPreviewError(null);
-  }, []);
 
   const ensureDefaultWishlist = useCallback(async () => {
     if (activeWishlistId || bootstrapLoading) {
@@ -256,17 +113,6 @@ export default function WishlistDashboard({
       void ensureDefaultWishlist();
     }
   }, [initialWishlist, ensureDefaultWishlist]);
-
-  useEffect(() => {
-    setItems(initialNormalizedItems);
-  }, [initialNormalizedItems]);
-
-  useEffect(() => {
-    if (!activeWishlistId) {
-      return;
-    }
-    void refreshItems();
-  }, [activeWishlistId, refreshItems]);
 
   const handlePreviewMetadata = async () => {
     setPreviewError(null);
@@ -344,8 +190,7 @@ export default function WishlistDashboard({
     setFormError(null);
     setPreviewError(null);
 
-    const targetWishlistId = activeWishlistId ?? editingItem?.wishlist_id ?? null;
-    if (!targetWishlistId) {
+    if (!activeWishlist) {
       setFormError(t("errors.noWishlist"));
       return;
     }
@@ -374,7 +219,7 @@ export default function WishlistDashboard({
     setFormLoading(true);
 
     try {
-      const response = await fetch(`/api/v1/wishlists/${targetWishlistId}/items`, {
+      const response = await fetch(`/api/v1/wishlists/${activeWishlist.id}/items`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -395,19 +240,13 @@ export default function WishlistDashboard({
         throw new Error(payload?.message ?? t("errors.addFailed"));
       }
 
-      if (editingItemId) {
-        const deleteResponse = await fetch(`/api/v1/wishlist-items/${editingItemId}`, {
-          method: "DELETE",
-        });
-
-        if (!deleteResponse.ok) {
-          const payload = await deleteResponse.json().catch(() => null);
-          throw new Error(payload?.message ?? "Nie udało się usunąć produktu z listy");
-        }
-      }
-
-      resetForm();
-      await refreshItems();
+      setFormUrl("");
+      setFormName("");
+      setFormBrand("");
+      setFormPrice("");
+      setFormCurrency("PLN");
+      setFormImage("");
+      setFormNotes("");
       router.refresh();
     } catch (error) {
       setFormError(error instanceof Error ? error.message : t("errors.addFailed"));
@@ -416,54 +255,21 @@ export default function WishlistDashboard({
     }
   };
 
-  const handleAddButtonClick = () => {
-    resetForm();
-    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const handleEdit = (item: WishlistItemView) => {
-    setEditingItemId(item.id);
-    setEditingItem(item);
-    setFormUrl(item.url);
-    setFormName(item.product_name ?? "");
-    setFormBrand(item.product_brand ?? "");
-    setFormPrice(extractPriceAmount(item.price_snapshot));
-    setFormCurrency(extractCurrency(item.price_snapshot));
-    setFormImage(item.image_url ?? "");
-    setFormNotes(item.notes ?? "");
+  const handleClear = () => {
+    setFormUrl("");
+    setFormName("");
+    setFormBrand("");
+    setFormPrice("");
+    setFormCurrency("PLN");
+    setFormImage("");
+    setFormNotes("");
     setFormError(null);
     setPreviewError(null);
+  };
+
+  const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
-  const handleDelete = async (item: WishlistItemView) => {
-    const confirmed = window.confirm(t("details.confirmDelete"));
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/v1/wishlist-items/${item.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message ?? "Nie udało się usunąć produktu z listy");
-      }
-
-      if (editingItemId === item.id) {
-        resetForm();
-      }
-
-      await refreshItems();
-      router.refresh();
-    } catch (error) {
-      setListError(error instanceof Error ? error.message : "Nie udało się usunąć produktu z listy");
-    }
-  };
-
-  const isEditing = Boolean(editingItemId);
 
   return (
     <div className="space-y-8">
@@ -476,7 +282,7 @@ export default function WishlistDashboard({
           <button
             type="button"
             className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow transition hover:bg-primary/90 disabled:opacity-70"
-            onClick={handleAddButtonClick}
+            onClick={scrollToForm}
             disabled={formLoading}
           >
             {t("form.submit")}
@@ -495,11 +301,10 @@ export default function WishlistDashboard({
                 id="wishlist-url"
                 type="url"
                 required
-                className="w-full flex-1 rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-70"
+                className="w-full flex-1 rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 value={formUrl}
                 onChange={(event) => setFormUrl(event.target.value)}
                 placeholder={t("form.urlPlaceholder")}
-                disabled={isEditing}
               />
               <button
                 type="button"
@@ -551,7 +356,6 @@ export default function WishlistDashboard({
                 onChange={(event) => setFormPrice(event.target.value)}
                 placeholder={t("form.pricePlaceholder")}
                 inputMode="decimal"
-                disabled={isEditing}
               />
               <input
                 id="wishlist-currency"
@@ -561,7 +365,6 @@ export default function WishlistDashboard({
                   setFormCurrency(event.target.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3))
                 }
                 placeholder={t("form.currency")}
-                disabled={isEditing}
               />
             </div>
           </div>
@@ -576,7 +379,6 @@ export default function WishlistDashboard({
               value={formImage}
               onChange={(event) => setFormImage(event.target.value)}
               placeholder={t("form.imagePlaceholder")}
-              disabled={isEditing}
             />
             {formImage ? (
               <div className="relative mt-2 h-48 w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/20">
@@ -606,129 +408,24 @@ export default function WishlistDashboard({
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center justify-between">
           <button
             type="button"
-            className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary disabled:opacity-70"
-            onClick={resetForm}
+            className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+            onClick={handleClear}
             disabled={formLoading}
           >
             {tCommon("clear")}
           </button>
-          <div className="flex gap-2">
-            {isEditing ? (
-              <button
-                type="button"
-                className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary disabled:opacity-70"
-                onClick={resetForm}
-                disabled={formLoading}
-              >
-                {tCommon("cancel")}
-              </button>
-            ) : null}
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-              disabled={formLoading || bootstrapLoading}
-            >
-              {formLoading ? t("form.saving") : isEditing ? tCommon("save") : t("form.submit")}
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={formLoading || bootstrapLoading}
+          >
+            {formLoading ? t("form.saving") : t("form.submit")}
+          </button>
         </div>
       </form>
-
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-foreground">
-            {t("summary", { count: items.length, total: items.length })}
-          </h2>
-          {isRefreshing ? (
-            <span className="text-xs text-muted-foreground">{tCommon("loading")}</span>
-          ) : null}
-        </div>
-
-        {listError ? (
-          <p className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {listError}
-          </p>
-        ) : null}
-
-        {items.length === 0 && !isRefreshing ? (
-          <div className="rounded-3xl border border-dashed border-border bg-muted/30 p-10 text-center text-sm text-muted-foreground">
-            {t("emptyState")}
-          </div>
-        ) : null}
-
-        {items.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {items.map((item) => {
-              const priceLabel = formatPrice(item.price_snapshot, locale);
-              return (
-                <article
-                  key={item.id}
-                  className="flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow transition hover:border-primary/50 hover:shadow-lg"
-                >
-                  <div className="relative h-48 w-full border-b border-border/60 bg-muted">
-                    {item.image_url ? (
-                      <Image
-                        src={item.image_url}
-                        alt={item.product_name ?? t("cards.fallbackTitle")}
-                        fill
-                        className="object-cover"
-                        sizes="(min-width: 1024px) 320px, 100vw"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                        {t("cards.noImage")}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-1 flex-col gap-4 p-5">
-                    <div className="space-y-2">
-                      <h3 className="line-clamp-2 text-base font-semibold text-foreground">
-                        {item.product_name ?? t("cards.fallbackTitle")}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">{getHostname(item.url)}</p>
-                    </div>
-
-                    <div className="space-y-1 text-sm">
-                      {priceLabel ? <p className="font-semibold text-foreground">{priceLabel}</p> : null}
-                      <p className="text-muted-foreground">
-                        {item.product_brand ?? t("cards.brandFallback")}
-                      </p>
-                    </div>
-
-                    {item.notes ? (
-                      <p className="rounded-2xl border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-                        {item.notes}
-                      </p>
-                    ) : null}
-                  </div>
-
-                  <div className="flex items-center justify-between gap-2 border-t border-border/60 bg-muted/20 px-5 py-3">
-                    <button
-                      type="button"
-                      className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
-                      onClick={() => handleEdit(item)}
-                    >
-                      Edytuj
-                    </button>
-                    <button
-                      type="button"
-                      className="rounded-full border border-destructive/30 px-4 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10"
-                      onClick={() => handleDelete(item)}
-                    >
-                      Usuń
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        ) : null}
-      </section>
     </div>
   );
 }
