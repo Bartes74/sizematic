@@ -281,6 +281,42 @@
     "addMeasurement": "Add Measurement",
     "saving": "Saving..."
   },
+  "measurementsForm": {
+    "basics": {
+      "title": "Measurement essentials",
+      "items": [
+        "Use a soft tailor's measuring tape.",
+        "Measure over underwear or directly on skin.",
+        "Stand upright in a natural, relaxed position.",
+        "Keep the tape close to the body without squeezing.",
+        "Measure in front of a mirror to control tape placement."
+      ]
+    },
+    "formTitle": "Your measurements",
+    "formatHint": {
+      "cm": "e.g. 92.5",
+      "mm": "e.g. 55"
+    },
+    "errors": {
+      "invalidValue": "Invalid value for “{label}”.",
+      "generic": "We couldn't save your measurements."
+    },
+    "instructions": {
+      "title": "How to measure?",
+      "purposeLabel": "Why?",
+      "femaleOnly": "(women)",
+      "toggle": "How to measure?"
+    },
+    "notes": {
+      "label": "Notes",
+      "placeholder": "Eg. time of day, posture notes"
+    },
+    "submit": {
+      "save": "Save measurements",
+      "saving": "Saving...",
+      "success": "Measurements saved!"
+    }
+  },
   "landing": {
     "header": {
       "login": "Sign in"

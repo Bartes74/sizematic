@@ -281,6 +281,42 @@
     "addMeasurement": "Dodaj pomiar",
     "saving": "Zapisywanie..."
   },
+  "measurementsForm": {
+    "basics": {
+      "title": "Podstawowe zasady mierzenia",
+      "items": [
+        "Używaj miękkiej miarki krawieckiej (centymetra).",
+        "Pomiary wykonuj na bieliźnie lub na nagim ciele.",
+        "Stój prosto, w naturalnej, rozluźnionej pozycji.",
+        "Miarka powinna przylegać do ciała, ale go nie uciskać.",
+        "Wykonuj pomiary przed lustrem, by kontrolować prawidłowe ułożenie miarki."
+      ]
+    },
+    "formTitle": "Twoje wymiary",
+    "formatHint": {
+      "cm": "np. 92.5",
+      "mm": "np. 55"
+    },
+    "errors": {
+      "invalidValue": "Niepoprawna wartość dla pola „{label}”.",
+      "generic": "Wystąpił błąd podczas zapisywania wymiarów."
+    },
+    "instructions": {
+      "title": "Jak mierzyć?",
+      "purposeLabel": "Po co?",
+      "femaleOnly": "(kobiety)",
+      "toggle": "Jak mierzyć?"
+    },
+    "notes": {
+      "label": "Notatki dotyczące pomiarów",
+      "placeholder": "Np. pora dnia, uwagi o postawie"
+    },
+    "submit": {
+      "save": "Zapisz pomiary",
+      "saving": "Zapisywanie...",
+      "success": "Pomiary zapisane!"
+    }
+  },
   "landing": {
     "header": {
       "login": "Zaloguj się"

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { BodyMeasurements } from '@/lib/types';
 import {
   BODY_MEASUREMENT_DEFINITIONS,
@@ -16,13 +17,15 @@ type BodyMeasurementsFormProps = {
   initialData: BodyMeasurements | null;
 };
 
-const NUMBER_FORMAT_HINT: Record<'cm' | 'mm', string> = {
-  cm: 'np. 92.5',
-  mm: 'np. 55',
-};
-
 export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurementsFormProps) {
   const router = useRouter();
+  const t = useTranslations('measurementsForm');
+  const tCommon = useTranslations('common');
+
+  const NUMBER_FORMAT_HINT: Record<'cm' | 'mm', string> = {
+    cm: t('formatHint.cm'),
+    mm: t('formatHint.mm'),
+  };
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -67,7 +70,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
         const numericValue = Number(normalized);
 
         if (Number.isNaN(numericValue) || numericValue <= 0) {
-          throw new Error(`Niepoprawna wartość dla pola „${definition.label}”.`);
+          throw new Error(t('errors.invalidValue', { label: definition.label }));
         }
 
         const updates = createBodyMeasurementUpdate(definition, numericValue);
@@ -106,7 +109,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
         submissionError && typeof submissionError === 'object' && 'message' in submissionError
           ? String((submissionError as { message?: unknown }).message)
           : null;
-      setError(message || 'Wystąpił błąd podczas zapisywania wymiarów.');
+      setError(message || t('errors.generic'));
     } finally {
       setIsLoading(false);
     }
@@ -119,33 +122,19 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <div className="rounded-xl border border-border bg-card p-6">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">Podstawowe zasady mierzenia</h2>
+        <h2 className="mb-4 text-lg font-semibold text-foreground">{t('basics.title')}</h2>
         <ul className="space-y-2 text-sm text-muted-foreground">
-          <li className="flex gap-2">
-            <span className="text-primary">•</span>
-            <span>Używaj miękkiej miarki krawieckiej (centymetra).</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-primary">•</span>
-            <span>Pomiary wykonuj na bieliźnie lub na nagim ciele.</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-primary">•</span>
-            <span>Stój prosto, w naturalnej, rozluźnionej pozycji.</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-primary">•</span>
-            <span>Miarka powinna przylegać do ciała, ale go nie uciskać.</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-primary">•</span>
-            <span>Wykonuj pomiary przed lustrem, by kontrolować prawidłowe ułożenie miarki.</span>
-          </li>
+          {(t('basics.items', { returnObjects: true }) as string[]).map((item, index) => (
+            <li key={index} className="flex gap-2">
+              <span className="text-primary">•</span>
+              <span>{item}</span>
+            </li>
+          ))}
         </ul>
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6">
-        <h2 className="mb-6 text-lg font-semibold text-foreground">Twoje wymiary</h2>
+        <h2 className="mb-6 text-lg font-semibold text-foreground">{t('formTitle')}</h2>
         <div className="grid gap-6 md:grid-cols-2">
           {definitions.map((definition) => {
             const value = formData[definition.id] ?? '';
