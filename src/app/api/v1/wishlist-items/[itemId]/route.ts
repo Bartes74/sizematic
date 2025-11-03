@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import type { SizeMatchConfidence } from "@/lib/types";
 
 type UpdatePayload = Partial<{
@@ -27,6 +27,7 @@ export async function GET(_request: NextRequest, context: unknown) {
 
   try {
     const supabase = await createClient();
+    const adminClient = createSupabaseAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -35,7 +36,7 @@ export async function GET(_request: NextRequest, context: unknown) {
       return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
     }
 
-    const { data: item, error } = await supabase
+    const { data: item, error } = await adminClient
       .from("wishlist_items")
       .select("*, wishlists!inner(owner_id)")
       .eq("id", itemId)
@@ -85,6 +86,7 @@ export async function PATCH(request: NextRequest, context: unknown) {
     }
 
     const supabase = await createClient();
+    const adminClient = createSupabaseAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -93,7 +95,7 @@ export async function PATCH(request: NextRequest, context: unknown) {
       return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
     }
 
-    const { data: item, error: itemError } = await supabase
+    const { data: item, error: itemError } = await adminClient
       .from("wishlist_items")
       .select("id, wishlist_id")
       .eq("id", itemId)
@@ -107,7 +109,7 @@ export async function PATCH(request: NextRequest, context: unknown) {
       return NextResponse.json({ message: "Pozycja nie została znaleziona" }, { status: 404 });
     }
 
-    const { data: wishlist, error: wishlistError } = await supabase
+    const { data: wishlist, error: wishlistError } = await adminClient
       .from("wishlists")
       .select("id, owner_id")
       .eq("id", item.wishlist_id)
@@ -158,7 +160,7 @@ export async function PATCH(request: NextRequest, context: unknown) {
       );
     }
 
-    const { data: updated, error: updateError } = await supabase
+    const { data: updated, error: updateError } = await adminClient
       .from("wishlist_items")
       .update(payload)
       .eq("id", itemId)
@@ -185,6 +187,7 @@ export async function DELETE(_request: NextRequest, context: unknown) {
 
   try {
     const supabase = await createClient();
+    const adminClient = createSupabaseAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -193,7 +196,7 @@ export async function DELETE(_request: NextRequest, context: unknown) {
       return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
     }
 
-    const { data: item, error: itemError } = await supabase
+    const { data: item, error: itemError } = await adminClient
       .from("wishlist_items")
       .select("wishlist_id")
       .eq("id", itemId)
@@ -207,7 +210,7 @@ export async function DELETE(_request: NextRequest, context: unknown) {
       return NextResponse.json({ message: "Pozycja nie została znaleziona" }, { status: 404 });
     }
 
-    const { data: wishlist, error: wishlistError } = await supabase
+    const { data: wishlist, error: wishlistError } = await adminClient
       .from("wishlists")
       .select("owner_id")
       .eq("id", item.wishlist_id)
@@ -224,7 +227,7 @@ export async function DELETE(_request: NextRequest, context: unknown) {
       );
     }
 
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await adminClient
       .from("wishlist_items")
       .delete()
       .eq("id", itemId);
