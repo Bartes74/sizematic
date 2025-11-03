@@ -75,7 +75,7 @@
       "delete": "Usuń z listy",
       "confirmDelete": "Potwierdź usunięcie",
       "notFetched": "Brak danych",
-      "lastSync": "Ostatnie pobranie: {{value}}"
+      "lastSync": "Ostatnie pobranie: {value}"
     },
     "filters": {
       "title": "Filtry i sortowanie",
@@ -91,15 +91,15 @@
       "apply": "Zastosuj",
       "clear": "Wyczyść filtry"
     },
-    "summary": "Wyświetlono {{count}} z {{total}} pozycji",
+    "summary": "Wyświetlono {count} z {total} pozycji",
     "actions": {
       "loadMore": "Załaduj więcej",
       "shareList": "Udostępnij listę",
       "shareItem": "Udostępnij tę rzecz"
     },
     "shareModal": {
-      "titleList": "Link publiczny: {{list}}",
-      "titleItem": "Link publiczny: {{item}}",
+      "titleList": "Link publiczny: {list}",
+      "titleItem": "Link publiczny: {item}",
       "subtitle": "Każdy, kto otrzyma link, zobaczy szczegóły tej pozycji.",
       "loading": "Generuję link...",
       "retry": "Spróbuj ponownie",
@@ -119,7 +119,7 @@
     "settings": "Ustawienia"
   },
   "header": {
-    "greeting": "Cześć, {{name}} 👋",
+    "greeting": "Cześć, {name} 👋",
     "greetingDefault": "Witaj 👋",
     "plan": "Plan:",
     "planFree": "Free",
@@ -196,7 +196,7 @@
     "inviteSent": "Zaproszenie wysłane.",
     "inviteErrorGeneric": "Nie udało się wysłać zaproszenia.",
     "pendingTitle": "Oczekujące zaproszenia",
-    "sentAt": "wysłano {{date}}",
+    "sentAt": "wysłano {date}",
     "cancelInvite": "Anuluj",
     "membersTitle": "Zaufane osoby",
     "manage": "Zarządzaj",
@@ -219,7 +219,7 @@
   "activity": {
     "title": "Ostatnia aktywność",
     "subtitle": "Zobacz, kto oglądał Twoje rozmiary",
-    "viewedLink": "{{name}} podejrzała Twój link prezentowy {{count}} {{count, plural, one {raz} other {razy}}} w tym tygodniu",
+    "viewedLink": "{name} podejrzała Twój link prezentowy {count} {count, plural, one {raz} other {razy}} w tym tygodniu",
     "noActivity": "Brak aktywności w tym tygodniu",
     "premiumFeature": "W Premium+ zobaczysz kto dokładnie i kiedy oglądał Twoje rozmiary"
   },
@@ -335,7 +335,7 @@
       "forgotSubmitting": "Wysyłanie...",
       "forgotBack": "← Powrót do logowania",
       "forgotSuccessTitle": "Sprawdź swoją skrzynkę!",
-      "forgotSuccessBody": "Wysłaliśmy link do resetowania hasła na adres {{email}}",
+      "forgotSuccessBody": "Wysłaliśmy link do resetowania hasła na adres {email}",
       "forgotSuccessBack": "← Powrót do logowania",
       "testAccountsTitle": "Konta testowe:",
       "adminLabel": "Admin",
@@ -353,7 +353,7 @@
       "submit": "Zarejestruj się",
       "submitting": "Rejestracja...",
       "successTitle": "Sprawdź swoją skrzynkę!",
-      "successBody": "Wysłaliśmy email na adres {{email}}. Kliknij link w wiadomości, aby potwierdzić konto i rozpocząć korzystanie z GiftFit."
+      "successBody": "Wysłaliśmy email na adres {email}. Kliknij link w wiadomości, aby potwierdzić konto i rozpocząć korzystanie z GiftFit."
     },
     "password": {
       "strengthLabel": "Siła hasła:",
