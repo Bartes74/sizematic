@@ -313,6 +313,7 @@
     },
     "submit": {
       "save": "Zapisz pomiary",
+      "update": "Aktualizuj pomiary",
       "saving": "Zapisywanie...",
       "success": "Pomiary zapisane!"
     }

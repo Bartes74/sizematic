@@ -313,6 +313,7 @@
     },
     "submit": {
       "save": "Save measurements",
+      "update": "Update measurements",
       "saving": "Saving...",
       "success": "Measurements saved!"
     }

@@ -20,7 +20,6 @@ type BodyMeasurementsFormProps = {
 export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurementsFormProps) {
   const router = useRouter();
   const t = useTranslations('measurementsForm');
-  const tCommon = useTranslations('common');
 
   const NUMBER_FORMAT_HINT: Record<'cm' | 'mm', string> = {
     cm: t('formatHint.cm'),
@@ -124,7 +123,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
       <div className="rounded-xl border border-border bg-card p-6">
         <h2 className="mb-4 text-lg font-semibold text-foreground">{t('basics.title')}</h2>
         <ul className="space-y-2 text-sm text-muted-foreground">
-          {(t('basics.items', { returnObjects: true }) as string[]).map((item, index) => (
+          {(t('basics.items', { returnObjects: true }) as unknown as string[]).map((item, index) => (
             <li key={index} className="flex gap-2">
               <span className="text-primary">•</span>
               <span>{item}</span>
@@ -149,11 +148,11 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
                       {definition.label}
                       {required && <span className="text-destructive">*</span>}
                       {definition.femaleOnly && (
-                        <span className="text-xs text-muted-foreground">(kobiety)</span>
+                        <span className="text-xs text-muted-foreground">{t('instructions.femaleOnly')}</span>
                       )}
                     </label>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      <span className="font-semibold text-foreground">Po co?</span>
+                      <span className="font-semibold text-foreground">{t('instructions.purposeLabel')}</span>
                       <br />
                       {definition.purpose}
                     </p>
@@ -164,7 +163,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
                       setShowInstructions((prev) => (prev === definition.id ? null : definition.id))
                     }
                     className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted text-xs text-muted-foreground hover:bg-muted/80"
-                    title="Jak mierzyć?"
+                    title={t('instructions.title')}
                   >
                     ?
                   </button>
@@ -172,7 +171,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
 
                 {showInstructions === definition.id && (
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-foreground">
-                    <p className="mb-2 font-medium">Jak mierzyć?</p>
+                    <p className="mb-2 font-medium">{t('instructions.title')}</p>
                     <ul className="space-y-1">
                       {definition.how.map((step, index) => (
                         <li key={index} className="flex gap-2">
@@ -203,12 +202,12 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
         </div>
 
         <div className="mt-6 space-y-2">
-          <label className="text-sm font-medium text-foreground">Notatki (opcjonalnie)</label>
+          <label className="text-sm font-medium text-foreground">{t('notes.label')}</label>
           <textarea
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             rows={3}
-            placeholder="Dodatkowe informacje, np. data ostatniego pomiaru, uwagi..."
+            placeholder={t('notes.placeholder')}
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
@@ -222,7 +221,7 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
 
       {success && (
         <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4 text-sm text-green-600">
-          ✓ Wymiary zostały zapisane pomyślnie!
+          ✓ {t('submit.success')}
         </div>
       )}
 
@@ -232,7 +231,11 @@ export function BodyMeasurementsForm({ profileId, initialData }: BodyMeasurement
           disabled={isLoading}
           className="flex-1 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isLoading ? 'Zapisywanie...' : hasExistingRecord ? 'Aktualizuj wymiary' : 'Zapisz wymiary'}
+          {isLoading
+            ? t('submit.saving')
+            : hasExistingRecord
+              ? t('submit.update')
+              : t('submit.save')}
         </button>
       </div>
     </form>
