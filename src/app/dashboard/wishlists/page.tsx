@@ -24,11 +24,9 @@ type PageSearchParams = {
 export default async function DashboardWishlistsPage({
   searchParams,
 }: {
-  searchParams?: Promise<PageSearchParams> | PageSearchParams;
+  searchParams?: Promise<PageSearchParams>;
 }) {
-  const resolvedSearchParams = searchParams
-    ? await (searchParams instanceof Promise ? searchParams : Promise.resolve(searchParams))
-    : undefined;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
   const supabase = await createClient();
   const adminClient = createSupabaseAdminClient();
