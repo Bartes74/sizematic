@@ -192,6 +192,14 @@
   "circle": {
     "title": "Kto zna Twoje rozmiary",
     "subtitle": "Mój Krąg",
+    "addBox": {
+      "title": "Dodaj do Kręgu Zaufanych",
+      "subtitle": "Buduj krąg ludzi, którym ufasz"
+    },
+    "membersBox": {
+      "title": "Twój Krąg Zaufanych",
+      "subtitle": "Dziel się bezpiecznie wybranymi rozmiarami"
+    },
     "hasAccessTo": "ma dostęp do:",
     "addPerson": "Dodaj osobę",
     "limitReachedButton": "Limit osiągnięty",

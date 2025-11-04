@@ -212,13 +212,13 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
 
   return (
     <section className="space-y-6">
-      <header>
-        <h3 className="text-lg font-bold tracking-tight text-foreground">{t('circle.title')}</h3>
-        <p className="mt-1 text-sm text-muted-foreground">{t('circle.subtitle')}</p>
-      </header>
-
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-3">
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold tracking-tight text-foreground">{t('circle.addBox.title')}</h3>
+            <p className="text-sm text-muted-foreground">{t('circle.addBox.subtitle')}</p>
+          </div>
+
           <form onSubmit={handleSendInvite} className="space-y-3 rounded-2xl border border-border bg-card p-6">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
               <div className="flex-1 space-y-2">
@@ -293,6 +293,10 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold tracking-tight text-foreground">{t('circle.membersBox.title')}</h3>
+            <p className="text-sm text-muted-foreground">{t('circle.membersBox.subtitle')}</p>
+          </div>
           <h4 className="text-sm font-semibold text-foreground">{t('circle.membersTitle')}</h4>
           <div className="mt-3">
             {error ? (

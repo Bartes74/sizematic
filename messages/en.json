@@ -192,6 +192,14 @@
   "circle": {
     "title": "Who Knows Your Sizes",
     "subtitle": "My Circle",
+    "addBox": {
+      "title": "Add to Trusted Circle",
+      "subtitle": "Build the circle of people you trust"
+    },
+    "membersBox": {
+      "title": "Your Trusted Circle",
+      "subtitle": "Share selected sizes securely"
+    },
     "hasAccessTo": "has access to:",
     "addPerson": "Add person",
     "limitReachedButton": "Limit reached",
