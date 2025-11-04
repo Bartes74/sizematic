@@ -1578,9 +1578,7 @@ export function HomePage({
           )}
         </SectionCard>
 
-        <SectionCard>
-          <TrustedCircle initialData={trustedCircleInitial ?? undefined} />
-        </SectionCard>
+        <TrustedCircle initialData={trustedCircleInitial ?? undefined} />
 
         <SectionCard>
           <div className="flex items-center justify-between gap-3 pb-4">
