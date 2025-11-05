@@ -4,17 +4,26 @@
 
 import Stripe from 'stripe';
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
-if (!STRIPE_SECRET_KEY) {
-  throw new Error('Missing STRIPE_SECRET_KEY environment variable');
-}
+// Lazy initialization - only create Stripe instance when needed
+let stripeInstance: Stripe | null = null;
 
-export const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2025-10-29.clover',
-  typescript: true,
-});
+export const getStripe = (): Stripe => {
+  if (!STRIPE_SECRET_KEY) {
+    throw new Error('Missing STRIPE_SECRET_KEY environment variable');
+  }
+  
+  if (!stripeInstance) {
+    stripeInstance = new Stripe(STRIPE_SECRET_KEY, {
+      apiVersion: '2025-10-29.clover',
+      typescript: true,
+    });
+  }
+  
+  return stripeInstance;
+};
 
 export const STRIPE_CONFIG = {
   webhookSecret: STRIPE_WEBHOOK_SECRET,
@@ -68,7 +77,7 @@ export function verifyWebhookSignature(
     throw new Error('Missing STRIPE_WEBHOOK_SECRET');
   }
 
-  return stripe.webhooks.constructEvent(
+  return getStripe().webhooks.constructEvent(
     payload,
     signature,
     STRIPE_WEBHOOK_SECRET
@@ -87,7 +96,7 @@ export async function createSGCheckoutSession(params: {
 }) {
   const product = STRIPE_CONFIG.sgProducts[params.productKey];
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: 'payment',
     payment_method_types: ['card', 'blik', 'p24'],
     line_items: [
@@ -130,7 +139,7 @@ export async function createSubscriptionCheckoutSession(params: {
   const plan = STRIPE_CONFIG.subscriptionPlans[params.planKey];
 
   // First, create or retrieve the product and price
-  const product = await stripe.products.create({
+  const product = await getStripe().products.create({
     name: plan.name,
     metadata: {
       plan_key: params.planKey,
@@ -138,7 +147,7 @@ export async function createSubscriptionCheckoutSession(params: {
     },
   });
 
-  const price = await stripe.prices.create({
+  const price = await getStripe().prices.create({
     product: product.id,
     currency: STRIPE_CONFIG.currency,
     unit_amount: plan.price,
@@ -147,7 +156,7 @@ export async function createSubscriptionCheckoutSession(params: {
     },
   });
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: 'subscription',
     payment_method_types: ['card', 'blik', 'p24'],
     line_items: [
