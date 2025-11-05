@@ -20,6 +20,7 @@
     "nodemailer": "^6.9.11",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "stripe": "^19.2.1",
     "swr": "^2.2.0"
   },
   "devDependencies": {

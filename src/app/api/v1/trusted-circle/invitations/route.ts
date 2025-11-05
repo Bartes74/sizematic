@@ -4,11 +4,13 @@ import { getTrustedCircleLimit, normalizeEmail } from '@/lib/trusted-circle/util
 import { sendTrustedCircleInviteEmail } from '@/lib/email/send-trusted-circle-invite';
 import type { UserRole } from '@/lib/types';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
 export async function POST(request: Request) {
   const supabase = await createClient();
   const admin = createSupabaseAdminClient();
+  const requestUrl = new URL(request.url);
+  const siteUrl = SITE_URL ?? `${requestUrl.protocol}//${requestUrl.host}`;
 
   const {
     data: { user },
@@ -145,7 +147,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
 
-  const acceptUrl = new URL('/trusted-circle/accept', SITE_URL);
+  const acceptUrl = new URL('/trusted-circle/accept', siteUrl);
   acceptUrl.searchParams.set('token', inserted.token);
 
   try {
