@@ -340,14 +340,14 @@ export function SecretGiverDashboard() {
       {/* Create request modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
+          <div className="bg-card text-foreground border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
             <h2 className="text-2xl font-bold text-foreground mb-4">
               {tModal('title')}
             </h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   {tModal('recipientLabel')}
                 </label>
                 <input
@@ -357,12 +357,12 @@ export function SecretGiverDashboard() {
                     setNewRequest({ ...newRequest, recipient_identifier: e.target.value })
                   }
                   placeholder={tModal('recipientPlaceholder')}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  className="w-full rounded-xl border border-border bg-surface-interactive/80 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary shadow-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   {tModal('categoryLabel')}
                 </label>
                 <select
@@ -374,10 +374,10 @@ export function SecretGiverDashboard() {
                       product_type: '' // Reset product type when category changes
                     })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary [&>option]:bg-white [&>option]:dark:bg-gray-800 [&>option]:text-gray-900 [&>option]:dark:text-white"
+                  className="w-full rounded-xl border border-border bg-surface-interactive/80 px-4 py-3 text-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary shadow-sm [&>option]:bg-background [&>option]:text-foreground"
                 >
                   {QUICK_CATEGORY_CONFIGS.map((cat) => (
-                    <option key={cat.id} value={cat.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                    <option key={cat.id} value={cat.id} className="bg-background text-foreground">
                       {cat.label}
                     </option>
                   ))}
@@ -385,7 +385,7 @@ export function SecretGiverDashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   {tModal('productTypeLabel')}
                 </label>
                 <select
@@ -393,11 +393,11 @@ export function SecretGiverDashboard() {
                   onChange={(e) =>
                     setNewRequest({ ...newRequest, product_type: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary [&>option]:bg-white [&>option]:dark:bg-gray-800 [&>option]:text-gray-900 [&>option]:dark:text-white"
+                  className="w-full rounded-xl border border-border bg-surface-interactive/80 px-4 py-3 text-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary shadow-sm [&>option]:bg-background [&>option]:text-foreground"
                 >
-                  <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">{tModal('productTypePlaceholder')}</option>
+                  <option value="" className="bg-background text-foreground">{tModal('productTypePlaceholder')}</option>
                   {QUICK_CATEGORY_CONFIGS.find((cat) => cat.id === newRequest.requested_category)?.productTypes.map((type) => (
-                    <option key={type.id} value={type.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                    <option key={type.id} value={type.id} className="bg-background text-foreground">
                       {type.label}
                     </option>
                   ))}
