@@ -41,6 +41,10 @@ type Eligibility = {
 
 export function SecretGiverDashboard() {
   const t = useTranslations('secretGiver.dashboard');
+  const tEligibility = useTranslations('secretGiver.eligibility');
+  const tModal = useTranslations('secretGiver.modal');
+  const tErrors = useTranslations('secretGiver.errors');
+  const tNotifications = useTranslations('secretGiver.notifications');
   
   const STATUS_LABELS: { [key: string]: { label: string; color: string } } = {
     pending: { label: t('status.pending'), color: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20' },
@@ -98,7 +102,7 @@ export function SecretGiverDashboard() {
 
   const handleSendRequest = async () => {
     if (!newRequest.recipient_identifier.trim()) {
-      alert('Podaj email lub numer telefonu odbiorcy');
+      alert(tErrors('recipientRequired'));
       return;
     }
 
@@ -124,7 +128,7 @@ export function SecretGiverDashboard() {
       const data = await res.json();
 
       if (res.ok) {
-        alert('Prośba wysłana!');
+        alert(tNotifications('requestSent'));
         setShowCreateModal(false);
         setNewRequest({
           recipient_identifier: '',
@@ -140,12 +144,12 @@ export function SecretGiverDashboard() {
         } else if (data.error === 'pool_exhausted') {
           setShowPaywallModal(true);
         } else {
-          alert(data.message || data.error || 'Nie udało się wysłać prośby');
+          alert(data.message || data.error || tErrors('genericError'));
         }
       }
     } catch (err) {
       console.error('Failed to send request:', err);
-      alert('Wystąpił błąd podczas wysyłania prośby');
+      alert(tErrors('genericError'));
     }
   };
 
@@ -163,11 +167,11 @@ export function SecretGiverDashboard() {
         alert(data.message);
         fetchRequests();
       } else {
-        alert(data.error || 'Nie udało się odpowiedzieć na prośbę');
+        alert(data.error || tErrors('genericError'));
       }
     } catch (err) {
       console.error('Failed to respond:', err);
-      alert('Wystąpił błąd');
+      alert(tErrors('genericError'));
     }
   };
 
@@ -194,16 +198,16 @@ export function SecretGiverDashboard() {
             <div>
               {eligibility.is_premium ? (
                 <p className="text-foreground font-semibold">
-                  {t('eligibility.premium')}
+                  {tEligibility('premium')}
                 </p>
               ) : (
                 <p className="text-foreground font-semibold">
-                  {t('eligibility.freePool', { count: eligibility.free_sg_pool })}
+                  {tEligibility('freePool', { count: eligibility.free_sg_pool })}
                 </p>
               )}
               {eligibility.needs_sms_verification && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {t('eligibility.smsRequired')}
+                  {tEligibility('smsRequired')}
                 </p>
               )}
             </div>
@@ -212,7 +216,7 @@ export function SecretGiverDashboard() {
                 onClick={() => setShowPaywallModal(true)}
                 className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition"
               >
-                {t('eligibility.buyMore')}
+                {tEligibility('buyMore')}
               </button>
             )}
           </div>
@@ -337,13 +341,13 @@ export function SecretGiverDashboard() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
             <h2 className="text-2xl font-bold text-foreground mb-4">
-              {t('modal.title')}
+              {tModal('title')}
             </h2>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  {t('modal.recipientLabel')}
+                  {tModal('recipientLabel')}
                 </label>
                 <input
                   type="text"
@@ -351,14 +355,14 @@ export function SecretGiverDashboard() {
                   onChange={(e) =>
                     setNewRequest({ ...newRequest, recipient_identifier: e.target.value })
                   }
-                  placeholder={t('modal.recipientPlaceholder')}
+                  placeholder={tModal('recipientPlaceholder')}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  {t('modal.categoryLabel')}
+                  {tModal('categoryLabel')}
                 </label>
                 <select
                   value={newRequest.requested_category}
@@ -381,7 +385,7 @@ export function SecretGiverDashboard() {
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  {t('modal.productTypeLabel')}
+                  {tModal('productTypeLabel')}
                 </label>
                 <select
                   value={newRequest.product_type}
@@ -390,7 +394,7 @@ export function SecretGiverDashboard() {
                   }
                   className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary [&>option]:bg-white [&>option]:dark:bg-gray-800 [&>option]:text-gray-900 [&>option]:dark:text-white"
                 >
-                  <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">{t('modal.productTypePlaceholder')}</option>
+                  <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">{tModal('productTypePlaceholder')}</option>
                   {QUICK_CATEGORY_CONFIGS.find((cat) => cat.id === newRequest.requested_category)?.productTypes.map((type) => (
                     <option key={type.id} value={type.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       {type.label}
@@ -410,7 +414,7 @@ export function SecretGiverDashboard() {
                   className="w-4 h-4 text-primary border-border rounded focus:ring-primary/30"
                 />
                 <label htmlFor="anonymous" className="ml-2 text-sm text-foreground">
-                  {t('modal.anonymousLabel')}
+                  {tModal('anonymousLabel')}
                 </label>
               </div>
 
@@ -420,13 +424,13 @@ export function SecretGiverDashboard() {
                   disabled={!newRequest.product_type}
                   className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t('modal.sendButton')}
+                  {tModal('sendButton')}
                 </button>
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 transition"
                 >
-                  {t('modal.cancel')}
+                  {tModal('cancel')}
                 </button>
               </div>
             </div>
