@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check rate limiting - max 3 codes per hour per profile
+    // Check rate limiting - max 10 codes per hour per profile
     const oneHourAgo = new Date();
     oneHourAgo.setHours(oneHourAgo.getHours() - 1);
 
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       .eq('profile_id', profile.id)
       .gte('created_at', oneHourAgo.toISOString());
 
-    if ((count || 0) >= 3) {
+    if ((count || 0) >= 10) {
       return NextResponse.json(
         { error: 'Zbyt wiele próśb o kod. Spróbuj ponownie za godzinę.' },
         { status: 429 }

@@ -350,7 +350,7 @@ export function SecretGiverDashboard() {
                     setNewRequest({ ...newRequest, recipient_identifier: e.target.value })
                   }
                   placeholder="email@example.com lub +48123456789"
-                  className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground dark:text-white placeholder:text-muted-foreground rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 />
               </div>
 
@@ -367,10 +367,10 @@ export function SecretGiverDashboard() {
                       product_type: '' // Reset product type when category changes
                     })
                   }
-                  className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground dark:text-white rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary [&>option]:bg-white [&>option]:dark:bg-gray-800 [&>option]:text-foreground [&>option]:dark:text-white"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary [&>option]:bg-white [&>option]:dark:bg-gray-800 [&>option]:text-gray-900 [&>option]:dark:text-white"
                 >
                   {QUICK_CATEGORY_CONFIGS.map((cat) => (
-                    <option key={cat.id} value={cat.id} className="bg-white dark:bg-gray-800 text-foreground dark:text-white">
+                    <option key={cat.id} value={cat.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       {cat.label}
                     </option>
                   ))}
@@ -386,11 +386,11 @@ export function SecretGiverDashboard() {
                   onChange={(e) =>
                     setNewRequest({ ...newRequest, product_type: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground dark:text-white rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary [&>option]:bg-white [&>option]:dark:bg-gray-800 [&>option]:text-foreground [&>option]:dark:text-white"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary [&>option]:bg-white [&>option]:dark:bg-gray-800 [&>option]:text-gray-900 [&>option]:dark:text-white"
                 >
-                  <option value="" className="bg-white dark:bg-gray-800 text-foreground dark:text-white">Wybierz typ produktu...</option>
+                  <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">Wybierz typ produktu...</option>
                   {QUICK_CATEGORY_CONFIGS.find((cat) => cat.id === newRequest.requested_category)?.productTypes.map((type) => (
-                    <option key={type.id} value={type.id} className="bg-white dark:bg-gray-800 text-foreground dark:text-white">
+                    <option key={type.id} value={type.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       {type.label}
                     </option>
                   ))}

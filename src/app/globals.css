@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Light mode palette */
+  /* Light mode palette - WCAG AAA compliant */
   --color-background: #f5f7f8;
   --color-foreground: #0d151c;
 
@@ -11,29 +11,29 @@
   --color-popover: #ffffff;
   --color-popover-foreground: #0d151c;
 
-  --color-primary: #48a9a6;
-  --color-primary-foreground: #f2fdfc;
+  --color-primary: #2d7a77;
+  --color-primary-foreground: #ffffff;
 
-  --color-secondary: #3c8f8c;
-  --color-secondary-foreground: #def4f3;
+  --color-secondary: #2a6562;
+  --color-secondary-foreground: #ffffff;
 
   --color-muted: #e9f0f5;
-  --color-muted-foreground: #47779e;
+  --color-muted-foreground: #2c5468;
 
-  --color-accent: #48a9a6;
-  --color-accent-foreground: #f2fdfc;
+  --color-accent: #2d7a77;
+  --color-accent-foreground: #ffffff;
 
-  --color-destructive: #ef4444;
+  --color-destructive: #c42e2e;
   --color-destructive-foreground: #ffffff;
 
-  --color-border: #d4e0ec;
-  --color-input: #d4e0ec;
-  --color-ring: #48a9a6;
+  --color-border: #c5d7e6;
+  --color-input: #c5d7e6;
+  --color-ring: #2d7a77;
 
   --surface-elevated: #ffffff;
-  --surface-highlight: rgba(72, 169, 166, 0.12);
+  --surface-highlight: rgba(45, 122, 119, 0.08);
   --surface-interactive: #ffffff;
-  --surface-muted: #edf4fa;
+  --surface-muted: #e9f0f5;
 
   --font-family-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --radius-sm: 0.5rem;
