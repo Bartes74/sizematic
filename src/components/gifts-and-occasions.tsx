@@ -161,7 +161,7 @@ export function GiftsAndOccasions() {
 
       {/* Add Event Modal - placeholder */}
       {showAddEvent && selectedDate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl">
             <h3 className="text-lg font-bold text-foreground">
               Dodaj wydarzenie - {selectedDate.getDate()}.{selectedDate.getMonth() + 1}.{selectedDate.getFullYear()}

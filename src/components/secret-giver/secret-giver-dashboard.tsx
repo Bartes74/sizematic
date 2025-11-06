@@ -332,7 +332,7 @@ export function SecretGiverDashboard() {
 
       {/* Create request modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
             <h2 className="text-2xl font-bold text-foreground mb-4">
               Nowa prośba Secret Giver
