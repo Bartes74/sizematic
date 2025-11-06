@@ -46,10 +46,10 @@ const CATEGORY_LABELS: { [key: string]: string } = {
 };
 
 const STATUS_LABELS: { [key: string]: { label: string; color: string } } = {
-  pending: { label: 'Oczekuje', color: 'bg-yellow-100 text-yellow-800' },
-  approved: { label: 'Zatwierdzona', color: 'bg-green-100 text-green-800' },
-  rejected: { label: 'Odrzucona', color: 'bg-red-100 text-red-800' },
-  expired: { label: 'Wygasła', color: 'bg-gray-100 text-gray-800' },
+  pending: { label: 'Oczekuje', color: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20' },
+  approved: { label: 'Zatwierdzona', color: 'bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20' },
+  rejected: { label: 'Odrzucona', color: 'bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20' },
+  expired: { label: 'Wygasła', color: 'bg-surface-muted/50 text-muted-foreground border border-border/50' },
 };
 
 export function SecretGiverDashboard() {
@@ -192,20 +192,20 @@ export function SecretGiverDashboard() {
 
       {/* Eligibility status */}
       {eligibility && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="border border-border/50 bg-surface-muted/30 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between">
             <div>
               {eligibility.is_premium ? (
-                <p className="text-blue-900 font-semibold">
+                <p className="text-foreground font-semibold">
                   ⭐ Premium: Nielimitowane prośby Secret Giver
                 </p>
               ) : (
-                <p className="text-blue-900 font-semibold">
+                <p className="text-foreground font-semibold">
                   Darmowa pula: <span className="text-2xl">{eligibility.free_sg_pool}</span> strzałów
                 </p>
               )}
               {eligibility.needs_sms_verification && (
-                <p className="text-sm text-blue-700 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   ⚠️ Wymagana weryfikacja SMS
                 </p>
               )}
@@ -213,7 +213,7 @@ export function SecretGiverDashboard() {
             {!eligibility.is_premium && eligibility.free_sg_pool === 0 && (
               <button
                 onClick={() => setShowPaywallModal(true)}
-                className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition"
               >
                 Kup więcej
               </button>
@@ -226,7 +226,7 @@ export function SecretGiverDashboard() {
       <div className="mb-6">
         <button
           onClick={() => setShowCreateModal(true)}
-          className="w-full px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition shadow-lg"
+          className="w-full px-6 py-4 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition shadow-sm border border-border/20"
         >
           + Wyślij prośbę Secret Giver
         </button>
@@ -240,8 +240,8 @@ export function SecretGiverDashboard() {
             onClick={() => setFilter(f)}
             className={`px-4 py-2 rounded-lg font-medium transition ${
               filter === f
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-primary/10 text-primary border border-primary/30'
+                : 'border border-border/50 bg-surface-muted/30 text-muted-foreground hover:bg-surface-muted/50'
             }`}
           >
             {f === 'all' && 'Wszystkie'}
@@ -254,56 +254,56 @@ export function SecretGiverDashboard() {
       {/* Requests list */}
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
         </div>
       ) : filteredRequests.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-600">Brak próśb</p>
+        <div className="text-center py-12 border border-border/50 bg-surface-muted/30 rounded-lg">
+          <p className="text-muted-foreground">Brak próśb</p>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredRequests.map((req) => (
             <div
               key={req.id}
-              className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
+              className="border border-border/50 bg-surface-muted/20 rounded-lg p-4 hover:shadow-sm transition"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg font-semibold text-gray-900">
+                    <span className="text-lg font-semibold text-foreground">
                       {CATEGORY_LABELS[req.requested_category] || req.requested_category}
                     </span>
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        STATUS_LABELS[req.status]?.color || 'bg-gray-100 text-gray-800'
+                        STATUS_LABELS[req.status]?.color || 'bg-surface-muted text-muted-foreground'
                       }`}
                     >
                       {STATUS_LABELS[req.status]?.label || req.status}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     {req.direction === 'sent'
                       ? `Do: ${req.recipient_identifier}`
                       : req.is_anonymous
                       ? 'Od: Użytkownik anonimowy'
                       : `Od: ${req.sender?.display_name || req.recipient_identifier}`}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {new Date(req.created_at).toLocaleString('pl-PL')}
                   </p>
                 </div>
               </div>
 
               {req.status === 'approved' && req.data_payload && req.direction === 'sent' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-                  <p className="text-sm font-medium text-green-900 mb-1">
+                <div className="border border-green-600/30 bg-green-500/5 rounded-lg p-3 mb-3">
+                  <p className="text-sm font-medium text-foreground mb-1">
                     Otrzymany rozmiar:
                   </p>
-                  <p className="text-2xl font-bold text-green-700">
+                  <p className="text-2xl font-bold text-foreground">
                     {req.data_payload}
                   </p>
                   {req.expires_at && (
-                    <p className="text-xs text-green-700 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Dostęp wygasa: {new Date(req.expires_at).toLocaleString('pl-PL')}
                     </p>
                   )}
@@ -317,13 +317,13 @@ export function SecretGiverDashboard() {
                       const size = prompt('Podaj swój rozmiar:');
                       if (size) handleRespond(req.id, 'approve', size);
                     }}
-                    className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
+                    className="flex-1 px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition"
                   >
                     Zatwierdź
                   </button>
                   <button
                     onClick={() => handleRespond(req.id, 'reject')}
-                    className="px-4 py-2 bg-red-100 text-red-700 font-semibold rounded-lg hover:bg-red-200 transition"
+                    className="px-4 py-2 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 transition"
                   >
                     Odrzuć
                   </button>
@@ -337,14 +337,14 @@ export function SecretGiverDashboard() {
       {/* Create request modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <div className="bg-surface border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               Nowa prośba Secret Giver
             </h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Email lub numer telefonu odbiorcy
                 </label>
                 <input
@@ -354,12 +354,12 @@ export function SecretGiverDashboard() {
                     setNewRequest({ ...newRequest, recipient_identifier: e.target.value })
                   }
                   placeholder="email@example.com lub +48123456789"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-border bg-surface rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Kategoria rozmiaru
                 </label>
                 <select
@@ -367,7 +367,7 @@ export function SecretGiverDashboard() {
                   onChange={(e) =>
                     setNewRequest({ ...newRequest, requested_category: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-border bg-surface rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 >
                   {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -385,9 +385,9 @@ export function SecretGiverDashboard() {
                   onChange={(e) =>
                     setNewRequest({ ...newRequest, is_anonymous: e.target.checked })
                   }
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-primary border-border rounded focus:ring-primary/30"
                 />
-                <label htmlFor="anonymous" className="ml-2 text-sm text-gray-700">
+                <label htmlFor="anonymous" className="ml-2 text-sm text-foreground">
                   Wyślij anonimowo
                 </label>
               </div>
@@ -395,13 +395,13 @@ export function SecretGiverDashboard() {
               <div className="flex gap-3">
                 <button
                   onClick={handleSendRequest}
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                  className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition"
                 >
                   Wyślij prośbę
                 </button>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition"
+                  className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 transition"
                 >
                   Anuluj
                 </button>
