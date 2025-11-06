@@ -180,12 +180,12 @@ export function SecretGiverDashboard() {
   });
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="mx-auto max-w-6xl px-4 py-12 lg:px-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Secret Giver
+        <h1 className="text-3xl font-bold text-foreground sm:text-4xl mb-3">
+          🎁 Secret Giver
         </h1>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground text-base sm:text-lg">
           Poproś znajomych o rozmiar bez zdradzania niespodzianki
         </p>
       </div>

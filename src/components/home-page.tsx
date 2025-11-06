@@ -1359,6 +1359,60 @@ export function HomePage({
 
       <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-16 pt-12 lg:px-6">
 
+        {/* Secret Giver - Prominentny CTA Box */}
+        <Link
+          href="/dashboard/secret-giver"
+          className="group relative overflow-hidden rounded-3xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-8 shadow-lg transition-all hover:border-purple-300 hover:shadow-xl hover:shadow-purple-100 dark:border-purple-800 dark:from-purple-950/40 dark:via-pink-950/40 dark:to-blue-950/40 dark:hover:border-purple-700"
+        >
+          <div className="absolute right-0 top-0 h-full w-1/3 opacity-10">
+            <svg className="h-full w-full" viewBox="0 0 100 100" fill="currentColor">
+              <path d="M50 10 L90 90 L10 90 Z" className="text-purple-600" />
+              <circle cx="50" cy="35" r="8" className="text-pink-500" />
+            </svg>
+          </div>
+          <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex-1">
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-purple-600 px-3 py-1 text-xs font-bold text-white">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+                <span>NOWOŚĆ!</span>
+              </div>
+              <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
+                🎁 Secret Giver
+              </h2>
+              <p className="text-sm text-gray-700 dark:text-gray-300 md:text-base">
+                Poproś anonimowo o rozmiar osoby, której chcesz kupić prezent. Otrzymasz dostęp na 48h bez ujawniania swojej tożsamości!
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800/80 dark:text-gray-300">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  100% anonimowe
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800/80 dark:text-gray-300">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Dostęp 48h
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800/80 dark:text-gray-300">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Powiadomienia email
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-purple-600 px-6 py-3 font-bold text-white transition group-hover:bg-purple-700">
+                Wyślij prośbę →
+              </div>
+            </div>
+          </div>
+        </Link>
+
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
