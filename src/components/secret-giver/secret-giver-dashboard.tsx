@@ -40,6 +40,7 @@ type Eligibility = {
 
 
 export function SecretGiverDashboard() {
+  const tRoot = useTranslations('secretGiver');
   const t = useTranslations('secretGiver.dashboard');
   const tEligibility = useTranslations('secretGiver.eligibility');
   const tModal = useTranslations('secretGiver.modal');
@@ -184,10 +185,10 @@ export function SecretGiverDashboard() {
     <div className="mx-auto max-w-6xl px-4 py-12 lg:px-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground sm:text-4xl mb-3">
-          🎁 Secret Giver
+          🎁 {tRoot('title')}
         </h1>
         <p className="text-muted-foreground text-base sm:text-lg">
-          Poproś znajomych o rozmiar bez zdradzania niespodzianki
+          {tRoot('subtitle')}
         </p>
       </div>
 
