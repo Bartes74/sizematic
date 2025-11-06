@@ -82,11 +82,11 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
+        <h2 className="text-2xl font-bold text-foreground mb-2">
           Weryfikacja SMS
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground mb-6">
           Aby chronić naszą społeczność przed spamem, wymagamy szybkiej
           weryfikacji SMS. To odblokuje Twoją darmową pulę{' '}
           <strong>2 próśb Secret Giver</strong>.
@@ -97,7 +97,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
             <div>
               <label
                 htmlFor="phone"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-foreground mb-2"
               >
                 Numer telefonu
               </label>
@@ -107,14 +107,14 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="+48 123 456 789"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 disabled={loading}
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="border border-red-500/30 bg-red-500/5 rounded-lg p-3">
+                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
               </div>
             )}
 
@@ -122,14 +122,14 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
               <button
                 onClick={handleSendCode}
                 disabled={loading}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {loading ? 'Wysyłanie...' : 'Wyślij kod SMS'}
               </button>
               <button
                 onClick={onClose}
                 disabled={loading}
-                className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 disabled:cursor-not-allowed transition"
+                className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 disabled:cursor-not-allowed transition"
               >
                 Anuluj
               </button>
@@ -139,8 +139,8 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
 
         {step === 'code' && (
           <div className="space-y-4">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-              <p className="text-sm text-green-800">
+            <div className="border border-green-500/30 bg-green-500/5 rounded-lg p-3 mb-4">
+              <p className="text-sm text-green-700 dark:text-green-300">
                 ✅ Kod został wysłany na numer <strong>{phoneNumber}</strong>
               </p>
             </div>
@@ -148,7 +148,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
             <div>
               <label
                 htmlFor="code"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-foreground mb-2"
               >
                 Kod weryfikacyjny (6 cyfr)
               </label>
@@ -158,15 +158,15 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 placeholder="123456"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl font-mono tracking-widest"
+                className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary text-center text-2xl font-mono tracking-widest"
                 disabled={loading}
                 maxLength={6}
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="border border-red-500/30 bg-red-500/5 rounded-lg p-3">
+                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
               </div>
             )}
 
@@ -174,7 +174,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
               <button
                 onClick={handleVerifyCode}
                 disabled={loading || code.length !== 6}
-                className="flex-1 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {loading ? 'Weryfikowanie...' : 'Zweryfikuj'}
               </button>
@@ -185,7 +185,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                   setError(null);
                 }}
                 disabled={loading}
-                className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 disabled:cursor-not-allowed transition"
+                className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 disabled:cursor-not-allowed transition"
               >
                 Wstecz
               </button>
@@ -194,7 +194,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
             <button
               onClick={handleSendCode}
               disabled={loading}
-              className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="w-full text-sm text-primary hover:text-primary/80 font-medium"
             >
               Wyślij kod ponownie
             </button>

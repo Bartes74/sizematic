@@ -113,11 +113,14 @@ export async function POST(request: NextRequest) {
     const smsResult = await sendSMSCode(normalizedPhone, code);
 
     if (!smsResult.success) {
+      console.error('SMS sending failed:', smsResult.error);
       return NextResponse.json(
-        { error: 'Nie udało się wysłać SMS. Spróbuj ponownie.' },
+        { error: smsResult.error || 'Nie udało się wysłać SMS. Spróbuj ponownie.' },
         { status: 500 }
       );
     }
+    
+    console.log('SMS verification code sent successfully to:', normalizedPhone);
 
     // Update profile with phone number (not yet verified)
     await admin

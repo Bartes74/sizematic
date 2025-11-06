@@ -22,14 +22,19 @@ export async function sendSMSCode(
 ): Promise<SMSResponse> {
   if (!SINCH_SERVICE_PLAN_ID || !SINCH_API_TOKEN) {
     console.error('Sinch credentials not configured');
+    console.error('SINCH_SERVICE_PLAN_ID:', SINCH_SERVICE_PLAN_ID ? 'SET' : 'MISSING');
+    console.error('SINCH_API_TOKEN:', SINCH_API_TOKEN ? 'SET' : 'MISSING');
     return {
       success: false,
-      error: 'SMS service not configured',
+      error: 'Konfiguracja SMS jest niepełna. Skontaktuj się z administratorem.',
     };
   }
 
   try {
     const message = `Twój kod weryfikacyjny GiftFit: ${code}. Kod wygasa za 10 minut.`;
+    
+    console.log('Sending SMS to:', phoneNumber);
+    console.log('Sinch endpoint:', `${SINCH_SMS_ENDPOINT}/${SINCH_SERVICE_PLAN_ID}/batches`);
 
     const response = await fetch(
       `${SINCH_SMS_ENDPOINT}/${SINCH_SERVICE_PLAN_ID}/batches`,
@@ -48,15 +53,40 @@ export async function sendSMSCode(
     );
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('Sinch SMS API error:', error);
+      let errorDetails;
+      try {
+        errorDetails = await response.json();
+      } catch {
+        errorDetails = await response.text();
+      }
+      
+      console.error('Sinch SMS API error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        details: errorDetails,
+      });
+      
+      // Return user-friendly error message
+      let userMessage = 'Nie udało się wysłać SMS. ';
+      if (response.status === 400) {
+        userMessage += 'Nieprawidłowy numer telefonu. Upewnij się, że format jest poprawny (np. +48 123 456 789).';
+      } else if (response.status === 401) {
+        userMessage += 'Problem z autoryzacją SMS. Skontaktuj się z administratorem.';
+      } else if (response.status === 403) {
+        userMessage += 'Brak uprawnień do wysyłania SMS. Skontaktuj się z administratorem.';
+      } else {
+        userMessage += 'Spróbuj ponownie za chwilę.';
+      }
+      
       return {
         success: false,
-        error: `Failed to send SMS: ${response.statusText}`,
+        error: userMessage,
       };
     }
 
     const data = await response.json();
+    console.log('SMS sent successfully:', data.id);
+    
     return {
       success: true,
       message_id: data.id,
@@ -65,7 +95,7 @@ export async function sendSMSCode(
     console.error('Error sending SMS via Sinch:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'Wystąpił nieoczekiwany błąd podczas wysyłania SMS. Spróbuj ponownie.',
     };
   }
 }
