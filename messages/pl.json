@@ -869,6 +869,109 @@
         "digit": "Hasło musi zawierać cyfrę",
         "special": "Hasło musi zawierać znak specjalny (@$!%*?&#_-+=)"
       }
+    },
+    "secretGiver": {
+      "title": "Secret Giver",
+      "subtitle": "Poproś znajomych o rozmiar bez zdradzania niespodzianki",
+      "badge": "NOWOŚĆ!",
+      "description": "Poproś anonimowo o rozmiar osoby, której chcesz kupić prezent. Otrzymasz dostęp na 48h bez ujawniania swojej tożsamości!",
+      "features": {
+        "anonymous": "100% anonimowe",
+        "access48h": "Dostęp 48h",
+        "emailNotifications": "Powiadomienia email"
+      },
+      "cta": "Wyślij prośbę →",
+      "dashboard": {
+        "createButton": "Wyślij prośbę Secret Giver",
+        "filters": {
+          "all": "Wszystkie",
+          "sent": "Wysłane",
+          "received": "Otrzymane"
+        },
+        "status": {
+          "pending": "Oczekuje",
+          "approved": "Zatwierdzona",
+          "rejected": "Odrzucona",
+          "expired": "Wygasła"
+        },
+        "empty": "Brak próśb",
+        "direction": {
+          "to": "Do:",
+          "from": "Od:",
+          "anonymous": "Od: Użytkownik anonimowy"
+        },
+        "receivedSize": "Otrzymany rozmiar:",
+        "accessExpires": "Dostęp wygasa:",
+        "actions": {
+          "approve": "Zatwierdź",
+          "reject": "Odrzuć",
+          "provideSize": "Podaj swój rozmiar:"
+        }
+      },
+      "modal": {
+        "title": "Nowa prośba Secret Giver",
+        "recipientLabel": "Email lub numer telefonu odbiorcy",
+        "recipientPlaceholder": "email@example.com lub +48123456789",
+        "categoryLabel": "Kategoria",
+        "productTypeLabel": "Typ produktu",
+        "productTypePlaceholder": "Wybierz typ produktu...",
+        "anonymousLabel": "Wyślij anonimowo",
+        "sendButton": "Wyślij prośbę",
+        "cancel": "Anuluj"
+      },
+      "eligibility": {
+        "premium": "⭐ Premium: Nielimitowane prośby Secret Giver",
+        "freePool": "Darmowa pula: {count} strzałów",
+        "smsRequired": "⚠️ Wymagana weryfikacja SMS",
+        "buyMore": "Kup więcej"
+      },
+      "smsVerification": {
+        "title": "Weryfikacja SMS",
+        "description": "Aby chronić naszą społeczność przed spamem, wymagamy szybkiej weryfikacji SMS. To odblokuje Twoją darmową pulę 2 próśb Secret Giver.",
+        "phoneLabel": "Numer telefonu",
+        "phonePlaceholder": "+48 123 456 789",
+        "codeLabel": "Kod weryfikacyjny (6 cyfr)",
+        "codePlaceholder": "123456",
+        "sendCode": "Wyślij kod SMS",
+        "sending": "Wysyłanie...",
+        "verify": "Zweryfikuj",
+        "verifying": "Weryfikowanie...",
+        "back": "Wstecz",
+        "resend": "Wyślij kod ponownie",
+        "codeSent": "✅ Kod został wysłany na numer {phone}"
+      },
+      "paywall": {
+        "title": "Wykorzystałeś darmowe 'strzały'!",
+        "subtitle": "Wybierz pakiet tokenów lub subskrypcję Premium, aby wysłać więcej próśb Secret Giver.",
+        "tokens": "Tokeny jednorazowe",
+        "subscription": "Subskrypcja Premium",
+        "buy": "Kup teraz",
+        "features": {
+          "unlimited": "Nielimitowane prośby",
+          "priority": "Priorytetowe wsparcie",
+          "advanced": "Zaawansowane funkcje"
+        }
+      },
+      "notifications": {
+        "requestSent": "Prośba wysłana!",
+        "requestApproved": "Prośba zatwierdzona. Nadawca otrzyma dostęp na 48 godzin.",
+        "requestRejected": "Prośba odrzucona."
+      },
+      "errors": {
+        "recipientRequired": "Podaj email lub numer telefonu odbiorcy",
+        "productTypeRequired": "Wybierz typ produktu",
+        "smsVerificationRequired": "Wymagana weryfikacja SMS",
+        "poolExhausted": "Wykorzystałeś wszystkie darmowe prośby",
+        "alreadyHaveAccess": "Posiadasz już ten rozmiar! Wejdź do \"Zaufanego Kręgu\" i wybierz profil Odbiorcy, aby zobaczyć wszystkie rozmiary, jakie Ci udostępnia.",
+        "genericError": "Wystąpił błąd podczas wysyłania prośby",
+        "phoneRequired": "Podaj numer telefonu",
+        "codeRequired": "Podaj kod weryfikacyjny",
+        "invalidCode": "Nieprawidłowy kod weryfikacyjny",
+        "smsFailed": "Nie udało się wysłać SMS. Spróbuj ponownie.",
+        "smsConfigMissing": "Konfiguracja SMS jest niepełna. Skontaktuj się z administratorem.",
+        "invalidPhone": "Nieprawidłowy numer telefonu. Upewnij się, że format jest poprawny (np. +48 123 456 789).",
+        "smsRateLimit": "Zbyt wiele próśb o kod. Spróbuj ponownie za godzinę."
+      }
     }
   }
 }

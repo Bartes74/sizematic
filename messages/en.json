@@ -869,6 +869,109 @@
         "digit": "Password must include a digit",
         "special": "Password must include a special character (@$!%*?&#_-+=)"
       }
+    },
+    "secretGiver": {
+      "title": "Secret Giver",
+      "subtitle": "Ask friends for size without spoiling the surprise",
+      "badge": "NEW!",
+      "description": "Anonymously request the size of someone you want to buy a gift for. Get 48-hour access without revealing your identity!",
+      "features": {
+        "anonymous": "100% anonymous",
+        "access48h": "48h access",
+        "emailNotifications": "Email notifications"
+      },
+      "cta": "Send request →",
+      "dashboard": {
+        "createButton": "Send Secret Giver request",
+        "filters": {
+          "all": "All",
+          "sent": "Sent",
+          "received": "Received"
+        },
+        "status": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "expired": "Expired"
+        },
+        "empty": "No requests",
+        "direction": {
+          "to": "To:",
+          "from": "From:",
+          "anonymous": "From: Anonymous user"
+        },
+        "receivedSize": "Received size:",
+        "accessExpires": "Access expires:",
+        "actions": {
+          "approve": "Approve",
+          "reject": "Reject",
+          "provideSize": "Provide your size:"
+        }
+      },
+      "modal": {
+        "title": "New Secret Giver request",
+        "recipientLabel": "Recipient's email or phone number",
+        "recipientPlaceholder": "email@example.com or +48123456789",
+        "categoryLabel": "Category",
+        "productTypeLabel": "Product type",
+        "productTypePlaceholder": "Select product type...",
+        "anonymousLabel": "Send anonymously",
+        "sendButton": "Send request",
+        "cancel": "Cancel"
+      },
+      "eligibility": {
+        "premium": "⭐ Premium: Unlimited Secret Giver requests",
+        "freePool": "Free pool: {count} shots",
+        "smsRequired": "⚠️ SMS verification required",
+        "buyMore": "Buy more"
+      },
+      "smsVerification": {
+        "title": "SMS Verification",
+        "description": "To protect our community from spam, we require quick SMS verification. This unlocks your free pool of 2 Secret Giver requests.",
+        "phoneLabel": "Phone number",
+        "phonePlaceholder": "+48 123 456 789",
+        "codeLabel": "Verification code (6 digits)",
+        "codePlaceholder": "123456",
+        "sendCode": "Send SMS code",
+        "sending": "Sending...",
+        "verify": "Verify",
+        "verifying": "Verifying...",
+        "back": "Back",
+        "resend": "Resend code",
+        "codeSent": "✅ Code sent to {phone}"
+      },
+      "paywall": {
+        "title": "You've used your free shots!",
+        "subtitle": "Choose a token package or Premium subscription to send more Secret Giver requests.",
+        "tokens": "One-time tokens",
+        "subscription": "Premium Subscription",
+        "buy": "Buy now",
+        "features": {
+          "unlimited": "Unlimited requests",
+          "priority": "Priority support",
+          "advanced": "Advanced features"
+        }
+      },
+      "notifications": {
+        "requestSent": "Request sent!",
+        "requestApproved": "Request approved. Sender will receive 48-hour access.",
+        "requestRejected": "Request rejected."
+      },
+      "errors": {
+        "recipientRequired": "Please provide recipient's email or phone number",
+        "productTypeRequired": "Please select a product type",
+        "smsVerificationRequired": "SMS verification required",
+        "poolExhausted": "You've used all free requests",
+        "alreadyHaveAccess": "You already have this size! Go to \"Trusted Circle\" and select the Recipient's profile to see all sizes they share with you.",
+        "genericError": "An error occurred while sending the request",
+        "phoneRequired": "Please provide phone number",
+        "codeRequired": "Please provide verification code",
+        "invalidCode": "Invalid verification code",
+        "smsFailed": "Failed to send SMS. Please try again.",
+        "smsConfigMissing": "SMS configuration is incomplete. Please contact administrator.",
+        "invalidPhone": "Invalid phone number. Make sure the format is correct (e.g. +48 123 456 789).",
+        "smsRateLimit": "Too many code requests. Please try again in an hour."
+      }
     }
   }
 }
