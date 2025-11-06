@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { SMSVerificationModal } from './sms-verification-modal';
 import { SGPaywallModal } from './sg-paywall-modal';
 import { QUICK_CATEGORY_CONFIGS, resolveCategoryLabel, resolveProductTypeLabel } from '@/data/product-tree';
@@ -38,14 +39,15 @@ type Eligibility = {
 };
 
 
-const STATUS_LABELS: { [key: string]: { label: string; color: string } } = {
-  pending: { label: 'Oczekuje', color: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20' },
-  approved: { label: 'Zatwierdzona', color: 'bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20' },
-  rejected: { label: 'Odrzucona', color: 'bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20' },
-  expired: { label: 'Wygasła', color: 'bg-surface-muted/50 text-muted-foreground border border-border/50' },
-};
-
 export function SecretGiverDashboard() {
+  const t = useTranslations('secretGiver.dashboard');
+  
+  const STATUS_LABELS: { [key: string]: { label: string; color: string } } = {
+    pending: { label: t('statuses.pending'), color: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20' },
+    approved: { label: t('statuses.approved'), color: 'bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20' },
+    rejected: { label: t('statuses.rejected'), color: 'bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20' },
+    expired: { label: t('statuses.expired'), color: 'bg-surface-muted/50 text-muted-foreground border border-border/50' },
+  };
   const [requests, setRequests] = useState<SGRequest[]>([]);
   const [eligibility, setEligibility] = useState<Eligibility | null>(null);
   const [loading, setLoading] = useState(true);
@@ -192,16 +194,16 @@ export function SecretGiverDashboard() {
             <div>
               {eligibility.is_premium ? (
                 <p className="text-foreground font-semibold">
-                  ⭐ Premium: Nielimitowane prośby Secret Giver
+                  {t('eligibility.premium')}
                 </p>
               ) : (
                 <p className="text-foreground font-semibold">
-                  Darmowa pula: <span className="text-2xl">{eligibility.free_sg_pool}</span> strzałów
+                  {t('eligibility.freePool')} <span className="text-2xl">{eligibility.free_sg_pool}</span> {t('eligibility.shots')}
                 </p>
               )}
               {eligibility.needs_sms_verification && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  ⚠️ Wymagana weryfikacja SMS
+                  {t('eligibility.needsSmsVerification')}
                 </p>
               )}
             </div>
@@ -210,7 +212,7 @@ export function SecretGiverDashboard() {
                 onClick={() => setShowPaywallModal(true)}
                 className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition"
               >
-                Kup więcej
+                {t('eligibility.buyMore')}
               </button>
             )}
           </div>
@@ -223,7 +225,7 @@ export function SecretGiverDashboard() {
           onClick={() => setShowCreateModal(true)}
           className="w-full px-6 py-4 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition shadow-sm border border-border/20"
         >
-          + Wyślij prośbę Secret Giver
+          {t('createButton')}
         </button>
       </div>
 
@@ -239,9 +241,9 @@ export function SecretGiverDashboard() {
                 : 'border border-border/50 bg-surface-muted/30 text-muted-foreground hover:bg-surface-muted/50'
             }`}
           >
-            {f === 'all' && 'Wszystkie'}
-            {f === 'sent' && 'Wysłane'}
-            {f === 'received' && 'Otrzymane'}
+            {f === 'all' && t('filters.all')}
+            {f === 'sent' && t('filters.sent')}
+            {f === 'received' && t('filters.received')}
           </button>
         ))}
       </div>
@@ -253,7 +255,7 @@ export function SecretGiverDashboard() {
         </div>
       ) : filteredRequests.length === 0 ? (
         <div className="text-center py-12 border border-border/50 bg-surface-muted/30 rounded-lg">
-          <p className="text-muted-foreground">Brak próśb</p>
+          <p className="text-muted-foreground">{t('emptyState')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -279,10 +281,10 @@ export function SecretGiverDashboard() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {req.direction === 'sent'
-                      ? `Do: ${req.recipient_identifier}`
+                      ? `${t('directions.to')} ${req.recipient_identifier}`
                       : req.is_anonymous
-                      ? 'Od: Użytkownik anonimowy'
-                      : `Od: ${req.sender?.display_name || req.recipient_identifier}`}
+                      ? `${t('directions.from')} ${t('directions.anonymousUser')}`
+                      : `${t('directions.from')} ${req.sender?.display_name || req.recipient_identifier}`}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {new Date(req.created_at).toLocaleString('pl-PL')}
@@ -293,14 +295,14 @@ export function SecretGiverDashboard() {
               {req.status === 'approved' && req.data_payload && req.direction === 'sent' && (
                 <div className="border border-green-600/30 bg-green-500/5 rounded-lg p-3 mb-3">
                   <p className="text-sm font-medium text-foreground mb-1">
-                    Otrzymany rozmiar:
+                    {t('receivedSize')}
                   </p>
                   <p className="text-2xl font-bold text-foreground">
                     {req.data_payload}
                   </p>
                   {req.expires_at && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Dostęp wygasa: {new Date(req.expires_at).toLocaleString('pl-PL')}
+                      {t('accessExpires')} {new Date(req.expires_at).toLocaleString('pl-PL')}
                     </p>
                   )}
                 </div>
@@ -310,18 +312,18 @@ export function SecretGiverDashboard() {
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => {
-                      const size = prompt('Podaj swój rozmiar:');
+                      const size = prompt(t('actions.enterSize'));
                       if (size) handleRespond(req.id, 'approve', size);
                     }}
                     className="flex-1 px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition"
                   >
-                    Zatwierdź
+                    {t('actions.approve')}
                   </button>
                   <button
                     onClick={() => handleRespond(req.id, 'reject')}
                     className="px-4 py-2 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 transition"
                   >
-                    Odrzuć
+                    {t('actions.reject')}
                   </button>
                 </div>
               )}
@@ -335,13 +337,13 @@ export function SecretGiverDashboard() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
             <h2 className="text-2xl font-bold text-foreground mb-4">
-              Nowa prośba Secret Giver
+              {t('modal.title')}
             </h2>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Email lub numer telefonu odbiorcy
+                  {t('modal.recipientLabel')}
                 </label>
                 <input
                   type="text"
@@ -349,14 +351,14 @@ export function SecretGiverDashboard() {
                   onChange={(e) =>
                     setNewRequest({ ...newRequest, recipient_identifier: e.target.value })
                   }
-                  placeholder="email@example.com lub +48123456789"
+                  placeholder={t('modal.recipientPlaceholder')}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Kategoria
+                  {t('modal.categoryLabel')}
                 </label>
                 <select
                   value={newRequest.requested_category}
@@ -379,7 +381,7 @@ export function SecretGiverDashboard() {
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Typ produktu
+                  {t('modal.productTypeLabel')}
                 </label>
                 <select
                   value={newRequest.product_type}
@@ -388,7 +390,7 @@ export function SecretGiverDashboard() {
                   }
                   className="w-full px-4 py-3 border border-gray-300 dark:border-border bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary [&>option]:bg-white [&>option]:dark:bg-gray-800 [&>option]:text-gray-900 [&>option]:dark:text-white"
                 >
-                  <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">Wybierz typ produktu...</option>
+                  <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">{t('modal.productTypePlaceholder')}</option>
                   {QUICK_CATEGORY_CONFIGS.find((cat) => cat.id === newRequest.requested_category)?.productTypes.map((type) => (
                     <option key={type.id} value={type.id} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       {type.label}
@@ -408,7 +410,7 @@ export function SecretGiverDashboard() {
                   className="w-4 h-4 text-primary border-border rounded focus:ring-primary/30"
                 />
                 <label htmlFor="anonymous" className="ml-2 text-sm text-foreground">
-                  Wyślij anonimowo
+                  {t('modal.anonymousLabel')}
                 </label>
               </div>
 
@@ -418,13 +420,13 @@ export function SecretGiverDashboard() {
                   disabled={!newRequest.product_type}
                   className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Wyślij prośbę
+                  {t('modal.sendButton')}
                 </button>
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 transition"
                 >
-                  Anuluj
+                  {t('modal.cancelButton')}
                 </button>
               </div>
             </div>
