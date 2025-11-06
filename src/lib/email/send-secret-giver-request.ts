@@ -134,11 +134,12 @@ export type SGApprovedEmailPayload = {
   to: string;
   recipientIdentifier: string;
   category: string;
+  productType?: string;
   expiresAt: Date;
 };
 
 export async function sendSecretGiverApprovedEmail(payload: SGApprovedEmailPayload) {
-  const categoryLabel = getCategoryLabel(payload.category);
+  const categoryLabel = formatProductLabel(payload.category, payload.productType);
   const expiresIn = Math.round((payload.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60)); // hours
   const dashboardUrl = `${SITE_URL}/dashboard?tab=secret-giver`;
 
@@ -194,10 +195,11 @@ export type SGRejectedEmailPayload = {
   to: string;
   recipientIdentifier: string;
   category: string;
+  productType?: string;
 };
 
 export async function sendSecretGiverRejectedEmail(payload: SGRejectedEmailPayload) {
-  const categoryLabel = getCategoryLabel(payload.category);
+  const categoryLabel = formatProductLabel(payload.category, payload.productType);
 
   const subject = `❌ Prośba odrzucona - ${categoryLabel}`;
 
@@ -244,11 +246,12 @@ export type SGExpiredEmailPayload = {
   to: string;
   recipientIdentifier: string;
   category: string;
+  productType?: string;
   reason: 'timeout' | 'access_expired';
 };
 
 export async function sendSecretGiverExpiredEmail(payload: SGExpiredEmailPayload) {
-  const categoryLabel = getCategoryLabel(payload.category);
+  const categoryLabel = formatProductLabel(payload.category, payload.productType);
 
   const subject = payload.reason === 'timeout' 
     ? `⏰ Prośba wygasła - ${categoryLabel}`

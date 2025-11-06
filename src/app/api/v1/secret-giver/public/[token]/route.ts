@@ -143,6 +143,7 @@ export async function POST(
             to: senderProfile.email,
             recipientIdentifier: sgRequest.recipient_identifier,
             category: sgRequest.requested_category,
+            productType: sgRequest.product_type,
             expiresAt: new Date(updateData.expires_at),
           });
         } else {
@@ -151,6 +152,7 @@ export async function POST(
             to: senderProfile.email,
             recipientIdentifier: sgRequest.recipient_identifier,
             category: sgRequest.requested_category,
+            productType: sgRequest.product_type,
           });
         }
       }
