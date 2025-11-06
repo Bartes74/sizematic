@@ -1362,51 +1362,51 @@ export function HomePage({
         {/* Secret Giver - Prominentny CTA Box */}
         <Link
           href="/dashboard/secret-giver"
-          className="group relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-purple-50/40 via-pink-50/30 to-blue-50/40 p-8 shadow-sm transition-all hover:border-border/60 hover:shadow-md dark:from-purple-950/20 dark:via-pink-950/15 dark:to-blue-950/20 dark:hover:border-border/50"
+          className="group relative overflow-hidden rounded-3xl border-2 border-purple-300 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 p-8 shadow-lg shadow-purple-200/50 transition-all hover:border-purple-400 hover:shadow-xl hover:shadow-purple-300/60 dark:border-purple-800 dark:from-purple-950/40 dark:via-pink-950/30 dark:to-blue-950/40 dark:shadow-purple-900/30"
         >
-          <div className="absolute right-0 top-0 h-full w-1/3 opacity-5">
+          <div className="absolute right-0 top-0 h-full w-1/3 opacity-20 dark:opacity-10">
             <svg className="h-full w-full" viewBox="0 0 100 100" fill="currentColor">
-              <path d="M50 10 L90 90 L10 90 Z" className="text-purple-400" />
-              <circle cx="50" cy="35" r="8" className="text-pink-400" />
+              <path d="M50 10 L90 90 L10 90 Z" className="text-purple-500 dark:text-purple-400" />
+              <circle cx="50" cy="35" r="8" className="text-pink-500 dark:text-pink-400" />
             </svg>
           </div>
           <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex-1">
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-purple-500/10 border border-purple-300/30 px-3 py-1 text-xs font-semibold text-purple-700 dark:bg-purple-500/20 dark:border-purple-500/30 dark:text-purple-300">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-1.5 text-xs font-bold text-white shadow-md">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
                 <span>NOWOŚĆ!</span>
               </div>
-              <h2 className="mb-2 text-2xl font-bold text-foreground md:text-3xl">
+              <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
                 🎁 Secret Giver
               </h2>
-              <p className="text-sm text-muted-foreground md:text-base">
+              <p className="text-sm text-gray-700 dark:text-gray-300 md:text-base font-medium">
                 Poproś anonimowo o rozmiar osoby, której chcesz kupić prezent. Otrzymasz dostęp na 48h bez ujawniania swojej tożsamości!
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1 rounded-lg border border-border/50 bg-surface-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <span className="inline-flex items-center gap-1 rounded-lg border border-purple-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-purple-700 shadow-sm dark:border-purple-700 dark:bg-purple-900/40 dark:text-purple-200">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   100% anonimowe
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-lg border border-border/50 bg-surface-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <span className="inline-flex items-center gap-1 rounded-lg border border-pink-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-pink-700 shadow-sm dark:border-pink-700 dark:bg-pink-900/40 dark:text-pink-200">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Dostęp 48h
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-lg border border-border/50 bg-surface-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <span className="inline-flex items-center gap-1 rounded-lg border border-blue-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm dark:border-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   Powiadomienia email
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="rounded-full bg-primary/90 px-6 py-3 font-semibold text-primary-foreground transition group-hover:bg-primary">
+              <div className="rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-3 font-bold text-white shadow-lg shadow-purple-400/40 transition group-hover:shadow-xl group-hover:shadow-purple-500/50 group-hover:scale-105">
                 Wyślij prośbę →
               </div>
             </div>
