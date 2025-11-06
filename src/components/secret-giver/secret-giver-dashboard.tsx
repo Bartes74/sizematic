@@ -46,6 +46,8 @@ export function SecretGiverDashboard() {
   const tModal = useTranslations('secretGiver.modal');
   const tErrors = useTranslations('secretGiver.errors');
   const tNotifications = useTranslations('secretGiver.notifications');
+  const tCategories = useTranslations('sizeOverview.categories');
+  const tProductTypes = useTranslations('dashboard.productTypes');
   
   const STATUS_LABELS: { [key: string]: { label: string; color: string } } = {
     pending: { label: t('status.pending'), color: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20' },
@@ -273,8 +275,16 @@ export function SecretGiverDashboard() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg font-semibold text-foreground">
-                      {resolveCategoryLabel(req.requested_category)}
-                      {req.product_type && ` - ${resolveProductTypeLabel(req.requested_category, req.product_type)}`}
+                      {tCategories(req.requested_category, {
+                        defaultMessage: resolveCategoryLabel(req.requested_category),
+                      })}
+                      {req.product_type && (
+                        <> - {tProductTypes(req.product_type, {
+                          defaultMessage:
+                            resolveProductTypeLabel(req.requested_category, req.product_type) ??
+                            req.product_type,
+                        })}</>
+                      )}
                     </span>
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${
@@ -378,7 +388,7 @@ export function SecretGiverDashboard() {
                 >
                   {QUICK_CATEGORY_CONFIGS.map((cat) => (
                     <option key={cat.id} value={cat.id} className="bg-background text-foreground">
-                      {cat.label}
+                      {tCategories(cat.id, { defaultMessage: cat.label })}
                     </option>
                   ))}
                 </select>
@@ -398,7 +408,7 @@ export function SecretGiverDashboard() {
                   <option value="" className="bg-background text-foreground">{tModal('productTypePlaceholder')}</option>
                   {QUICK_CATEGORY_CONFIGS.find((cat) => cat.id === newRequest.requested_category)?.productTypes.map((type) => (
                     <option key={type.id} value={type.id} className="bg-background text-foreground">
-                      {type.label}
+                      {tProductTypes(type.id, { defaultMessage: type.label })}
                     </option>
                   ))}
                 </select>
