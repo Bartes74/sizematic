@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { SMSVerificationModal } from './sms-verification-modal';
 import { SGPaywallModal } from './sg-paywall-modal';
+import { QUICK_CATEGORY_CONFIGS, resolveCategoryLabel, resolveProductTypeLabel } from '@/data/product-tree';
+import type { QuickCategoryId } from '@/data/product-tree';
 
 type SGRequest = {
   id: string;
@@ -35,15 +37,6 @@ type Eligibility = {
   can_send_if_verified: boolean;
 };
 
-const CATEGORY_LABELS: { [key: string]: string } = {
-  tops: 'Odzież górna',
-  bottoms: 'Odzież dolna',
-  footwear: 'Obuwie',
-  headwear: 'Nakrycia głowy',
-  accessories: 'Akcesoria',
-  outerwear: 'Odzież wierzchnia',
-  kids: 'Dziecięcy',
-};
 
 const STATUS_LABELS: { [key: string]: { label: string; color: string } } = {
   pending: { label: 'Oczekuje', color: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20' },
@@ -64,7 +57,8 @@ export function SecretGiverDashboard() {
   // New request form
   const [newRequest, setNewRequest] = useState({
     recipient_identifier: '',
-    requested_category: 'tops',
+    requested_category: 'tops' as QuickCategoryId,
+    product_type: '' as string,
     is_anonymous: false,
   });
 
@@ -133,6 +127,7 @@ export function SecretGiverDashboard() {
         setNewRequest({
           recipient_identifier: '',
           requested_category: 'tops',
+          product_type: '',
           is_anonymous: false,
         });
         fetchRequests();
@@ -271,7 +266,8 @@ export function SecretGiverDashboard() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg font-semibold text-foreground">
-                      {CATEGORY_LABELS[req.requested_category] || req.requested_category}
+                      {resolveCategoryLabel(req.requested_category)}
+                      {req.product_type && ` - ${resolveProductTypeLabel(req.requested_category, req.product_type)}`}
                     </span>
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${
@@ -337,7 +333,7 @@ export function SecretGiverDashboard() {
       {/* Create request modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
+          <div className="bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
             <h2 className="text-2xl font-bold text-foreground mb-4">
               Nowa prośba Secret Giver
             </h2>
@@ -354,24 +350,48 @@ export function SecretGiverDashboard() {
                     setNewRequest({ ...newRequest, recipient_identifier: e.target.value })
                   }
                   placeholder="email@example.com lub +48123456789"
-                  className="w-full px-4 py-3 border border-border bg-surface rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Kategoria rozmiaru
+                  Kategoria
                 </label>
                 <select
                   value={newRequest.requested_category}
                   onChange={(e) =>
-                    setNewRequest({ ...newRequest, requested_category: e.target.value })
+                    setNewRequest({ 
+                      ...newRequest, 
+                      requested_category: e.target.value as QuickCategoryId,
+                      product_type: '' // Reset product type when category changes
+                    })
                   }
-                  className="w-full px-4 py-3 border border-border bg-surface rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 >
-                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                    <option key={key} value={key}>
-                      {label}
+                  {QUICK_CATEGORY_CONFIGS.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Typ produktu
+                </label>
+                <select
+                  value={newRequest.product_type}
+                  onChange={(e) =>
+                    setNewRequest({ ...newRequest, product_type: e.target.value })
+                  }
+                  className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                >
+                  <option value="">Wybierz typ produktu...</option>
+                  {QUICK_CATEGORY_CONFIGS.find((cat) => cat.id === newRequest.requested_category)?.productTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.label}
                     </option>
                   ))}
                 </select>
@@ -395,7 +415,8 @@ export function SecretGiverDashboard() {
               <div className="flex gap-3">
                 <button
                   onClick={handleSendRequest}
-                  className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition"
+                  disabled={!newRequest.product_type}
+                  className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Wyślij prośbę
                 </button>

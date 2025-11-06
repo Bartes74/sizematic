@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { resolveCategoryLabel, resolveProductTypeLabel } from '@/data/product-tree';
 
 const SMTP_HOST = process.env.SMTP_HOST || '127.0.0.1';
 const SMTP_PORT = Number(process.env.SMTP_PORT || 1025);
@@ -22,22 +23,13 @@ const transporter = nodemailer.createTransport({
     : undefined,
 });
 
-type CategoryLabels = {
-  [key: string]: string;
-};
-
-const CATEGORY_LABELS: CategoryLabels = {
-  tops: 'Rozmiar odzieży górnej',
-  bottoms: 'Rozmiar odzieży dolnej',
-  footwear: 'Rozmiar obuwia',
-  headwear: 'Rozmiar nakryć głowy',
-  accessories: 'Rozmiar akcesoriów',
-  outerwear: 'Rozmiar odzieży wierzchniej',
-  kids: 'Rozmiar dziecięcy',
-};
-
-function getCategoryLabel(category: string): string {
-  return CATEGORY_LABELS[category] || category;
+function formatProductLabel(category: string, productType?: string): string {
+  const categoryLabel = resolveCategoryLabel(category);
+  if (productType) {
+    const productTypeLabel = resolveProductTypeLabel(category, productType);
+    return productTypeLabel ? `${categoryLabel} - ${productTypeLabel}` : categoryLabel;
+  }
+  return categoryLabel;
 }
 
 /**
@@ -46,6 +38,7 @@ function getCategoryLabel(category: string): string {
 export type SGRequestEmailPayload = {
   to: string;
   category: string;
+  productType?: string;
   senderName?: string; // undefined if anonymous
   isFromCircleMember: boolean;
   isAnonymous: boolean;
@@ -54,7 +47,7 @@ export type SGRequestEmailPayload = {
 };
 
 export async function sendSecretGiverRequestEmail(payload: SGRequestEmailPayload) {
-  const categoryLabel = getCategoryLabel(payload.category);
+  const categoryLabel = formatProductLabel(payload.category, payload.productType);
   const respondUrl = payload.hasAccount
     ? `${SITE_URL}/dashboard?sg_request=${payload.token}`
     : `${SITE_URL}/public/secret-giver/${payload.token}`;

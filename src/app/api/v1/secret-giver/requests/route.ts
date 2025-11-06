@@ -251,6 +251,7 @@ export async function POST(request: NextRequest) {
       await sendSecretGiverRequestEmail({
         to: recipientIdentifier,
         category: body.requested_category,
+        productType: body.product_type,
         senderName: body.is_anonymous ? undefined : senderProfile.email || 'Użytkownik',
         isFromCircleMember: isFromCircleMember,
         isAnonymous: body.is_anonymous || false,
