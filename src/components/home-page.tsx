@@ -586,6 +586,7 @@ export function HomePage({
   const tMeasurementsForm = useTranslations('measurementsForm');
   const tMeasurementDefinitions = useTranslations('measurements.definitions');
   const tWishlistSection = useTranslations('dashboard.wishlistSection');
+  const tSecretGiver = useTranslations('secretGiver');
   void _measurements;
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
@@ -1376,38 +1377,38 @@ export function HomePage({
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
-                <span>NOWOŚĆ!</span>
+                <span>{tSecretGiver('badge')}</span>
               </div>
               <h2 className="mb-2 text-2xl font-bold text-white drop-shadow-lg md:text-3xl">
-                🎁 Secret Giver
+                {tSecretGiver('title')}
               </h2>
               <p className="text-sm text-white drop-shadow-md md:text-base font-semibold">
-                Poproś anonimowo o rozmiar osoby, której chcesz kupić prezent. Otrzymasz dostęp na 48h bez ujawniania swojej tożsamości!
+                {tSecretGiver('description')}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-1 rounded-lg border border-purple-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-purple-700 shadow-sm dark:border-purple-700 dark:bg-purple-900/40 dark:text-purple-200">
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                  100% anonimowe
+                  {tSecretGiver('features.anonymous')}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-lg border border-pink-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-pink-700 shadow-sm dark:border-pink-700 dark:bg-pink-900/40 dark:text-pink-200">
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Dostęp 48h
+                  {tSecretGiver('features.access48h')}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-lg border border-blue-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm dark:border-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  Powiadomienia email
+                  {tSecretGiver('features.emailNotifications')}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-3 font-bold text-white shadow-lg shadow-purple-400/40 transition group-hover:shadow-xl group-hover:shadow-purple-500/50 group-hover:scale-105">
-                Wyślij prośbę →
+                {tSecretGiver('cta')}
               </div>
             </div>
           </div>

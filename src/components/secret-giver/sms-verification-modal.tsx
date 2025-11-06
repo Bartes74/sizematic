@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   isOpen: boolean;
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
+  const t = useTranslations('secretGiver.smsVerification');
   const [step, setStep] = useState<'phone' | 'code'>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [code, setCode] = useState('');
@@ -17,7 +19,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
 
   const handleSendCode = async () => {
     if (!phoneNumber.trim()) {
-      setError('Podaj numer telefonu');
+      setError(t('errors.phoneRequired'));
       return;
     }
 
@@ -36,11 +38,11 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
       if (res.ok) {
         setStep('code');
       } else {
-        setError(data.error || 'Nie udało się wysłać kodu');
+        setError(data.error || t('errors.sendFailed'));
       }
     } catch (err) {
       console.error('Failed to send code:', err);
-      setError('Wystąpił błąd podczas wysyłania kodu');
+      setError(t('errors.sendError'));
     } finally {
       setLoading(false);
     }
@@ -48,7 +50,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
 
   const handleVerifyCode = async () => {
     if (!code.trim()) {
-      setError('Podaj kod weryfikacyjny');
+      setError(t('errors.codeRequired'));
       return;
     }
 
@@ -68,11 +70,11 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
         onSuccess();
         onClose();
       } else {
-        setError(data.error || 'Nieprawidłowy kod weryfikacyjny');
+        setError(data.error || t('errors.invalidCode'));
       }
     } catch (err) {
       console.error('Failed to verify code:', err);
-      setError('Wystąpił błąd podczas weryfikacji');
+      setError(t('errors.verifyError'));
     } finally {
       setLoading(false);
     }
@@ -84,12 +86,10 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-900 border border-border rounded-2xl shadow-xl max-w-md w-full p-6">
         <h2 className="text-2xl font-bold text-foreground mb-2">
-          Weryfikacja SMS
+          {t('title')}
         </h2>
         <p className="text-muted-foreground mb-6">
-          Aby chronić naszą społeczność przed spamem, wymagamy szybkiej
-          weryfikacji SMS. To odblokuje Twoją darmową pulę{' '}
-          <strong>2 próśb Secret Giver</strong>.
+          {t('description')}
         </p>
 
         {step === 'phone' && (
@@ -99,14 +99,14 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 htmlFor="phone"
                 className="block text-sm font-medium text-foreground mb-2"
               >
-                Numer telefonu
+                {t('phoneLabel')}
               </label>
               <input
                 id="phone"
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+48 123 456 789"
+                placeholder={t('phonePlaceholder')}
                 className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 disabled={loading}
               />
@@ -124,14 +124,14 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 disabled={loading}
                 className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                {loading ? 'Wysyłanie...' : 'Wyślij kod SMS'}
+                {loading ? t('sendingButton') : t('sendButton')}
               </button>
               <button
                 onClick={onClose}
                 disabled={loading}
                 className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 disabled:cursor-not-allowed transition"
               >
-                Anuluj
+                {t('cancelButton')}
               </button>
             </div>
           </div>
@@ -141,7 +141,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
           <div className="space-y-4">
             <div className="border border-green-500/30 bg-green-500/5 rounded-lg p-3 mb-4">
               <p className="text-sm text-green-700 dark:text-green-300">
-                ✅ Kod został wysłany na numer <strong>{phoneNumber}</strong>
+                {t('codeSent', { phoneNumber })}
               </p>
             </div>
 
@@ -150,14 +150,14 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 htmlFor="code"
                 className="block text-sm font-medium text-foreground mb-2"
               >
-                Kod weryfikacyjny (6 cyfr)
+                {t('codeLabel')}
               </label>
               <input
                 id="code"
                 type="text"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="123456"
+                placeholder={t('codePlaceholder')}
                 className="w-full px-4 py-3 border border-border bg-white dark:bg-gray-800 text-foreground rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary text-center text-2xl font-mono tracking-widest"
                 disabled={loading}
                 maxLength={6}
@@ -176,7 +176,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 disabled={loading || code.length !== 6}
                 className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                {loading ? 'Weryfikowanie...' : 'Zweryfikuj'}
+                {loading ? t('verifyingButton') : t('verifyButton')}
               </button>
               <button
                 onClick={() => {
@@ -187,7 +187,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 disabled={loading}
                 className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 disabled:cursor-not-allowed transition"
               >
-                Wstecz
+                {t('backButton')}
               </button>
             </div>
 
@@ -196,7 +196,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
               disabled={loading}
               className="w-full text-sm text-primary hover:text-primary/80 font-medium"
             >
-              Wyślij kod ponownie
+              {t('resendButton')}
             </button>
           </div>
         )}

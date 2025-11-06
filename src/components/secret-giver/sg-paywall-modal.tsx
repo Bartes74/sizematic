@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   isOpen: boolean;
@@ -9,33 +10,34 @@ type Props = {
 
 type ProductType = 'sg_3_pack' | 'sg_10_pack' | 'premium_yearly' | 'premium_monthly';
 
-const PRODUCTS = {
-  sg_3_pack: {
-    name: '3 Strzały SG',
-    price: '19.99 PLN',
-    description: 'Jednorazowy pakiet 3 próśb Secret Giver',
-  },
-  sg_10_pack: {
-    name: '10 Strzałów SG',
-    price: '49.99 PLN',
-    description: 'Jednorazowy pakiet 10 próśb Secret Giver',
-    badge: 'Najlepsza wartość',
-  },
-  premium_yearly: {
-    name: 'Premium - Roczny',
-    price: '99.99 PLN / rok',
-    description: 'Nielimitowane SG i Kręgi + wszystkie funkcje Premium',
-    badge: 'Najlepsza opcja!',
-  },
-  premium_monthly: {
-    name: 'Premium - Miesięczny',
-    price: '19.99 PLN / miesiąc',
-    description: 'Nielimitowane SG i Kręgi + wszystkie funkcje Premium',
-  },
-};
-
 export function SGPaywallModal({ isOpen, onClose }: Props) {
+  const t = useTranslations('secretGiver.paywall');
   const [loading, setLoading] = useState(false);
+  
+  const PRODUCTS = {
+    sg_3_pack: {
+      name: t('products.sg_3_pack.name'),
+      price: t('products.sg_3_pack.price'),
+      description: t('products.sg_3_pack.description'),
+    },
+    sg_10_pack: {
+      name: t('products.sg_10_pack.name'),
+      price: t('products.sg_10_pack.price'),
+      description: t('products.sg_10_pack.description'),
+      badge: t('products.sg_10_pack.badge'),
+    },
+    premium_yearly: {
+      name: t('products.premium_yearly.name'),
+      price: t('products.premium_yearly.price'),
+      description: t('products.premium_yearly.description'),
+      badge: t('products.premium_yearly.badge'),
+    },
+    premium_monthly: {
+      name: t('products.premium_monthly.name'),
+      price: t('products.premium_monthly.price'),
+      description: t('products.premium_monthly.description'),
+    },
+  };
 
   const handlePurchase = async (productKey: ProductType) => {
     setLoading(true);
@@ -61,11 +63,11 @@ export function SGPaywallModal({ isOpen, onClose }: Props) {
         // Redirect to Stripe checkout
         window.location.href = data.checkout_url;
       } else {
-        alert(data.error || 'Nie udało się utworzyć sesji płatności');
+        alert(data.error || t('errors.checkoutFailed'));
       }
     } catch (err) {
       console.error('Failed to create checkout:', err);
-      alert('Wystąpił błąd podczas tworzenia płatności');
+      alert(t('errors.checkoutError'));
     } finally {
       setLoading(false);
     }
@@ -79,10 +81,10 @@ export function SGPaywallModal({ isOpen, onClose }: Props) {
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Wykorzystałeś darmowe &apos;strzały&apos;!
+              {t('title')}
             </h2>
             <p className="text-gray-600">
-              Aby dalej wysyłać prośby Secret Giver, wybierz opcję dla siebie:
+              {t('description')}
             </p>
           </div>
           <button
@@ -110,7 +112,7 @@ export function SGPaywallModal({ isOpen, onClose }: Props) {
           {/* Token packages */}
           <div className="border-b pb-4 mb-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Pakiety Tokenów
+              {t('tokenPackagesTitle')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {(['sg_3_pack', 'sg_10_pack'] as ProductType[]).map((key) => {
@@ -145,7 +147,7 @@ export function SGPaywallModal({ isOpen, onClose }: Props) {
           {/* Subscription plans */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Subskrypcje Premium
+              {t('subscriptionsTitle')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {(['premium_yearly', 'premium_monthly'] as ProductType[]).map(
@@ -182,7 +184,7 @@ export function SGPaywallModal({ isOpen, onClose }: Props) {
 
         <div className="mt-6 pt-6 border-t">
           <p className="text-sm text-gray-600 text-center">
-            Wszystkie płatności są bezpieczne i szyfrowane przez Stripe
+            {t('securePaymentNote')}
           </p>
         </div>
       </div>
