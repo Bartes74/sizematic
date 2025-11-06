@@ -47,7 +47,7 @@ export default async function SecretGiverPage() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       <GlobalHeader
         userName={userName}
-        userRole={userRole}
+        role={userRole}
         avatarUrl={avatarUrl}
         branding={branding}
       />
