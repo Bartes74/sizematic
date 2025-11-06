@@ -938,18 +938,50 @@
         "verifying": "Verifying...",
         "back": "Back",
         "resend": "Resend code",
-        "codeSent": "✅ Code sent to {phone}"
+        "cancel": "Cancel",
+        "codeSent": "✅ Code sent to {phone}",
+        "errors": {
+          "phoneRequired": "Please provide phone number",
+          "codeRequired": "Please provide verification code",
+          "invalidCode": "Invalid verification code",
+          "sendFailed": "Failed to send code",
+          "sendError": "An error occurred while sending code",
+          "verifyError": "An error occurred during verification"
+        }
       },
       "paywall": {
         "title": "You've used your free shots!",
-        "subtitle": "Choose a token package or Premium subscription to send more Secret Giver requests.",
-        "tokens": "One-time tokens",
-        "subscription": "Premium Subscription",
-        "buy": "Buy now",
-        "features": {
-          "unlimited": "Unlimited requests",
-          "priority": "Priority support",
-          "advanced": "Advanced features"
+        "description": "To continue sending Secret Giver requests, choose an option:",
+        "tokenPackagesTitle": "Token Packages",
+        "subscriptionsTitle": "Premium Subscriptions",
+        "securePaymentNote": "All payments are secure and encrypted by Stripe",
+        "products": {
+          "sg_3_pack": {
+            "name": "3 SG Shots",
+            "price": "19.99 PLN",
+            "description": "One-time package of 3 Secret Giver requests"
+          },
+          "sg_10_pack": {
+            "name": "10 SG Shots",
+            "price": "49.99 PLN",
+            "description": "One-time package of 10 Secret Giver requests",
+            "badge": "Best value"
+          },
+          "premium_yearly": {
+            "name": "Premium - Yearly",
+            "price": "99.99 PLN / year",
+            "description": "Unlimited SG and Circles + all Premium features",
+            "badge": "Best option!"
+          },
+          "premium_monthly": {
+            "name": "Premium - Monthly",
+            "price": "19.99 PLN / month",
+            "description": "Unlimited SG and Circles + all Premium features"
+          }
+        },
+        "errors": {
+          "checkoutFailed": "Failed to create payment session",
+          "checkoutError": "An error occurred while creating payment"
         }
       },
       "notifications": {

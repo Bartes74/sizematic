@@ -124,14 +124,14 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 disabled={loading}
                 className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                {loading ? t('sendingButton') : t('sendButton')}
+                {loading ? t('sending') : t('sendCode')}
               </button>
               <button
                 onClick={onClose}
                 disabled={loading}
                 className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 disabled:cursor-not-allowed transition"
               >
-                {t('cancelButton')}
+                {t('cancel')}
               </button>
             </div>
           </div>
@@ -141,7 +141,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
           <div className="space-y-4">
             <div className="border border-green-500/30 bg-green-500/5 rounded-lg p-3 mb-4">
               <p className="text-sm text-green-700 dark:text-green-300">
-                {t('codeSent', { phoneNumber })}
+                {t('codeSent', { phone: phoneNumber })}
               </p>
             </div>
 
@@ -176,7 +176,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 disabled={loading || code.length !== 6}
                 className="flex-1 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                {loading ? t('verifyingButton') : t('verifyButton')}
+                {loading ? t('verifying') : t('verify')}
               </button>
               <button
                 onClick={() => {
@@ -187,7 +187,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
                 disabled={loading}
                 className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 disabled:cursor-not-allowed transition"
               >
-                {t('backButton')}
+                {t('back')}
               </button>
             </div>
 
@@ -196,7 +196,7 @@ export function SMSVerificationModal({ isOpen, onClose, onSuccess }: Props) {
               disabled={loading}
               className="w-full text-sm text-primary hover:text-primary/80 font-medium"
             >
-              {t('resendButton')}
+              {t('resend')}
             </button>
           </div>
         )}

@@ -43,10 +43,10 @@ export function SecretGiverDashboard() {
   const t = useTranslations('secretGiver.dashboard');
   
   const STATUS_LABELS: { [key: string]: { label: string; color: string } } = {
-    pending: { label: t('statuses.pending'), color: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20' },
-    approved: { label: t('statuses.approved'), color: 'bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20' },
-    rejected: { label: t('statuses.rejected'), color: 'bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20' },
-    expired: { label: t('statuses.expired'), color: 'bg-surface-muted/50 text-muted-foreground border border-border/50' },
+    pending: { label: t('status.pending'), color: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20' },
+    approved: { label: t('status.approved'), color: 'bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20' },
+    rejected: { label: t('status.rejected'), color: 'bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20' },
+    expired: { label: t('status.expired'), color: 'bg-surface-muted/50 text-muted-foreground border border-border/50' },
   };
   const [requests, setRequests] = useState<SGRequest[]>([]);
   const [eligibility, setEligibility] = useState<Eligibility | null>(null);
@@ -198,12 +198,12 @@ export function SecretGiverDashboard() {
                 </p>
               ) : (
                 <p className="text-foreground font-semibold">
-                  {t('eligibility.freePool')} <span className="text-2xl">{eligibility.free_sg_pool}</span> {t('eligibility.shots')}
+                  {t('eligibility.freePool', { count: eligibility.free_sg_pool })}
                 </p>
               )}
               {eligibility.needs_sms_verification && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {t('eligibility.needsSmsVerification')}
+                  {t('eligibility.smsRequired')}
                 </p>
               )}
             </div>
@@ -255,7 +255,7 @@ export function SecretGiverDashboard() {
         </div>
       ) : filteredRequests.length === 0 ? (
         <div className="text-center py-12 border border-border/50 bg-surface-muted/30 rounded-lg">
-          <p className="text-muted-foreground">{t('emptyState')}</p>
+          <p className="text-muted-foreground">{t('empty')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -281,10 +281,10 @@ export function SecretGiverDashboard() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {req.direction === 'sent'
-                      ? `${t('directions.to')} ${req.recipient_identifier}`
+                      ? `${t('direction.to')} ${req.recipient_identifier}`
                       : req.is_anonymous
-                      ? `${t('directions.from')} ${t('directions.anonymousUser')}`
-                      : `${t('directions.from')} ${req.sender?.display_name || req.recipient_identifier}`}
+                      ? t('direction.anonymous')
+                      : `${t('direction.from')} ${req.sender?.display_name || req.recipient_identifier}`}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {new Date(req.created_at).toLocaleString('pl-PL')}
@@ -312,7 +312,7 @@ export function SecretGiverDashboard() {
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => {
-                      const size = prompt(t('actions.enterSize'));
+                      const size = prompt(t('actions.provideSize'));
                       if (size) handleRespond(req.id, 'approve', size);
                     }}
                     className="flex-1 px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition"
@@ -426,7 +426,7 @@ export function SecretGiverDashboard() {
                   onClick={() => setShowCreateModal(false)}
                   className="px-6 py-3 border border-border bg-surface-muted/50 text-foreground font-semibold rounded-lg hover:bg-surface-muted/80 transition"
                 >
-                  {t('modal.cancelButton')}
+                  {t('modal.cancel')}
                 </button>
               </div>
             </div>
