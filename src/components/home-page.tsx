@@ -1362,12 +1362,12 @@ export function HomePage({
         {/* Secret Giver - Prominentny CTA Box */}
         <Link
           href="/dashboard/secret-giver"
-          className="group relative overflow-hidden rounded-3xl border-2 border-purple-300 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 p-8 shadow-lg shadow-purple-200/50 transition-all hover:border-purple-400 hover:shadow-xl hover:shadow-purple-300/60 dark:border-purple-800 dark:from-purple-950/40 dark:via-pink-950/30 dark:to-blue-950/40 dark:shadow-purple-900/30"
+          className="group relative overflow-hidden rounded-3xl border-2 border-purple-400 bg-gradient-to-br from-purple-400 via-pink-400 to-blue-400 p-8 shadow-xl shadow-purple-400/50 transition-all hover:border-purple-500 hover:shadow-2xl hover:shadow-purple-500/60 dark:border-purple-800 dark:from-purple-950/40 dark:via-pink-950/30 dark:to-blue-950/40 dark:shadow-purple-900/30"
         >
-          <div className="absolute right-0 top-0 h-full w-1/3 opacity-20 dark:opacity-10">
+          <div className="absolute right-0 top-0 h-full w-1/3 opacity-30 dark:opacity-10">
             <svg className="h-full w-full" viewBox="0 0 100 100" fill="currentColor">
-              <path d="M50 10 L90 90 L10 90 Z" className="text-purple-500 dark:text-purple-400" />
-              <circle cx="50" cy="35" r="8" className="text-pink-500 dark:text-pink-400" />
+              <path d="M50 10 L90 90 L10 90 Z" className="text-purple-600 dark:text-purple-400" />
+              <circle cx="50" cy="35" r="8" className="text-pink-600 dark:text-pink-400" />
             </svg>
           </div>
           <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -1378,10 +1378,10 @@ export function HomePage({
                 </svg>
                 <span>NOWOŚĆ!</span>
               </div>
-              <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
+              <h2 className="mb-2 text-2xl font-bold text-white drop-shadow-lg md:text-3xl">
                 🎁 Secret Giver
               </h2>
-              <p className="text-sm text-gray-700 dark:text-gray-300 md:text-base font-medium">
+              <p className="text-sm text-white drop-shadow-md md:text-base font-semibold">
                 Poproś anonimowo o rozmiar osoby, której chcesz kupić prezent. Otrzymasz dostęp na 48h bez ujawniania swojej tożsamości!
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
