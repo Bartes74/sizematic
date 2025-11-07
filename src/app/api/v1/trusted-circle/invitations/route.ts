@@ -3,7 +3,7 @@ import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 import { getTrustedCircleLimit, normalizeEmail } from '@/lib/trusted-circle/utils';
 import { ensureDefaultCircle } from '@/lib/trusted-circle/circle-helpers';
 import { sendTrustedCircleInviteEmail } from '@/lib/email/send-trusted-circle-invite';
-import type { UserRole } from '@/lib/types';
+import type { PlanType, UserRole } from '@/lib/types';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -78,7 +78,8 @@ export async function POST(request: Request) {
   }
 
   // Check inviter limits
-  const limit = getTrustedCircleLimit((profile.plan_type ?? profile.role) as UserRole | string | null | undefined);
+  const planKey = (profile.plan_type ?? profile.role) as PlanType | UserRole | null | undefined;
+  const limit = getTrustedCircleLimit(planKey);
 
   if (limit !== null) {
     const { count: acceptedCount } = await admin
@@ -140,9 +141,8 @@ export async function POST(request: Request) {
       }, { status: 409 });
     }
 
-    const inviteeLimit = getTrustedCircleLimit(
-      (inviteeProfile.plan_type ?? inviteeProfile.role) as UserRole | string | null | undefined
-    );
+    const inviteePlanKey = (inviteeProfile.plan_type ?? inviteeProfile.role) as PlanType | UserRole | null | undefined;
+    const inviteeLimit = getTrustedCircleLimit(inviteePlanKey);
     if (inviteeLimit !== null) {
       const inviteeCircleId = await ensureDefaultCircle(admin, inviteeProfile.id);
       const { count: inviteeAccepted } = await admin
