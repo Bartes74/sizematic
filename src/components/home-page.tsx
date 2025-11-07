@@ -632,6 +632,7 @@ export function HomePage({
   const initialUpsellReason = normalizeUpsellReason(upsellReason);
   const [activeUpsellReason, setActiveUpsellReason] = useState<UpsellReason | null>(initialUpsellReason);
   const [isUpsellOpen, setIsUpsellOpen] = useState(Boolean(initialUpsellReason));
+  const bodyMeasurements = bodyMeasurementsProp ?? null;
 
   useEffect(() => {
     const normalized = normalizeUpsellReason(upsellReason);
@@ -1620,8 +1621,6 @@ export function HomePage({
     setEventSubmitting(false);
     setEditingEventId(null);
   }, [createEmptyParticipant]);
-
-  const bodyMeasurements = bodyMeasurementsProp ?? null;
   const [wishlistItems, setWishlistItems] = useState(wishlistItemsProp);
   const [wishlistError, setWishlistError] = useState<string | null>(null);
   const [pendingDeleteItem, setPendingDeleteItem] = useState<DashboardWishlistItem | null>(null);
