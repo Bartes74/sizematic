@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getTrustedCircleSnapshot } from '@/server/trusted-circle';
 import { getTrustedCircleLimit } from '@/lib/trusted-circle/utils';
-import type { UserRole } from '@/lib/types';
+import type { PlanType, UserRole } from '@/lib/types';
 
 export async function GET() {
   const supabase = await createClient();
@@ -41,9 +41,9 @@ export async function GET() {
     return NextResponse.json({
       plan: profile.role,
       plan_type: snapshot.plan_type,
-      limit:
-        snapshot.limit ??
-        getTrustedCircleLimit((snapshot.plan_type ?? profile.role) as UserRole | string | null | undefined),
+        limit:
+          snapshot.limit ??
+          getTrustedCircleLimit((snapshot.plan_type ?? profile.role) as PlanType | UserRole | null | undefined),
       pending_invitations: snapshot.pending_invitations,
       circles: snapshot.circles,
       members: snapshot.members,
