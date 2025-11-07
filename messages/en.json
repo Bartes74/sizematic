@@ -195,7 +195,7 @@
     "premiumFeature": "In Premium+ you can password-protect links and extend validity"
   },
   "circle": {
-    "title": "Who knows your sizes",
+    "title": "Circles of Trust",
     "subtitle": "Organise your trusted circles",
     "circlesTitle": "Trusted circles",
     "circlesSubtitle": "{count, plural, one {You have {count} active circle} other {You have {count} active circles}}",
