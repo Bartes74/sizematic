@@ -1020,8 +1020,8 @@ export function HomePage({
     (variant: 'full' | 'simple') => {
       const gridClass =
         variant === 'full'
-          ? 'grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7'
-          : 'grid gap-3 sm:grid-cols-2';
+          ? 'grid auto-rows-fr grid-cols-[repeat(7,minmax(0,1fr))] gap-3 lg:gap-4'
+          : 'grid auto-rows-fr grid-cols-[repeat(7,minmax(0,1fr))] gap-2 sm:gap-3';
       return (
         <div className={gridClass}>
           {quickSizeTiles.map((tile) => {
