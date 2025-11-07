@@ -35,7 +35,7 @@ export async function GET(_request: Request, context: unknown) {
     if (sizeLabels.length === 0) {
       return NextResponse.json({ size_labels: [] });
     }
-    return NextResponse.json({ size_labels });
+    return NextResponse.json({ size_labels: sizeLabels });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Nie udało się pobrać danych.';
     return NextResponse.json({ error: message }, { status: 500 });
