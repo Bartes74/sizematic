@@ -787,6 +787,234 @@ export function HomePage({
     [tCircle, tEvents, tWishlistSection, isFreePlan]
   );
 
+  const sizeLabelsById = useMemo(() => {
+    const map = new Map<string, SizeLabel>();
+    sizeLabels.forEach((label) => {
+      map.set(label.id, label);
+    });
+    return map;
+  }, [sizeLabels]);
+
+  const labelsByProductType = useMemo(() => {
+    const map = new Map<string, SizeLabel[]>();
+    sizeLabels.forEach((label) => {
+      if (!label.product_type) {
+        return;
+      }
+      if (!map.has(label.product_type)) {
+        map.set(label.product_type, []);
+      }
+      map.get(label.product_type)!.push(label);
+    });
+    map.forEach((list) => {
+      list.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    });
+    return map;
+  }, [sizeLabels]);
+
+  const garmentsByProductType = useMemo(() => {
+    const map = new Map<string, Garment[]>();
+    garments.forEach((garment) => {
+      const productTypeId = resolveGarmentProductTypeId(garment);
+      if (!productTypeId) {
+        return;
+      }
+      if (!map.has(productTypeId)) {
+        map.set(productTypeId, []);
+      }
+      map.get(productTypeId)!.push(garment);
+    });
+    return map;
+  }, [garments]);
+
+  const latestTimestampByProductType = useMemo(() => {
+    const map = new Map<string, number>();
+
+    sizeLabels.forEach((label) => {
+      if (!label.product_type) {
+        return;
+      }
+      const ts = Date.parse(label.created_at ?? label.recorded_at);
+      if (!Number.isNaN(ts)) {
+        map.set(label.product_type, Math.max(map.get(label.product_type) ?? 0, ts));
+      }
+    });
+
+    garments.forEach((garment) => {
+      const productTypeId = resolveGarmentProductTypeId(garment);
+      if (!productTypeId) {
+        return;
+      }
+      const ts = garment.created_at ? Date.parse(garment.created_at) : NaN;
+      if (!Number.isNaN(ts)) {
+        map.set(productTypeId, Math.max(map.get(productTypeId) ?? 0, ts));
+      }
+    });
+
+    return map;
+  }, [garments, sizeLabels]);
+
+  const preferenceMap = useMemo(() => {
+    const map = new Map<QuickCategoryId, { sizeLabelId: string | null; productType: string | null }>();
+    sizePreferences.forEach((pref) => {
+      const categoryId = pref.quick_category as QuickCategoryId;
+      map.set(categoryId, {
+        sizeLabelId: pref.size_label_id ?? null,
+        productType: pref.product_type ?? null,
+      });
+    });
+    return map;
+  }, [sizePreferences]);
+
+  const quickSizeTiles = useMemo(() => {
+    return QUICK_CATEGORY_CONFIGS.map((config) => {
+      const preference = preferenceMap.get(config.id);
+
+      const baseProductTypes = config.productTypes.map((productType) => productType.id);
+
+      const sortedByRecency = [...baseProductTypes].sort((a, b) => {
+        const tsA = latestTimestampByProductType.get(a) ?? 0;
+        const tsB = latestTimestampByProductType.get(b) ?? 0;
+        if (tsA === tsB) {
+          return baseProductTypes.indexOf(a) - baseProductTypes.indexOf(b);
+        }
+        return tsB - tsA;
+      });
+
+      let productTypeOrder: string[] = sortedByRecency;
+      if (
+        preference?.productType &&
+        sortedByRecency.includes(preference.productType)
+      ) {
+        productTypeOrder = [
+          preference.productType,
+          ...sortedByRecency.filter((id) => id !== preference.productType),
+        ];
+      }
+
+      let sizeValue = '--';
+      let sizeUnit: string | null = null;
+      let productTypeLabel = 'Dodaj rozmiar';
+      let productTypeId: string | null = null;
+      let sizeLabelId: string | null = null;
+
+      const applyLabel = (label: SizeLabel | null | undefined) => {
+        if (!label || !label.product_type || !productTypeOrder.includes(label.product_type)) {
+          return false;
+        }
+        const { value, unit } = parseSizeLabelParts(label.label || '');
+        sizeValue = value || '--';
+        sizeUnit = unit ? unit.toUpperCase() : null;
+        productTypeId = label.product_type;
+        productTypeLabel = PRODUCT_TYPE_MAP[label.product_type]?.label ?? productTypeLabel;
+        sizeLabelId = label.id;
+        return sizeValue !== '--';
+      };
+
+      if (preference?.sizeLabelId) {
+        const preferredLabel = sizeLabelsById.get(preference.sizeLabelId);
+        if (applyLabel(preferredLabel)) {
+          return finalizeTile();
+        }
+      }
+
+      for (const productTypeKey of productTypeOrder) {
+        const labelList = labelsByProductType.get(productTypeKey) ?? [];
+        if (applyLabel(labelList[0])) {
+          return finalizeTile();
+        }
+      }
+
+      const applyGarment = (productTypeKey: string) => {
+        const garmentList = garmentsByProductType.get(productTypeKey);
+        if (!garmentList?.length) {
+          return false;
+        }
+        const garment = garmentList[0];
+        const quickValue = formatGarmentQuickValue(garment);
+        sizeValue = quickValue.value || '--';
+        sizeUnit = quickValue.unit;
+        productTypeId = productTypeKey;
+        productTypeLabel = PRODUCT_TYPE_MAP[productTypeKey]?.label ?? productTypeLabel;
+        return sizeValue !== '--';
+      };
+
+      for (const productTypeKey of productTypeOrder) {
+        if (applyGarment(productTypeKey)) {
+          return finalizeTile();
+        }
+      }
+
+      const applyMeasurement = (productTypeKey: string) => {
+        const typeDefinition = PRODUCT_TYPE_MAP[productTypeKey];
+        if (!typeDefinition || !bodyMeasurements) {
+          return false;
+        }
+        for (const field of typeDefinition.fields) {
+          if (field.type === 'measurement' && field.measurementId) {
+            const definition = getBodyMeasurementDefinition(field.measurementId);
+            if (!definition) {
+              continue;
+            }
+            const measurementValue = getBodyMeasurementValue(definition, bodyMeasurements);
+            if (typeof measurementValue === 'number' && !Number.isNaN(measurementValue)) {
+              const formatter = new Intl.NumberFormat(undefined, {
+                maximumFractionDigits: field.unit === 'mm' ? 0 : 1,
+              });
+              sizeValue = formatter.format(measurementValue) || '--';
+              sizeUnit = field.unit ? field.unit.toUpperCase() : null;
+              productTypeId = productTypeKey;
+              productTypeLabel = typeDefinition.label ?? productTypeLabel;
+              return true;
+            }
+          }
+        }
+        return false;
+      };
+
+      for (const productTypeKey of productTypeOrder) {
+        if (applyMeasurement(productTypeKey)) {
+          return finalizeTile();
+        }
+      }
+
+      if (!productTypeId) {
+        productTypeId = productTypeOrder[0] ?? null;
+        if (productTypeId) {
+          productTypeLabel = PRODUCT_TYPE_MAP[productTypeId]?.label ?? productTypeLabel;
+        }
+      }
+
+      return finalizeTile();
+
+      function finalizeTile() {
+        const hasData = sizeValue !== '--';
+        const primaryCategory = QUICK_CATEGORY_PRIMARY_SUPABASE[config.id] ?? 'tops';
+        return {
+          categoryId: config.id,
+          primaryCategory,
+          label: config.label,
+          sizeValue,
+          sizeUnit,
+          productTypeLabel,
+          productTypeId,
+          sizeLabelId,
+          quickCategoryId: config.id,
+          hasData,
+        };
+      }
+    });
+  }, [
+    bodyMeasurements,
+    garmentsByProductType,
+    labelsByProductType,
+    preferenceMap,
+    sizeLabelsById,
+    latestTimestampByProductType,
+  ]);
+
   const quickSizeTilesGrid = useCallback(
     (variant: 'full' | 'simple') => {
       const gridClass =
@@ -1465,234 +1693,6 @@ export function HomePage({
       setIsDeletingWishlistItem(false);
     }
   }, [pendingDeleteItem, router]);
-
-  const sizeLabelsById = useMemo(() => {
-    const map = new Map<string, SizeLabel>();
-    sizeLabels.forEach((label) => {
-      map.set(label.id, label);
-    });
-    return map;
-  }, [sizeLabels]);
-
-  const labelsByProductType = useMemo(() => {
-    const map = new Map<string, SizeLabel[]>();
-    sizeLabels.forEach((label) => {
-      if (!label.product_type) {
-        return;
-      }
-      if (!map.has(label.product_type)) {
-        map.set(label.product_type, []);
-      }
-      map.get(label.product_type)!.push(label);
-    });
-    map.forEach((list) => {
-      list.sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-    });
-    return map;
-  }, [sizeLabels]);
-
-  const garmentsByProductType = useMemo(() => {
-    const map = new Map<string, Garment[]>();
-    garments.forEach((garment) => {
-      const productTypeId = resolveGarmentProductTypeId(garment);
-      if (!productTypeId) {
-        return;
-      }
-      if (!map.has(productTypeId)) {
-        map.set(productTypeId, []);
-      }
-      map.get(productTypeId)!.push(garment);
-    });
-    return map;
-  }, [garments]);
-
-  const latestTimestampByProductType = useMemo(() => {
-    const map = new Map<string, number>();
-
-    sizeLabels.forEach((label) => {
-      if (!label.product_type) {
-        return;
-      }
-      const ts = Date.parse(label.created_at ?? label.recorded_at);
-      if (!Number.isNaN(ts)) {
-        map.set(label.product_type, Math.max(map.get(label.product_type) ?? 0, ts));
-      }
-    });
-
-    garments.forEach((garment) => {
-      const productTypeId = resolveGarmentProductTypeId(garment);
-      if (!productTypeId) {
-        return;
-      }
-      const ts = garment.created_at ? Date.parse(garment.created_at) : NaN;
-      if (!Number.isNaN(ts)) {
-        map.set(productTypeId, Math.max(map.get(productTypeId) ?? 0, ts));
-      }
-    });
-
-    return map;
-  }, [garments, sizeLabels]);
-
-  const preferenceMap = useMemo(() => {
-    const map = new Map<QuickCategoryId, { sizeLabelId: string | null; productType: string | null }>();
-    sizePreferences.forEach((pref) => {
-      const categoryId = pref.quick_category as QuickCategoryId;
-      map.set(categoryId, {
-        sizeLabelId: pref.size_label_id ?? null,
-        productType: pref.product_type ?? null,
-      });
-    });
-    return map;
-  }, [sizePreferences]);
-
-  const quickSizeTiles = useMemo(() => {
-    return QUICK_CATEGORY_CONFIGS.map((config) => {
-      const preference = preferenceMap.get(config.id);
-
-      const baseProductTypes = config.productTypes.map((productType) => productType.id);
-
-      const sortedByRecency = [...baseProductTypes].sort((a, b) => {
-        const tsA = latestTimestampByProductType.get(a) ?? 0;
-        const tsB = latestTimestampByProductType.get(b) ?? 0;
-        if (tsA === tsB) {
-          return baseProductTypes.indexOf(a) - baseProductTypes.indexOf(b);
-        }
-        return tsB - tsA;
-      });
-
-      let productTypeOrder: string[] = sortedByRecency;
-      if (
-        preference?.productType &&
-        sortedByRecency.includes(preference.productType)
-      ) {
-        productTypeOrder = [
-          preference.productType,
-          ...sortedByRecency.filter((id) => id !== preference.productType),
-        ];
-      }
-
-      let sizeValue = '--';
-      let sizeUnit: string | null = null;
-      let productTypeLabel = 'Dodaj rozmiar';
-      let productTypeId: string | null = null;
-      let sizeLabelId: string | null = null;
-
-      const applyLabel = (label: SizeLabel | null | undefined) => {
-        if (!label || !label.product_type || !productTypeOrder.includes(label.product_type)) {
-          return false;
-        }
-        const { value, unit } = parseSizeLabelParts(label.label || '');
-        sizeValue = value || '--';
-        sizeUnit = unit ? unit.toUpperCase() : null;
-        productTypeId = label.product_type;
-        productTypeLabel = PRODUCT_TYPE_MAP[label.product_type]?.label ?? productTypeLabel;
-        sizeLabelId = label.id;
-        return sizeValue !== '--';
-      };
-
-      if (preference?.sizeLabelId) {
-        const preferredLabel = sizeLabelsById.get(preference.sizeLabelId);
-        if (applyLabel(preferredLabel)) {
-          return finalizeTile();
-        }
-      }
-
-      for (const productTypeKey of productTypeOrder) {
-        const labelList = labelsByProductType.get(productTypeKey) ?? [];
-        if (applyLabel(labelList[0])) {
-          return finalizeTile();
-        }
-      }
-
-      const applyGarment = (productTypeKey: string) => {
-        const garmentList = garmentsByProductType.get(productTypeKey);
-        if (!garmentList?.length) {
-          return false;
-        }
-        const garment = garmentList[0];
-        const quickValue = formatGarmentQuickValue(garment);
-        sizeValue = quickValue.value || '--';
-        sizeUnit = quickValue.unit;
-        productTypeId = productTypeKey;
-        productTypeLabel = PRODUCT_TYPE_MAP[productTypeKey]?.label ?? productTypeLabel;
-        return sizeValue !== '--';
-      };
-
-      for (const productTypeKey of productTypeOrder) {
-        if (applyGarment(productTypeKey)) {
-          return finalizeTile();
-        }
-      }
-
-      const applyMeasurement = (productTypeKey: string) => {
-        const typeDefinition = PRODUCT_TYPE_MAP[productTypeKey];
-        if (!typeDefinition || !bodyMeasurements) {
-          return false;
-        }
-        for (const field of typeDefinition.fields) {
-          if (field.type === 'measurement' && field.measurementId) {
-            const definition = getBodyMeasurementDefinition(field.measurementId);
-            if (!definition) {
-              continue;
-            }
-            const measurementValue = getBodyMeasurementValue(definition, bodyMeasurements);
-            if (typeof measurementValue === 'number' && !Number.isNaN(measurementValue)) {
-              const formatter = new Intl.NumberFormat(undefined, {
-                maximumFractionDigits: field.unit === 'mm' ? 0 : 1,
-              });
-              sizeValue = formatter.format(measurementValue) || '--';
-              sizeUnit = field.unit ? field.unit.toUpperCase() : null;
-              productTypeId = productTypeKey;
-              productTypeLabel = typeDefinition.label ?? productTypeLabel;
-              return true;
-            }
-          }
-        }
-        return false;
-      };
-
-      for (const productTypeKey of productTypeOrder) {
-        if (applyMeasurement(productTypeKey)) {
-          return finalizeTile();
-        }
-      }
-
-      if (!productTypeId) {
-        productTypeId = productTypeOrder[0] ?? null;
-        if (productTypeId) {
-          productTypeLabel = PRODUCT_TYPE_MAP[productTypeId]?.label ?? productTypeLabel;
-        }
-      }
-
-      return finalizeTile();
-
-      function finalizeTile() {
-        const hasData = sizeValue !== '--';
-        const primaryCategory = QUICK_CATEGORY_PRIMARY_SUPABASE[config.id] ?? 'tops';
-        return {
-          categoryId: config.id,
-          primaryCategory,
-          label: config.label,
-          sizeValue,
-          sizeUnit,
-          productTypeLabel,
-          productTypeId,
-          sizeLabelId,
-          quickCategoryId: config.id,
-          hasData,
-        };
-      }
-    });
-  }, [
-    bodyMeasurements,
-    garmentsByProductType,
-    labelsByProductType,
-    preferenceMap,
-    sizeLabelsById,
-    latestTimestampByProductType,
-  ]);
 
   const measurementDefinitions = useMemo(
     () => BODY_MEASUREMENT_DEFINITIONS ?? [],
