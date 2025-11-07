@@ -780,7 +780,7 @@ export function HomePage({
       {
         key: 'wishlist' as SectionKey,
         label: tWishlistSection('title'),
-        description: tWishlistSection('helper'),
+              description: tWishlistSection('subtitle'),
         icon: <HeartIcon className="h-5 w-5" />,
         locked: isFreePlan,
       },
