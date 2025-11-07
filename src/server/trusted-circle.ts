@@ -1,6 +1,6 @@
 import { createSupabaseAdminClient } from '@/lib/supabase';
 import { createClient } from '@/lib/supabase/server';
-import type { UserRole } from '@/lib/types';
+import type { PlanType, UserRole } from '@/lib/types';
 
 type CircleMemberPermissions = { category: string; product_type: string | null };
 
@@ -51,8 +51,9 @@ export async function getTrustedCircleSnapshot(ownerId: string): Promise<Trusted
     throw new Error('Profil nie istnieje.');
   }
 
+  const planKey = (profile.plan_type ?? profile.role) as PlanType | UserRole | null | undefined;
   const limitRow = await import('@/lib/trusted-circle/utils').then((mod) =>
-    mod.getTrustedCircleLimit((profile.plan_type ?? profile.role) as UserRole | string | null | undefined)
+    mod.getTrustedCircleLimit(planKey)
   );
 
   const [pending, circlesRes, memberships, outgoingPermissions, incomingPermissions] = await Promise.all([
