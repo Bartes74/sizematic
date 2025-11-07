@@ -445,6 +445,7 @@ export default function WishlistDashboard({
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold text-foreground">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+        <p className="text-sm text-muted-foreground">{t("helper")}</p>
       </div>
 
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-border bg-card p-6 shadow">

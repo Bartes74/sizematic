@@ -17,9 +17,19 @@ import { getTrustedCircleSnapshot } from "@/server/trusted-circle";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+type PageSearchParams = {
+  edit?: string | string[];
+  upsell?: string | string[];
+};
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: Promise<PageSearchParams>;
+}) {
   const supabase = await createClient();
   const adminSupabase = createSupabaseAdminClient();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -60,10 +70,11 @@ export default async function Home() {
     status: WishlistStatus | null;
   priceSnapshot: Record<string, unknown> | null;
   }[] = [];
+  let dashboardVariant: 'full' | 'simple' = 'full';
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, display_name, role, avatar_url")
+    .select("id, display_name, role, plan_type, dashboard_variant, avatar_url")
     .eq("owner_id", user.id)
     .single();
 
@@ -75,6 +86,21 @@ export default async function Home() {
   userName = profile.display_name || userName;
   userRole = profile.role as UserRole;
   avatarUrl = profile.avatar_url || null;
+
+  dashboardVariant = (profile.dashboard_variant as 'full' | 'simple' | null) ?? 'full';
+  if (!profile.dashboard_variant) {
+    const assignedVariant: 'full' | 'simple' = Math.random() < 0.5 ? 'simple' : 'full';
+    const { error: variantError } = await adminSupabase
+      .from('profiles')
+      .update({ dashboard_variant: assignedVariant })
+      .eq('id', profile.id);
+
+    if (variantError) {
+      console.error('Failed to assign dashboard variant:', variantError.message);
+    } else {
+      dashboardVariant = assignedVariant;
+    }
+  }
 
   measurements = await listMeasurementsForProfile(supabase, profile.id);
 
@@ -204,6 +230,11 @@ export default async function Home() {
     };
   });
 
+  const upsellParam = resolvedSearchParams?.upsell;
+  const upsellReasonRaw = Array.isArray(upsellParam)
+    ? upsellParam[0] ?? null
+    : upsellParam ?? null;
+
   return (
     <HomePage
       measurements={measurements}
@@ -219,6 +250,8 @@ export default async function Home() {
       wishlistItems={wishlistItems}
       trustedCircleInitial={trustedCircleInitial ?? undefined}
       bodyMeasurements={bodyMeasurements}
+      dashboardVariant={dashboardVariant}
+      upsellReason={upsellReasonRaw}
     />
   );
 }

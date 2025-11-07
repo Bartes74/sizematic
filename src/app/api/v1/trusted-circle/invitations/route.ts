@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 import { getTrustedCircleLimit, normalizeEmail } from '@/lib/trusted-circle/utils';
+import { ensureDefaultCircle } from '@/lib/trusted-circle/circle-helpers';
 import { sendTrustedCircleInviteEmail } from '@/lib/email/send-trusted-circle-invite';
 import type { UserRole } from '@/lib/types';
 
@@ -25,9 +26,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Brak autoryzacji' }, { status: 401 });
   }
 
-  const { email, message } = await request.json().catch(() => ({ email: null, message: null })) as {
+  const { email, message, circle_id } = (await request.json().catch(() => ({ email: null, message: null, circle_id: null }))) as {
     email: string | null;
     message?: string | null;
+    circle_id?: string | null;
   };
 
   if (!email) {
@@ -38,7 +40,7 @@ export async function POST(request: Request) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('id, display_name, role, email')
+    .select('id, display_name, role, plan_type, email')
     .eq('owner_id', user.id)
     .maybeSingle();
 
@@ -54,20 +56,42 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Nie możesz zaprosić samego siebie.' }, { status: 400 });
   }
 
+  let inviterCircleId = await ensureDefaultCircle(admin, profile.id);
+
+  if (circle_id) {
+    const { data: ownedCircle, error: circleLookupError } = await admin
+      .from('trusted_circles')
+      .select('id')
+      .eq('id', circle_id)
+      .eq('owner_profile_id', profile.id)
+      .maybeSingle();
+
+    if (circleLookupError) {
+      return NextResponse.json({ error: circleLookupError.message }, { status: 500 });
+    }
+
+    if (!ownedCircle) {
+      return NextResponse.json({ error: 'circle_not_found', message: 'Nie znaleziono wskazanego Kręgu.' }, { status: 404 });
+    }
+
+    inviterCircleId = ownedCircle.id;
+  }
+
   // Check inviter limits
-  const limit = getTrustedCircleLimit(profile.role as UserRole | null | undefined);
+  const limit = getTrustedCircleLimit((profile.plan_type ?? profile.role) as UserRole | string | null | undefined);
 
   if (limit !== null) {
-    const { count: acceptedCount } = await supabase
+    const { count: acceptedCount } = await admin
       .from('trusted_circle_memberships')
       .select('id', { count: 'exact', head: true })
-      .eq('owner_profile_id', profile.id);
+      .eq('circle_id', inviterCircleId);
 
     const { count: pendingCount } = await supabase
       .from('trusted_circle_invitations')
       .select('id', { count: 'exact', head: true })
       .eq('inviter_profile_id', profile.id)
-      .eq('status', 'pending');
+      .eq('status', 'pending')
+      .eq('circle_id', inviterCircleId);
 
     const total = (acceptedCount ?? 0) + (pendingCount ?? 0);
     if (total >= limit) {
@@ -83,6 +107,7 @@ export async function POST(request: Request) {
     .from('trusted_circle_invitations')
     .select('id, status')
     .eq('inviter_profile_id', profile.id)
+    .eq('circle_id', inviterCircleId)
     .ilike('invitee_email', normalized)
     .maybeSingle();
 
@@ -96,7 +121,7 @@ export async function POST(request: Request) {
   // fetch invitee profile if exists
   const { data: inviteeProfile } = await admin
     .from('profiles')
-    .select('id, display_name, role, email')
+    .select('id, display_name, role, plan_type, email')
     .ilike('email', normalized)
     .maybeSingle();
 
@@ -104,7 +129,7 @@ export async function POST(request: Request) {
     const { data: existingMembership } = await admin
       .from('trusted_circle_memberships')
       .select('id')
-      .eq('owner_profile_id', profile.id)
+      .eq('circle_id', inviterCircleId)
       .eq('member_profile_id', inviteeProfile.id)
       .maybeSingle();
 
@@ -115,12 +140,15 @@ export async function POST(request: Request) {
       }, { status: 409 });
     }
 
-    const inviteeLimit = getTrustedCircleLimit(inviteeProfile.role as UserRole | null | undefined);
+    const inviteeLimit = getTrustedCircleLimit(
+      (inviteeProfile.plan_type ?? inviteeProfile.role) as UserRole | string | null | undefined
+    );
     if (inviteeLimit !== null) {
+      const inviteeCircleId = await ensureDefaultCircle(admin, inviteeProfile.id);
       const { count: inviteeAccepted } = await admin
         .from('trusted_circle_memberships')
         .select('id', { count: 'exact', head: true })
-        .eq('owner_profile_id', inviteeProfile.id);
+        .eq('circle_id', inviteeCircleId);
 
       if ((inviteeAccepted ?? 0) >= inviteeLimit) {
         return NextResponse.json({
@@ -136,6 +164,7 @@ export async function POST(request: Request) {
     .from('trusted_circle_invitations')
     .insert({
       inviter_profile_id: profile.id,
+      circle_id: inviterCircleId,
       invitee_profile_id: inviteeProfile?.id ?? null,
       invitee_email: normalized,
       message: message ?? null,

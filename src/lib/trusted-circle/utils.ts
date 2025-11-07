@@ -1,11 +1,15 @@
-import type { UserRole } from '@/lib/types';
+import type { PlanType, UserRole } from '@/lib/types';
 
-export function getTrustedCircleLimit(role: UserRole | null | undefined): number | null {
-  switch (role) {
+export function getTrustedCircleLimit(
+  roleOrPlan: UserRole | PlanType | null | undefined
+): number | null {
+  switch (roleOrPlan) {
     case 'premium_plus':
-      return null;
     case 'premium':
-      return 5;
+    case 'premium_monthly':
+    case 'premium_yearly':
+    case 'admin':
+      return null;
     case 'free':
     default:
       return 1;

@@ -124,7 +124,7 @@ async function handleCheckoutCompleted(
     
     const { data: profile } = await admin
       .from('profiles')
-      .select('free_sg_pool')
+      .select('iap_sg_pool')
       .eq('id', metadata.profile_id)
       .single();
 
@@ -132,11 +132,11 @@ async function handleCheckoutCompleted(
       await admin
         .from('profiles')
         .update({
-          free_sg_pool: profile.free_sg_pool + sgQuantity,
+          iap_sg_pool: profile.iap_sg_pool + sgQuantity,
         })
         .eq('id', metadata.profile_id);
 
-      console.log(`Added ${sgQuantity} SG requests to profile ${metadata.profile_id}`);
+      console.log(`Added ${sgQuantity} purchased SG requests to profile ${metadata.profile_id}`);
     }
   } else if (metadata.product_type === 'subscription') {
     // Handle subscription checkout - actual role update happens in subscription.created
@@ -158,16 +158,22 @@ async function handleSubscriptionUpdate(
   }
 
   const role = metadata.role || 'free';
+  const planType =
+    metadata.plan_key === 'premium_yearly'
+      ? 'premium_yearly'
+      : metadata.plan_key === 'premium_monthly'
+      ? 'premium_monthly'
+      : 'free';
   const status = subscription.status;
 
   // Update profile role if subscription is active
   if (status === 'active' || status === 'trialing') {
     await admin
       .from('profiles')
-      .update({ role })
+      .update({ role, plan_type: planType })
       .eq('id', metadata.profile_id);
 
-    console.log(`Updated profile ${metadata.profile_id} to role ${role}`);
+    console.log(`Updated profile ${metadata.profile_id} to role ${role} (plan ${planType})`);
   }
 
   // Upsert subscription record
@@ -209,7 +215,7 @@ async function handleSubscriptionDeleted(
   // Downgrade to free
   await admin
     .from('profiles')
-    .update({ role: 'free' })
+    .update({ role: 'free', plan_type: 'free' })
     .eq('id', metadata.profile_id);
 
   // Update subscription status

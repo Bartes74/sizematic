@@ -115,7 +115,9 @@ export async function POST(request: NextRequest) {
     // Get sender profile
     const { data: senderProfile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, is_sms_verified, free_sg_pool, role, email, phone_number, allow_anonymous_sg')
+      .select(
+        'id, is_sms_verified, free_sg_pool, iap_sg_pool, plan_type, role, email, phone_number, allow_anonymous_sg'
+      )
       .eq('owner_id', user.id)
       .single();
 
@@ -135,12 +137,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Check eligibility (premium or has pool)
-    const isPremium = senderProfile.role === 'premium' || senderProfile.role === 'premium_plus' || senderProfile.role === 'admin';
-    if (!isPremium && senderProfile.free_sg_pool <= 0) {
+    const planType = senderProfile.plan_type ?? 'free';
+    const isPremium =
+      planType === 'premium_monthly' ||
+      planType === 'premium_yearly';
+
+    let poolToUse: 'free' | 'iap' | null = null;
+    if (isPremium) {
+      poolToUse = null;
+    } else if (senderProfile.free_sg_pool > 0) {
+      poolToUse = 'free';
+    } else if (senderProfile.iap_sg_pool > 0) {
+      poolToUse = 'iap';
+    } else {
       return NextResponse.json(
         {
-          error: 'pool_exhausted',
-          message: 'Wyczerpano darmową pulę Secret Giver. Kup pakiet lub Premium.'
+          error: 'no_sg_pool',
+          message: 'Nie masz dostępnych próśb Secret Giver. Wybierz pakiet lub przejdź na Premium.'
         },
         { status: 402 }
       );
@@ -238,11 +251,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Decrement free pool if not premium
-    if (!isPremium) {
-      await admin
-        .from('profiles')
-        .update({ free_sg_pool: senderProfile.free_sg_pool - 1 })
-        .eq('id', senderProfile.id);
+    if (!isPremium && poolToUse) {
+      if (poolToUse === 'free') {
+        await admin
+          .from('profiles')
+          .update({ free_sg_pool: senderProfile.free_sg_pool - 1 })
+          .eq('id', senderProfile.id);
+      } else if (poolToUse === 'iap') {
+        await admin
+          .from('profiles')
+          .update({ iap_sg_pool: senderProfile.iap_sg_pool - 1 })
+          .eq('id', senderProfile.id);
+      }
     }
 
     // Send email notification to recipient

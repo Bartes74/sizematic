@@ -19,6 +19,7 @@
   "wishlist": {
     "title": "Lista marzeń",
     "subtitle": "Dodawaj pomysły na prezenty, a my zadbamy o szczegóły.",
+    "helper": "Listy marzeń pozostają prywatne. Udostępniaj wybrane rozmiary bliskim przez Kręgi Zaufanych zamiast wysyłać publiczne linki.",
     "form": {
       "url": "Link do sklepu",
       "urlPlaceholder": "https://przykład.pl/produkt",
@@ -191,20 +192,32 @@
   },
   "circle": {
     "title": "Kto zna Twoje rozmiary",
-    "subtitle": "Mój Krąg",
-    "addBox": {
-      "title": "Dodaj do Kręgu Zaufanych",
-      "subtitle": "Buduj krąg ludzi, którym ufasz"
+    "subtitle": "Zorganizuj swój Krąg Zaufanych",
+    "circlesTitle": "Kręgi Zaufanych",
+    "circlesSubtitle": "Masz teraz {count} kręgów zaufanych",
+    "createCircleButton": "Stwórz nowy krąg",
+    "createPrompt": "Nazwij nowy krąg zaufanych",
+    "createSuccess": "Krąg „{name}” został utworzony.",
+    "createError": "Nie udało się utworzyć kręgu. Spróbuj ponownie później.",
+    "createLimitReached": "Aby tworzyć kolejne kręgi, przejdź na Premium.",
+    "planLabel": "Plan: {plan}",
+    "plan": {
+      "free": "Free",
+      "premium_monthly": "Premium miesięczny",
+      "premium_yearly": "Premium roczny",
+      "premium": "Premium"
     },
-    "membersBox": {
-      "title": "Twój Krąg Zaufanych",
-      "subtitle": "Dziel się bezpiecznie wybranymi rozmiarami"
-    },
-    "hasAccessTo": "ma dostęp do:",
-    "addPerson": "Dodaj osobę",
+    "defaultCircle": "Mój krąg zaufanych",
+    "memberCount": "{count, plural, one {{count} osoba} few {{count} osoby} many {{count} osób} other {{count} osoby}}",
+    "activeCircleLabel": "Aktywny krąg: {circle}",
+    "inviteTitle": "Zaproś do {circle}",
+    "inviteSubtitle": "Zaproś zaufane osoby i zdecyduj, co zobaczą.",
+    "noCircleSelected": "Najpierw wybierz krąg.",
+    "noCircles": "Stwórz pierwszy krąg, by udostępniać rozmiary.",
+    "addPerson": "Wyślij zaproszenie",
     "limitReachedButton": "Limit osiągnięty",
-    "limitInfo": "Limit planu",
-    "limitUnlimited": "Plan Premium+ (bez limitu)",
+    "limitInfo": "Wykorzystane miejsca: {used} / {limit}",
+    "limitUnlimited": "Plan Premium: brak limitu osób",
     "emailLabel": "Adres e-mail",
     "emailPlaceholder": "użytkownik@example.com",
     "messagePlaceholder": "Wiadomość (opcjonalnie)",
@@ -214,11 +227,15 @@
     "pendingTitle": "Oczekujące zaproszenia",
     "sentAt": "wysłano {date}",
     "cancelInvite": "Anuluj",
+    "membersBox": {
+      "title": "{circle} — osoby",
+      "subtitle": "Zarządzaj dostępem do swoich rozmiarów"
+    },
     "membersTitle": "Zaufane osoby",
     "manage": "Zarządzaj",
     "connectedSince": "w kręgu od",
     "onlyYou": "tylko Ty",
-    "noPeople": "Nie udostępniasz jeszcze swoich rozmiarów nikomu",
+    "noPeople": "W tym kręgu nie ma jeszcze nikogo",
     "sharingWithMember": "Udostępniam tej osobie",
     "theyShareWithMe": "Ta osoba udostępnia mi",
     "wholeCategorySuffix": "(cała kategoria)",
@@ -231,6 +248,61 @@
     "noSharedSizes": "Brak udostępnionych rozmiarów.",
     "permissionsUpdated": "Ustawienia zaktualizowane.",
     "permissionsError": "Nie udało się zapisać ustawień."
+  },
+  "upsell": {
+    "close": "Zamknij",
+    "processing": "Przetwarzam...",
+    "reasons": {
+      "general": {
+        "kicker": "Plan Premium",
+        "title": "Odblokuj pełnego Asystenta Garderoby",
+        "body": "Premium daje nielimitowane Kręgi Zaufanych, sprytne listy marzeń i dodatkowe strzały Secret Giver."
+      },
+      "wishlist": {
+        "kicker": "Lista marzeń",
+        "title": "Udostępniaj listy w zaufanym gronie",
+        "body": "W Premium łatwo pokażesz rodzinie i znajomym, co kupić, bez psucia niespodzianki."
+      },
+      "max_circles": {
+        "kicker": "Kręgi Zaufanych",
+        "title": "Twórz więcej kręgów",
+        "body": "Premium pozwala budować dowolną liczbę kręgów i precyzyjnie sterować dostępami."
+      },
+      "max_members": {
+        "kicker": "Kręgi Zaufanych",
+        "title": "Zaproś więcej osób",
+        "body": "Dodawaj dowolną liczbę bliskich i przyjaciół bez limitów planu Free."
+      },
+      "no_sg_pool": {
+        "kicker": "Secret Giver",
+        "title": "Skończyły Ci się prośby Secret Giver?",
+        "body": "Przejdź na Premium albo dokup pakiet, by kontynuować niespodzianki."
+      }
+    },
+    "plans": {
+      "monthly": {
+        "badge": "Najbardziej elastyczny",
+        "title": "Premium miesięczny",
+        "price": "29 zł / mies.",
+        "body": "Anulujesz kiedy chcesz — idealne na testy."
+      },
+      "yearly": {
+        "badge": "Najlepsza cena",
+        "title": "Premium roczny",
+        "price": "269 zł / rok",
+        "body": "Oszczędzasz 25% względem planu miesięcznego i masz Premium cały rok."
+      }
+    },
+    "sgPack": {
+      "title": "Potrzebujesz więcej strzałów Secret Giver?",
+      "body": "Dokup dodatkowy pakiet i szykuj kolejne niespodzianki.",
+      "price": "39 zł"
+    },
+    "errors": {
+      "checkoutFailed": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
+      "checkoutError": "Coś poszło nie tak. Spróbuj za chwilę."
+    },
+    "legal": "Płatności obsługuje Stripe. Premium możesz anulować w każdej chwili."
   },
   "activity": {
     "title": "Ostatnia aktywność",

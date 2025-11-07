@@ -13,6 +13,8 @@ type MemberSummary = {
     email: string | null;
     avatar_url: string | null;
   };
+  circle_id: string;
+  circle_name: string;
   connected_at: string;
   outgoing_permissions: { category: string; product_type: string | null }[];
   incoming_permissions: { category: string; product_type: string | null }[];
@@ -96,8 +98,10 @@ function formatProductType(categoryId: string, productTypeId: string | null) {
 type TrustedCircleProps = {
   initialData?: {
     plan: string | null;
+    plan_type: string | null;
     limit: number | null;
-    pending_invitations: Array<{ id: string; invitee_email: string; status: string; created_at: string }>;
+    pending_invitations: Array<{ id: string; invitee_email: string; status: string; created_at: string; circle_id: string | null }>;
+    circles: Array<{ id: string; name: string; allow_wishlist_access: boolean; allow_size_access: boolean; member_count: number }>;
     members: MemberSummary[];
   };
 };
@@ -112,28 +116,70 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
   const [activeMember, setActiveMember] = useState<MemberSummary | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
   const [permissionError, setPermissionError] = useState<string | null>(null);
+  const [activeCircleId, setActiveCircleId] = useState<string | null>(null);
+  const [circleStatus, setCircleStatus] = useState<string | null>(null);
+  const [circleError, setCircleError] = useState<string | null>(null);
+
+  const circles = circle?.circles ?? [];
+  const defaultCircleId = circles[0]?.id ?? null;
+
+  useEffect(() => {
+    if (circles.length === 0) {
+      setActiveCircleId(null);
+      return;
+    }
+
+    setActiveCircleId((current) => {
+      if (current && circles.some((existing) => existing.id === current)) {
+        return current;
+      }
+      return circles[0]?.id ?? null;
+    });
+  }, [circles]);
+
+  useEffect(() => {
+    if (activeMember && activeMember.circle_id !== activeCircleId) {
+      setActiveMember(null);
+    }
+  }, [activeCircleId, activeMember]);
 
   const limit = circle?.limit ?? null;
   const members: MemberSummary[] = circle?.members ?? [];
-  const pendingInvites: Array<{ id: string; invitee_email: string; status: string; created_at: string }> =
-    circle?.pending_invitations ?? [];
-
-  const usedSlots = members.length + pendingInvites.length;
+  const pendingInvites = (circle?.pending_invitations ?? []).filter((invite) => {
+    if (!activeCircleId) {
+      return true;
+    }
+    if (invite.circle_id === null && defaultCircleId && activeCircleId === defaultCircleId) {
+      return true;
+    }
+    return invite.circle_id === activeCircleId;
+  });
+  const activeMembers = members.filter((member) => !activeCircleId || member.circle_id === activeCircleId);
+  const usedSlots = activeMembers.length + pendingInvites.length;
   const limitLabel = limit === null
     ? t('circle.limitUnlimited')
-    : `${t('circle.limitInfo')} ${usedSlots}/${limit}`;
+    : t('circle.limitInfo', { used: usedSlots, limit });
+
+  const activeCircle = circles.find((entry) => entry.id === activeCircleId) ?? null;
+  const activeCircleName = activeCircle?.name ?? t('circle.defaultCircle');
+  const planType = circle?.plan_type ?? circle?.plan ?? 'free';
 
   const { data: sharedData, error: sharedError, isLoading: sharedLoading, mutate: refreshShared } = useSWR<SharedData>(
     activeMember ? `/api/v1/trusted-circle/members/${activeMember.profile.id}/shared` : null,
     fetcher
   );
 
-  const canInvite = limit === null || usedSlots < limit;
+  const canInvite = Boolean(activeCircleId) && (limit === null || usedSlots < limit);
+  const canCreateCircle = planType !== 'free' || circles.length === 0;
 
   const handleSendInvite = async (event: React.FormEvent) => {
     event.preventDefault();
     setInviteStatus(null);
     setInviteError(null);
+    if (!activeCircleId) {
+      setInviteError(t('circle.noCircleSelected'));
+      return;
+    }
     const email = inviteEmail.trim();
     if (!email) {
       setInviteError(t('circle.emailRequired'));
@@ -145,7 +191,7 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, message: inviteMessage }),
+        body: JSON.stringify({ email, message: inviteMessage, circle_id: activeCircleId }),
       });
 
       if (!response.ok) {
@@ -159,6 +205,49 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
       refresh();
     } catch (err) {
       setInviteError(err instanceof Error ? err.message : t('circle.inviteErrorGeneric'));
+    }
+  };
+
+  const handleCreateCircle = async () => {
+    setCircleStatus(null);
+    setCircleError(null);
+
+    if (!canCreateCircle) {
+      setCircleError(t('circle.createLimitReached'));
+      return;
+    }
+
+    const proposed = typeof window !== 'undefined' ? window.prompt(t('circle.createPrompt')) : null;
+    const trimmed = proposed?.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/v1/trusted-circle/circles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: trimmed }),
+      });
+
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setCircleError(payload?.error ?? t('circle.createError'));
+        return;
+      }
+
+      const createdId: string | null = payload?.circle?.id ?? null;
+      if (createdId) {
+        setActiveCircleId(createdId);
+      }
+      setCircleStatus(t('circle.createSuccess', { name: trimmed }));
+      await refresh();
+    } catch (error) {
+      setCircleError(error instanceof Error ? error.message : t('circle.createError'));
     }
   };
 
@@ -214,9 +303,69 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
     <section className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="section-card transition space-y-4">
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-lg font-bold tracking-tight text-foreground">{t('circle.circlesTitle')}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t('circle.circlesSubtitle', { count: circles.length })}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCreateCircle}
+                disabled={!canCreateCircle}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-border/60 bg-[var(--surface-interactive)] px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/50 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
+                </svg>
+                {t('circle.createCircleButton')}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t('circle.planLabel', { plan: t(`circle.plan.${planType}`, { defaultMessage: planType }) })}
+            </p>
+          </div>
+
+          {circleStatus ? <p className="text-xs text-emerald-500">{circleStatus}</p> : null}
+          {circleError ? <p className="text-xs text-destructive">{circleError}</p> : null}
+
+          <div className="flex flex-wrap gap-2">
+            {circles.length ? (
+              circles.map((circleItem) => {
+                const isActive = circleItem.id === activeCircleId;
+                return (
+                  <button
+                    key={circleItem.id}
+                    type="button"
+                    onClick={() => setActiveCircleId(circleItem.id)}
+                    className={`flex flex-col items-start gap-1 rounded-2xl border px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${isActive ? 'border-primary/60 bg-primary/10 text-primary' : 'border-border/60 bg-muted/10 text-foreground hover:border-primary/40 hover:text-primary'}`}
+                  >
+                    <span className="text-sm font-semibold">{circleItem.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t('circle.memberCount', { count: circleItem.member_count })}
+                    </span>
+                  </button>
+                );
+              })
+            ) : (
+              <p className="text-sm text-muted-foreground">{t('circle.noCircles')}</p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-border/60 bg-muted/10 p-4">
+            <p className="text-sm font-semibold text-foreground">
+              {t('circle.activeCircleLabel', { circle: activeCircleName })}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{limitLabel}</p>
+          </div>
+
           <div>
-            <h3 className="text-lg font-bold tracking-tight text-foreground">{t('circle.addBox.title')}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{t('circle.addBox.subtitle')}</p>
+            <h4 className="text-sm font-semibold text-foreground">
+              {t('circle.inviteTitle', { circle: activeCircleName })}
+            </h4>
+            <p className="mt-1 text-xs text-muted-foreground">{t('circle.inviteSubtitle')}</p>
           </div>
 
           <form onSubmit={handleSendInvite} className="space-y-3">
@@ -237,7 +386,7 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
               <button
                 type="submit"
                 disabled={!canInvite}
-                className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {canInvite ? t('circle.addPerson') : t('circle.limitReachedButton')}
               </button>
@@ -251,7 +400,6 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
             />
             {inviteStatus ? <p className="text-xs text-emerald-500">{inviteStatus}</p> : null}
             {inviteError ? <p className="text-xs text-destructive">{inviteError}</p> : null}
-            <p className="text-xs text-muted-foreground">{limitLabel}</p>
           </form>
 
           {pendingInvites.length > 0 ? (
@@ -294,7 +442,9 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
 
         <div className="section-card transition space-y-4">
           <div>
-            <h3 className="text-lg font-bold tracking-tight text-foreground">{t('circle.membersBox.title')}</h3>
+            <h3 className="text-lg font-bold tracking-tight text-foreground">
+              {t('circle.membersBox.title', { circle: activeCircleName })}
+            </h3>
             <p className="mt-1 text-sm text-muted-foreground">{t('circle.membersBox.subtitle')}</p>
           </div>
           <h4 className="text-sm font-semibold text-foreground">{t('circle.membersTitle')}</h4>
@@ -303,11 +453,13 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
               <p className="text-sm text-destructive">{(error as Error).message}</p>
             ) : isLoading ? (
               <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
-            ) : members.length === 0 ? (
+            ) : !activeCircleId ? (
+              <p className="text-sm text-muted-foreground">{t('circle.noCircles')}</p>
+            ) : activeMembers.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t('circle.noPeople')}</p>
             ) : (
               <ul className="space-y-3">
-                {members.map((member) => {
+                {activeMembers.map((member) => {
                   const displayName = member.profile.display_name ?? member.profile.email ?? 'GiftFit user';
                   const connectedAt = new Date(member.connected_at).toLocaleDateString();
                   const connectedLabel = `${t('circle.connectedSince')} ${connectedAt}`;

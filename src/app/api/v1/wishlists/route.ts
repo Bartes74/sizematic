@@ -22,6 +22,19 @@ export async function GET() {
       return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
     }
 
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("plan_type")
+      .eq("owner_id", user.id)
+      .maybeSingle();
+
+    if (!profile || (profile.plan_type ?? "free") === "free") {
+      return NextResponse.json(
+        { message: "Lista życzeń dostępna jest tylko w planie Premium." },
+        { status: 402 }
+      );
+    }
+
     const { data, error } = await supabase
       .from("wishlists")
       .select("*")
@@ -66,6 +79,13 @@ export async function POST(request: NextRequest) {
     }
 
     const profile = await getProfileForUser(adminClient, user.id);
+
+    if ((profile.plan_type ?? "free") === "free") {
+      return NextResponse.json(
+        { message: "Lista życzeń dostępna jest tylko w planie Premium." },
+        { status: 402 }
+      );
+    }
     const slug = await generateUniqueSlug(adminClient, profile.id, title);
 
     const { data, error } = await adminClient

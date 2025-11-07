@@ -3,6 +3,10 @@
 // User role enum matching database
 export type UserRole = 'free' | 'premium' | 'premium_plus' | 'admin';
 
+export type PlanType = 'free' | 'premium_monthly' | 'premium_yearly';
+
+export type DashboardVariant = 'full' | 'simple';
+
 export type BrandingSettings = {
   site_name: string;
   site_claim: string;
@@ -34,6 +38,7 @@ export type TrustedCircleInvitation = {
 
 export type TrustedCircleMembership = {
   id: string;
+  circle_id: string;
   owner_profile_id: string;
   member_profile_id: string;
   created_at: string;
@@ -41,6 +46,7 @@ export type TrustedCircleMembership = {
 
 export type TrustedCirclePermission = {
   id: string;
+  circle_id: string;
   owner_profile_id: string;
   member_profile_id: string;
   category: string;
@@ -87,6 +93,10 @@ export type Profile = {
   display_name: string | null;
   unit_pref: "metric" | "imperial";
   role: UserRole;
+  plan_type: PlanType;
+  free_sg_pool: number;
+  iap_sg_pool: number;
+  dashboard_variant?: DashboardVariant | null;
   created_at: string;
   updated_at: string;
 };

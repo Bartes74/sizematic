@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { GlobalHeader } from '@/components/global-header';
 import { TrustedCircle } from '@/components/trusted-circle';
+import { UpsellModal, type UpsellReason } from '@/components/upsell-modal';
 import {
   QUICK_CATEGORY_CONFIGS,
   PRODUCT_TYPE_MAP,
@@ -31,6 +32,7 @@ import type {
   BodyMeasurements,
   DashboardEvent,
   DashboardEventParticipant,
+  DashboardVariant,
 } from '@/lib/types';
 import {
   BODY_MEASUREMENT_DEFINITIONS,
@@ -61,8 +63,16 @@ type HomePageProps = {
   wishlistItems?: DashboardWishlistItem[];
   trustedCircleInitial?: {
     plan: string | null;
+    plan_type: string | null;
     limit: number | null;
     pending_invitations: Array<{ id: string; invitee_email: string; status: string; created_at: string }>;
+    circles: Array<{
+      id: string;
+      name: string;
+      allow_wishlist_access: boolean;
+      allow_size_access: boolean;
+      member_count: number;
+    }>;
     members: Array<{
       profile: {
         id: string;
@@ -70,13 +80,29 @@ type HomePageProps = {
         email: string | null;
         avatar_url: string | null;
       };
+      circle_id: string;
+      circle_name: string;
       connected_at: string;
       outgoing_permissions: { category: string; product_type: string | null }[];
       incoming_permissions: { category: string; product_type: string | null }[];
     }>;
   };
   bodyMeasurements?: BodyMeasurements | null;
+  dashboardVariant: DashboardVariant;
+  upsellReason?: string | null;
 };
+
+const ALLOWED_UPSELL_REASONS: UpsellReason[] = ['wishlist', 'max_circles', 'max_members', 'no_sg_pool', 'general'];
+
+function normalizeUpsellReason(value: string | null | undefined): UpsellReason | null {
+  if (!value) {
+    return null;
+  }
+
+  return ALLOWED_UPSELL_REASONS.includes(value as UpsellReason)
+    ? (value as UpsellReason)
+    : 'general';
+}
 
 type CalendarEvent = {
   id: string;
@@ -570,6 +596,8 @@ export function HomePage({
   wishlistItems: wishlistItemsProp = [],
   trustedCircleInitial,
   bodyMeasurements: bodyMeasurementsProp = null,
+  dashboardVariant,
+  upsellReason,
 }: HomePageProps) {
   const locale = useLocale();
   const tCommon = useTranslations('common');
@@ -590,6 +618,28 @@ export function HomePage({
   void _measurements;
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
+  const showFullDashboard = dashboardVariant !== 'simple';
+  const initialUpsellReason = normalizeUpsellReason(upsellReason);
+  const [activeUpsellReason, setActiveUpsellReason] = useState<UpsellReason | null>(initialUpsellReason);
+  const [isUpsellOpen, setIsUpsellOpen] = useState(Boolean(initialUpsellReason));
+
+  useEffect(() => {
+    const normalized = normalizeUpsellReason(upsellReason);
+    setActiveUpsellReason(normalized);
+    setIsUpsellOpen(Boolean(normalized));
+  }, [upsellReason]);
+
+  const handleCloseUpsell = useCallback(() => {
+    setIsUpsellOpen(false);
+    setActiveUpsellReason(null);
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      params.delete('upsell');
+      const query = params.toString();
+      router.replace(`${window.location.pathname}${query ? `?${query}` : ''}`, { scroll: false });
+    }
+  }, [router]);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [activeBodyMeasurementDefinition, setActiveBodyMeasurementDefinition] = useState<BodyMeasurementDefinition | null>(null);
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
@@ -1414,30 +1464,31 @@ export function HomePage({
           </div>
         </Link>
 
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tSizesSection('title')}</h2>
-              <button
-                type="button"
-                onClick={() => setPreferencesOpen(true)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-[var(--surface-muted)] text-muted-foreground shadow-sm transition hover:border-[#48A9A6] hover:text-[#48A9A6]"
-                aria-label={tSizesSection('configure')}
+        {showFullDashboard ? (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tSizesSection('title')}</h2>
+                <button
+                  type="button"
+                  onClick={() => setPreferencesOpen(true)}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-[var(--surface-muted)] text-muted-foreground shadow-sm transition hover:border-[#48A9A6] hover:text-[#48A9A6]"
+                  aria-label={tSizesSection('configure')}
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h5m11 0h-6m-4 0v10m2 0h9m-13 0H4M9 7a2 2 0 114 0 2 2 0 11-4 0zm6 10a2 2 0 114 0 2 2 0 11-4 0z" />
+                  </svg>
+                </button>
+              </div>
+              <Link
+                href="/dashboard/sizes"
+                className="text-sm font-semibold text-primary transition hover:text-primary/80"
               >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h5m11 0h-6m-4 0v10m2 0h9m-13 0H4M9 7a2 2 0 114 0 2 2 0 11-4 0zm6 10a2 2 0 114 0 2 2 0 11-4 0z" />
-                </svg>
-              </button>
+                {tSizesSection('cta')}
+              </Link>
             </div>
-            <Link
-              href="/dashboard/sizes"
-              className="text-sm font-semibold text-primary transition hover:text-primary/80"
-            >
-              {tSizesSection('cta')}
-            </Link>
-          </div>
-          <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-            {quickSizeTiles.map((tile) => {
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+              {quickSizeTiles.map((tile) => {
               let categoryLabel: string;
               try {
                 categoryLabel = tQuickCategories(tile.categoryId as any);
@@ -1491,8 +1542,9 @@ export function HomePage({
               </button>
               );
             })}
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {shouldShowDataGaps ? (
           <SectionCard>
@@ -1543,6 +1595,7 @@ export function HomePage({
           </SectionCard>
         ) : null}
 
+        {showFullDashboard ? (
         <SectionCard>
           <div className="flex items-center justify-between gap-3 pb-4">
             <div>
@@ -1632,9 +1685,12 @@ export function HomePage({
             </div>
           )}
         </SectionCard>
-
+        ) : null}
+        {showFullDashboard ? (
         <TrustedCircle initialData={trustedCircleInitial ?? undefined} />
+        ) : null}
 
+        {showFullDashboard ? (
         <SectionCard>
           <div className="flex items-center justify-between gap-3 pb-4">
             <div>
@@ -1739,6 +1795,7 @@ export function HomePage({
             </div>
           )}
         </SectionCard>
+        ) : null}
 
       </main>
 
@@ -1783,6 +1840,12 @@ export function HomePage({
           </div>
         </ModalShell>
       ) : null}
+
+      <UpsellModal
+        isOpen={isUpsellOpen && !!activeUpsellReason}
+        reason={activeUpsellReason ?? 'general'}
+        onClose={handleCloseUpsell}
+      />
 
       {isAddEventOpen ? (
         <ModalShell onClose={handleCloseEventModal} maxWidth="max-w-2xl" closeLabel={tCommon('close')}>

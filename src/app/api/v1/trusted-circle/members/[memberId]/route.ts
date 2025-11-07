@@ -33,27 +33,52 @@ export async function DELETE(_request: Request, context: unknown) {
 
   const now = new Date().toISOString();
 
-  // Delete memberships in both directions
+  const { data: directMemberships, error: membershipsError } = await admin
+    .from('trusted_circle_memberships')
+    .select('id, circle_id')
+    .eq('owner_profile_id', profile.id)
+    .eq('member_profile_id', memberId);
+
+  if (membershipsError) {
+    return NextResponse.json({ error: membershipsError.message }, { status: 500 });
+  }
+
+  if (!directMemberships || directMemberships.length === 0) {
+    return NextResponse.json({ error: 'Ta osoba nie znajduje się w Twoim Kręgu Zaufanych.' }, { status: 404 });
+  }
+
+  const circleIds = directMemberships.map((entry) => entry.circle_id);
+
   await admin
     .from('trusted_circle_memberships')
     .delete()
-    .match({ owner_profile_id: profile.id, member_profile_id: memberId });
+    .in('id', directMemberships.map((entry) => entry.id));
 
-  await admin
+  const { data: reciprocalMemberships } = await admin
     .from('trusted_circle_memberships')
-    .delete()
-    .match({ owner_profile_id: memberId, member_profile_id: profile.id });
+    .select('id')
+    .eq('owner_profile_id', memberId)
+    .eq('member_profile_id', profile.id);
 
-  // Remove permissions owned by current profile or member pointing to current profile
+  if (reciprocalMemberships && reciprocalMemberships.length > 0) {
+    await admin
+      .from('trusted_circle_memberships')
+      .delete()
+      .in('id', reciprocalMemberships.map((entry) => entry.id));
+  }
+
   await admin
     .from('trusted_circle_permissions')
     .delete()
-    .match({ owner_profile_id: profile.id, member_profile_id: memberId });
+    .in('circle_id', circleIds)
+    .eq('owner_profile_id', profile.id)
+    .eq('member_profile_id', memberId);
 
   await admin
     .from('trusted_circle_permissions')
     .delete()
-    .match({ owner_profile_id: memberId, member_profile_id: profile.id });
+    .eq('owner_profile_id', memberId)
+    .eq('member_profile_id', profile.id);
 
   // Revoke related invitation if exists
   await admin

@@ -19,6 +19,7 @@
   "wishlist": {
     "title": "Wishlist",
     "subtitle": "Collect gift ideas and let GiftFit handle the details.",
+    "helper": "Wishlists stay private. Share selected sizes with friends through Trusted Circles instead of sending links.",
     "form": {
       "url": "Store link",
       "urlPlaceholder": "https://example.com/product",
@@ -190,21 +191,33 @@
     "premiumFeature": "In Premium+ you can password-protect links and extend validity"
   },
   "circle": {
-    "title": "Who Knows Your Sizes",
-    "subtitle": "My Circle",
-    "addBox": {
-      "title": "Add to Trusted Circle",
-      "subtitle": "Build the circle of people you trust"
+    "title": "Who knows your sizes",
+    "subtitle": "Organise your trusted circles",
+    "circlesTitle": "Trusted circles",
+    "circlesSubtitle": "{count, plural, one {You have {count} active circle} other {You have {count} active circles}}",
+    "createCircleButton": "Create new circle",
+    "createPrompt": "Name your new trusted circle",
+    "createSuccess": "Circle “{name}” created.",
+    "createError": "We couldn't create the circle. Try again later.",
+    "createLimitReached": "Upgrade your plan to create more circles.",
+    "planLabel": "Current plan: {plan}",
+    "plan": {
+      "free": "Free",
+      "premium_monthly": "Premium Monthly",
+      "premium_yearly": "Premium Yearly",
+      "premium": "Premium"
     },
-    "membersBox": {
-      "title": "Your Trusted Circle",
-      "subtitle": "Share selected sizes securely"
-    },
-    "hasAccessTo": "has access to:",
-    "addPerson": "Add person",
+    "defaultCircle": "My trusted circle",
+    "memberCount": "{count, plural, one {{count} person} other {{count} people}}",
+    "activeCircleLabel": "Active circle: {circle}",
+    "inviteTitle": "Invite to {circle}",
+    "inviteSubtitle": "Invite trusted people and choose exactly which sizes they can see.",
+    "noCircleSelected": "Select a circle first.",
+    "noCircles": "Create your first circle to start sharing.",
+    "addPerson": "Send invitation",
     "limitReachedButton": "Limit reached",
-    "limitInfo": "Plan limit",
-    "limitUnlimited": "Premium+ plan (no limit)",
+    "limitInfo": "Slots used: {used} / {limit}",
+    "limitUnlimited": "Premium plan: unlimited members",
     "emailLabel": "Email address",
     "emailPlaceholder": "user@example.com",
     "messagePlaceholder": "Message (optional)",
@@ -214,11 +227,15 @@
     "pendingTitle": "Pending invitations",
     "sentAt": "sent {date}",
     "cancelInvite": "Cancel",
+    "membersBox": {
+      "title": "{circle} members",
+      "subtitle": "Manage who can see your sizes"
+    },
     "membersTitle": "Trusted people",
     "manage": "Manage",
     "connectedSince": "connected since",
     "onlyYou": "only you",
-    "noPeople": "You haven't shared your sizes with anyone yet",
+    "noPeople": "No one is in this circle yet",
     "sharingWithMember": "I share with this person",
     "theyShareWithMe": "This person shares with me",
     "wholeCategorySuffix": "(entire category)",
@@ -231,6 +248,61 @@
     "noSharedSizes": "No shared sizes.",
     "permissionsUpdated": "Settings updated.",
     "permissionsError": "We couldn't save the settings."
+  },
+  "upsell": {
+    "close": "Close",
+    "processing": "Processing...",
+    "reasons": {
+      "general": {
+        "kicker": "Premium plan",
+        "title": "Unlock the full wardrobe assistant",
+        "body": "Premium gives you unlimited trusted circles, wishlist sharing to friends, and Secret Giver extras."
+      },
+      "wishlist": {
+        "kicker": "Wishlist",
+        "title": "Share smart wishlists",
+        "body": "Upgrade to share curated wishlists with your trusted circles and Secret Giver requests."
+      },
+      "max_circles": {
+        "kicker": "Trusted circles",
+        "title": "Create more trusted circles",
+        "body": "Premium members can organise multiple circles and control access per circle."
+      },
+      "max_members": {
+        "kicker": "Trusted circles",
+        "title": "Add more people to your circle",
+        "body": "Invite unlimited friends and family without worrying about plan limits."
+      },
+      "no_sg_pool": {
+        "kicker": "Secret Giver",
+        "title": "Out of Secret Giver requests?",
+        "body": "Upgrade for unlimited requests or buy an extra bundle for the next surprise."
+      }
+    },
+    "plans": {
+      "monthly": {
+        "badge": "Most flexible",
+        "title": "Premium Monthly",
+        "price": "PLN 29 / month",
+        "body": "Cancel anytime — perfect if you need Premium features right now."
+      },
+      "yearly": {
+        "badge": "Best value",
+        "title": "Premium Yearly",
+        "price": "PLN 269 / year",
+        "body": "Save 25% compared to the monthly plan and enjoy Premium all year."
+      }
+    },
+    "sgPack": {
+      "title": "Need more Secret Giver requests?",
+      "body": "Buy an extra Secret Giver bundle for upcoming surprises.",
+      "price": "PLN 39"
+    },
+    "errors": {
+      "checkoutFailed": "We couldn't start the checkout. Try again.",
+      "checkoutError": "Something went wrong. Try again later."
+    },
+    "legal": "Payments are handled securely by Stripe. You can cancel Premium anytime in Settings."
   },
   "activity": {
     "title": "Recent Activity",

@@ -9,8 +9,16 @@ const fetcher = (url: string) => fetch(url, { credentials: 'include' }).then((re
 
 type CircleResponse = {
   plan: string | null;
+  plan_type: string | null;
   limit: number | null;
-  pending_invitations: Array<{ id: string; invitee_email: string; status: string; created_at: string }>;
+  pending_invitations: Array<{ id: string; invitee_email: string; status: string; created_at: string; circle_id: string | null }>;
+  circles: Array<{
+    id: string;
+    name: string;
+    allow_wishlist_access: boolean;
+    allow_size_access: boolean;
+    member_count: number;
+  }>;
   members: Array<{
     profile: {
       id: string;
@@ -18,6 +26,8 @@ type CircleResponse = {
       email: string | null;
       avatar_url: string | null;
     };
+    circle_id: string;
+    circle_name: string;
     connected_at: string;
     outgoing_permissions: { category: string; product_type: string | null }[];
     incoming_permissions: { category: string; product_type: string | null }[];

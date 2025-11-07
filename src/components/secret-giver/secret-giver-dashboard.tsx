@@ -35,6 +35,8 @@ type Eligibility = {
   needs_sms_verification: boolean;
   is_premium: boolean;
   free_sg_pool: number;
+  iap_sg_pool: number;
+  plan_type: 'free' | 'premium_monthly' | 'premium_yearly';
   can_send_if_verified: boolean;
 };
 
@@ -144,7 +146,7 @@ export function SecretGiverDashboard() {
       } else {
         if (data.error === 'sms_verification_required') {
           setShowSMSModal(true);
-        } else if (data.error === 'pool_exhausted') {
+        } else if (data.error === 'pool_exhausted' || data.error === 'no_sg_pool') {
           setShowPaywallModal(true);
         } else {
           alert(data.message || data.error || tErrors('genericError'));
@@ -195,7 +197,7 @@ export function SecretGiverDashboard() {
       </div>
 
       {/* Eligibility status */}
-      {eligibility && (
+              {eligibility && (
         <div className="border border-border/50 bg-surface-muted/30 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between">
             <div>
@@ -205,7 +207,9 @@ export function SecretGiverDashboard() {
                 </p>
               ) : (
                 <p className="text-foreground font-semibold">
-                  {tEligibility('freePool', { count: eligibility.free_sg_pool })}
+                  {tEligibility('freePool', {
+                    count: eligibility.free_sg_pool + eligibility.iap_sg_pool,
+                  })}
                 </p>
               )}
               {eligibility.needs_sms_verification && (

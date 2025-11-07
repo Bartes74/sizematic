@@ -50,12 +50,16 @@ export default async function DashboardWishlistsPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, display_name, role, avatar_url")
+    .select("id, display_name, role, plan_type, avatar_url")
     .eq("owner_id", user.id)
     .maybeSingle();
 
   if (!profile) {
     throw new Error("Profil użytkownika nie istnieje dla zalogowanego konta.");
+  }
+
+  if ((profile.plan_type ?? 'free') === 'free') {
+    redirect("/dashboard?upsell=wishlist");
   }
 
   const profileId = profile.id;

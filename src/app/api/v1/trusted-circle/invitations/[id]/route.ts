@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 import { getTrustedCircleLimit } from '@/lib/trusted-circle/utils';
+import { ensureDefaultCircle } from '@/lib/trusted-circle/circle-helpers';
 import type { UserRole } from '@/lib/types';
 
 export async function POST(_request: Request, context: unknown) {
@@ -28,7 +29,7 @@ export async function POST(_request: Request, context: unknown) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('id, role, email, display_name')
+    .select('id, role, plan_type, email, display_name')
     .eq('owner_id', user.id)
     .maybeSingle();
 
@@ -69,12 +70,14 @@ export async function POST(_request: Request, context: unknown) {
     }, { status: 403 });
   }
 
-  const limit = getTrustedCircleLimit(profile.role as UserRole | null | undefined);
+  const limit = getTrustedCircleLimit((profile.plan_type ?? profile.role) as UserRole | string | null | undefined);
   if (limit !== null) {
+    const defaultCircleId = await ensureDefaultCircle(admin, profile.id);
+
     const { count: currentMemberships, error: membershipCountError } = await admin
       .from('trusted_circle_memberships')
       .select('id', { count: 'exact', head: true })
-      .eq('owner_profile_id', profile.id);
+      .eq('circle_id', defaultCircleId);
 
     if (membershipCountError) {
       return NextResponse.json({ error: membershipCountError.message }, { status: 500 });
@@ -108,10 +111,26 @@ export async function POST(_request: Request, context: unknown) {
     { owner_profile_id: profile.id, member_profile_id: invitation.inviter_profile_id },
   ];
 
+  const inviterCircleId = invitation.circle_id || (await ensureDefaultCircle(admin, invitation.inviter_profile_id));
+  const inviteeCircleId = await ensureDefaultCircle(admin, profile.id);
+
+  const membershipPairs = [
+    {
+      circle_id: inviterCircleId,
+      owner_profile_id: invitation.inviter_profile_id,
+      member_profile_id: profile.id,
+    },
+    {
+      circle_id: inviteeCircleId,
+      owner_profile_id: profile.id,
+      member_profile_id: invitation.inviter_profile_id,
+    },
+  ];
+
   const { error: membershipError } = await admin
     .from('trusted_circle_memberships')
     .upsert(membershipPairs, {
-      onConflict: 'owner_profile_id,member_profile_id',
+      onConflict: 'circle_id,member_profile_id',
       ignoreDuplicates: true,
     });
 

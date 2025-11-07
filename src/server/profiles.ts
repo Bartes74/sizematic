@@ -5,12 +5,15 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 type ProfileRow = {
   id: string;
   email: string | null;
+  role?: string | null;
+  plan_type?: string | null;
+  dashboard_variant?: string | null;
 };
 
 export async function getProfileForUser(supabase: SupabaseClient, ownerId: string) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email")
+    .select("id, email, role, plan_type, dashboard_variant")
     .eq("owner_id", ownerId)
     .maybeSingle();
 

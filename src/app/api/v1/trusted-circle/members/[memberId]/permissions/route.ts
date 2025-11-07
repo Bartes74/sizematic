@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
+import { getCircleMembershipAccess } from '@/server/trusted-circle/access';
 
 export async function PUT(request: Request, context: unknown) {
   const { params } = context as { params: { memberId: string } };
@@ -34,12 +35,8 @@ export async function PUT(request: Request, context: unknown) {
 
   const memberId = params.memberId;
 
-  const { data: membership } = await admin
-    .from('trusted_circle_memberships')
-    .select('id')
-    .eq('owner_profile_id', profile.id)
-    .eq('member_profile_id', memberId)
-    .maybeSingle();
+  const { memberships } = await getCircleMembershipAccess(profile.id, memberId);
+  const membership = memberships.at(0);
 
   if (!membership) {
     return NextResponse.json({ error: 'Ta osoba nie znajduje się w Twoim Kręgu Zaufanych.' }, { status: 404 });
@@ -48,10 +45,11 @@ export async function PUT(request: Request, context: unknown) {
   await admin
     .from('trusted_circle_permissions')
     .delete()
-    .match({ owner_profile_id: profile.id, member_profile_id: memberId });
+    .match({ owner_profile_id: profile.id, member_profile_id: memberId, circle_id: membership.circle_id });
 
   if (selections.length > 0) {
     const payload = selections.map((item) => ({
+      circle_id: membership.circle_id,
       owner_profile_id: profile.id,
       member_profile_id: memberId,
       category: item.category,

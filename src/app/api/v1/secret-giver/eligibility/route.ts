@@ -19,7 +19,7 @@ export async function GET() {
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, is_sms_verified, free_sg_pool, role')
+      .select('id, is_sms_verified, free_sg_pool, iap_sg_pool, plan_type, role')
       .eq('owner_id', user.id)
       .single();
 
@@ -27,8 +27,12 @@ export async function GET() {
       return NextResponse.json({ error: profileError.message }, { status: 500 });
     }
 
-    const isPremium = profile.role === 'premium' || profile.role === 'premium_plus' || profile.role === 'admin';
-    const canSend = isPremium || profile.free_sg_pool > 0;
+    const planType = profile.plan_type ?? 'free';
+    const isPremium =
+      planType === 'premium_monthly' ||
+      planType === 'premium_yearly';
+    const totalPool = profile.free_sg_pool + profile.iap_sg_pool;
+    const canSend = isPremium || totalPool > 0;
     const needsVerification = !profile.is_sms_verified;
 
     return NextResponse.json({
@@ -36,7 +40,9 @@ export async function GET() {
       needs_sms_verification: needsVerification,
       is_premium: isPremium,
       free_sg_pool: profile.free_sg_pool,
-      can_send_if_verified: isPremium || profile.free_sg_pool > 0,
+      iap_sg_pool: profile.iap_sg_pool,
+      plan_type: planType,
+      can_send_if_verified: isPremium || totalPool > 0,
     });
   } catch (error) {
     console.error('GET /api/v1/secret-giver/eligibility failed:', error);

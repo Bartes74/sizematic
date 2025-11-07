@@ -40,8 +40,12 @@ export async function GET() {
 
     return NextResponse.json({
       plan: profile.role,
-      limit: snapshot.limit ?? getTrustedCircleLimit(profile.role as UserRole | null | undefined),
+      plan_type: snapshot.plan_type,
+      limit:
+        snapshot.limit ??
+        getTrustedCircleLimit((snapshot.plan_type ?? profile.role) as UserRole | string | null | undefined),
       pending_invitations: snapshot.pending_invitations,
+      circles: snapshot.circles,
       members: snapshot.members,
     });
   } catch (error) {
