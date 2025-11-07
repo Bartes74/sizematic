@@ -369,15 +369,19 @@
           "user": "User",
           "email": "Email",
           "role": "Role",
+          "variant": "Dashboard variant",
           "createdAt": "Date joined",
           "actions": "Actions"
         },
         "actions": {
-          "changeRole": "Change role"
+          "changeRole": "Change role",
+          "manage": "Change role or variant"
         },
         "empty": "There are no users in the system yet",
         "modal": {
-          "title": "Change user role",
+          "title": "Manage user profile",
+          "rolesTitle": "Select role",
+          "variantTitle": "Select dashboard variant",
           "current": "Current"
         },
         "errors": {
@@ -391,7 +395,12 @@
           "defaultUser": "User",
           "defaultInitial": "U"
         },
-        "idLabel": "ID: {value}"
+        "idLabel": "ID: {value}",
+        "variantUnset": "Not assigned",
+        "variantLabels": {
+          "full": "Full",
+          "simple": "Simple"
+        }
       },
       "roles": {
         "free": "Free",

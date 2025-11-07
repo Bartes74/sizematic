@@ -369,15 +369,19 @@
           "user": "Użytkownik",
           "email": "Email",
           "role": "Rola",
+          "variant": "Wariant dashboardu",
           "createdAt": "Data rejestracji",
           "actions": "Akcje"
         },
         "actions": {
-          "changeRole": "Zmień rolę"
+          "changeRole": "Zmień rolę",
+          "manage": "Zmień rolę lub wariant"
         },
         "empty": "Brak użytkowników w systemie",
         "modal": {
-          "title": "Zmień rolę użytkownika",
+          "title": "Zarządzaj profilem użytkownika",
+          "rolesTitle": "Wybierz rolę",
+          "variantTitle": "Wybierz wariant dashboardu",
           "current": "Obecna"
         },
         "errors": {
@@ -391,7 +395,12 @@
           "defaultUser": "Użytkownik",
           "defaultInitial": "U"
         },
-        "idLabel": "ID: {value}"
+        "idLabel": "ID: {value}",
+        "variantUnset": "Brak",
+        "variantLabels": {
+          "full": "Pełny",
+          "simple": "Prosty"
+        }
       },
       "roles": {
         "free": "Free",

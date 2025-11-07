@@ -34,7 +34,7 @@ export default async function AdminPage() {
 
   const { data: profiles } = await adminClient
     .from('profiles')
-    .select('id, display_name, email, role, created_at, owner_id')
+    .select('id, display_name, email, role, dashboard_variant, created_at, owner_id')
     .order('created_at', { ascending: false });
 
   const { data: brandingData } = await adminClient

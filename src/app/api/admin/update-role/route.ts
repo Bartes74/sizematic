@@ -1,6 +1,6 @@
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import type { UserRole } from '@/lib/types';
+import type { DashboardVariant, UserRole } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,40 +33,69 @@ export async function POST(request: NextRequest) {
 
     // Get request body
     const body = await request.json();
-    const { userId, newRole } = body as { userId: string; newRole: UserRole };
+    const {
+      userId,
+      newRole,
+      newVariant,
+    } = body as {
+      userId: string;
+      newRole?: UserRole;
+      newVariant?: DashboardVariant;
+    };
 
-    if (!userId || !newRole) {
+    if (!userId || (!newRole && !newVariant)) {
       return NextResponse.json(
         { message: 'Brak wymaganych parametrów' },
         { status: 400 }
       );
     }
 
-    // Validate role
-    const validRoles: UserRole[] = ['free', 'premium', 'premium_plus', 'admin'];
-    if (!validRoles.includes(newRole)) {
+    const updatePayload: Record<string, unknown> = {};
+
+    if (newRole) {
+      const validRoles: UserRole[] = ['free', 'premium', 'premium_plus', 'admin'];
+      if (!validRoles.includes(newRole)) {
+        return NextResponse.json(
+          { message: 'Nieprawidłowa rola' },
+          { status: 400 }
+        );
+      }
+      updatePayload.role = newRole;
+    }
+
+    if (newVariant) {
+      const validVariants: DashboardVariant[] = ['full', 'simple'];
+      if (!validVariants.includes(newVariant)) {
+        return NextResponse.json(
+          { message: 'Nieprawidłowy wariant' },
+          { status: 400 }
+        );
+      }
+      updatePayload.dashboard_variant = newVariant;
+    }
+
+    if (Object.keys(updatePayload).length === 0) {
       return NextResponse.json(
-        { message: 'Nieprawidłowa rola' },
+        { message: 'Brak zmian do zapisania' },
         { status: 400 }
       );
     }
 
-    // Update user role
     const { error } = await adminClient
       .from('profiles')
-      .update({ role: newRole })
+      .update(updatePayload)
       .eq('id', userId);
 
     if (error) {
       console.error('Error updating role:', error);
       return NextResponse.json(
-        { message: 'Błąd podczas aktualizacji roli' },
+        { message: 'Błąd podczas aktualizacji profilu' },
         { status: 500 }
       );
     }
 
     return NextResponse.json(
-      { message: 'Rola została zaktualizowana' },
+      { message: 'Profil został zaktualizowany' },
       { status: 200 }
     );
   } catch (error) {
