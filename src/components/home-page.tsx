@@ -672,7 +672,7 @@ export function HomePage({
       const nextUrl = `${window.location.pathname}${query ? `?${query}` : ''}`;
       const currentUrl = `${window.location.pathname}${window.location.search}`;
       if (nextUrl !== currentUrl) {
-        router.replace(nextUrl, { scroll: Boolean(section) });
+            router.replace(nextUrl, { scroll: false });
       }
     },
     [router]
