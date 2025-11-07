@@ -104,12 +104,6 @@ export async function POST(_request: Request, context: unknown) {
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
-
-  const membershipPairs = [
-    { owner_profile_id: invitation.inviter_profile_id, member_profile_id: profile.id },
-    { owner_profile_id: profile.id, member_profile_id: invitation.inviter_profile_id },
-  ];
-
   const inviterCircleId = invitation.circle_id || (await ensureDefaultCircle(admin, invitation.inviter_profile_id));
   const inviteeCircleId = await ensureDefaultCircle(admin, profile.id);
 
