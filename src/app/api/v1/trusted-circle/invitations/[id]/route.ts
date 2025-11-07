@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
-import { getTrustedCircleLimit } from '@/lib/trusted-circle/utils';
+import { getTrustedCircleLimit, normalizeEmail } from '@/lib/trusted-circle/utils';
 import { ensureDefaultCircle } from '@/lib/trusted-circle/circle-helpers';
-import type { UserRole } from '@/lib/types';
+import { sendTrustedCircleInviteEmail } from '@/lib/email/send-trusted-circle-invite';
+import type { PlanType, UserRole } from '@/lib/types';
 
 export async function POST(_request: Request, context: unknown) {
   const { params } = context as { params: { id: string } };
@@ -70,7 +71,8 @@ export async function POST(_request: Request, context: unknown) {
     }, { status: 403 });
   }
 
-  const limit = getTrustedCircleLimit((profile.plan_type ?? profile.role) as UserRole | string | null | undefined);
+  const planKey = (profile.plan_type ?? profile.role) as PlanType | UserRole | null | undefined;
+  const limit = getTrustedCircleLimit(planKey);
   if (limit !== null) {
     const defaultCircleId = await ensureDefaultCircle(admin, profile.id);
 
