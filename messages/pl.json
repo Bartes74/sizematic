@@ -9,7 +9,9 @@
     "clear": "Wyczyść",
     "delete": "Usuń",
     "edit": "Edytuj",
-    "close": "Zamknij"
+    "close": "Zamknij",
+    "back": "Wstecz",
+    "upgrade": "Przejdź na Premium"
   },
   "theme": {
     "light": "Jasny",
@@ -20,6 +22,8 @@
     "title": "Lista marzeń",
     "subtitle": "Dodawaj pomysły na prezenty, a my zadbamy o szczegóły.",
     "helper": "Listy marzeń pozostają prywatne. Udostępniaj wybrane rozmiary bliskim przez Kręgi Zaufanych zamiast wysyłać publiczne linki.",
+    "lockedDescription": "Lista marzeń jest dostępna w planie Premium. Przejdź na Premium, aby planować prezenty i dzielić się nimi ze swoim kręgiem.",
+    "unlockButton": "Aktywuj Premium",
     "form": {
       "url": "Link do sklepu",
       "urlPlaceholder": "https://przykład.pl/produkt",
@@ -398,6 +402,7 @@
     },
     "sizesSection": {
       "title": "Zapisz swoje rozmiary",
+      "helper": "Zachowaj najważniejsze rozmiary, aby szybciej dodawać garderobę.",
       "cta": "Zobacz wszystkie",
       "configure": "Konfiguruj skróty rozmiarów",
       "emptyProductType": "Dodaj rozmiar"

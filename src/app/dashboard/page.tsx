@@ -20,6 +20,7 @@ export const dynamic = "force-dynamic";
 type PageSearchParams = {
   edit?: string | string[];
   upsell?: string | string[];
+  section?: string | string[];
 };
 
 export default async function Home({
@@ -235,6 +236,11 @@ export default async function Home({
     ? upsellParam[0] ?? null
     : upsellParam ?? null;
 
+  const sectionParam = resolvedSearchParams?.section;
+  const initialSection = Array.isArray(sectionParam)
+    ? (sectionParam[0] as 'events' | 'trusted-circle' | 'wishlist' | undefined)
+    : (sectionParam as 'events' | 'trusted-circle' | 'wishlist' | undefined);
+
   return (
     <HomePage
       measurements={measurements}
@@ -252,6 +258,7 @@ export default async function Home({
       bodyMeasurements={bodyMeasurements}
       dashboardVariant={dashboardVariant}
       upsellReason={upsellReasonRaw}
+      initialSection={initialSection ?? null}
     />
   );
 }

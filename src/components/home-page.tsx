@@ -8,6 +8,7 @@ import {
   useState,
   type FormEvent,
   type ReactNode,
+  type SVGProps,
 } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -33,6 +34,7 @@ import type {
   DashboardEvent,
   DashboardEventParticipant,
   DashboardVariant,
+  PlanType,
 } from '@/lib/types';
 import {
   BODY_MEASUREMENT_DEFINITIONS,
@@ -44,6 +46,8 @@ import {
   isDefinitionRequired,
 } from '@/data/body-measurements';
 import { createClient as createSupabaseClient } from '@/lib/supabase/client';
+
+type SectionKey = 'events' | 'trusted-circle' | 'wishlist';
 
 type HomePageProps = {
   measurements: Measurement[];
@@ -90,6 +94,7 @@ type HomePageProps = {
   bodyMeasurements?: BodyMeasurements | null;
   dashboardVariant: DashboardVariant;
   upsellReason?: string | null;
+  initialSection?: SectionKey | null;
 };
 
 const ALLOWED_UPSELL_REASONS: UpsellReason[] = ['wishlist', 'max_circles', 'max_members', 'no_sg_pool', 'general'];
@@ -598,6 +603,7 @@ export function HomePage({
   bodyMeasurements: bodyMeasurementsProp = null,
   dashboardVariant,
   upsellReason,
+  initialSection = null,
 }: HomePageProps) {
   const locale = useLocale();
   const tCommon = useTranslations('common');
@@ -615,10 +621,14 @@ export function HomePage({
   const tMeasurementDefinitions = useTranslations('measurements.definitions');
   const tWishlistSection = useTranslations('dashboard.wishlistSection');
   const tSecretGiver = useTranslations('secretGiver');
+  const tCircle = useTranslations('circle');
   void _measurements;
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
   const showFullDashboard = dashboardVariant !== 'simple';
+  const isSimpleVariant = !showFullDashboard;
+  const planType = (trustedCircleInitial?.plan_type ?? 'free') as PlanType;
+  const isFreePlan = planType === 'free';
   const initialUpsellReason = normalizeUpsellReason(upsellReason);
   const [activeUpsellReason, setActiveUpsellReason] = useState<UpsellReason | null>(initialUpsellReason);
   const [isUpsellOpen, setIsUpsellOpen] = useState(Boolean(initialUpsellReason));
@@ -640,6 +650,627 @@ export function HomePage({
       router.replace(`${window.location.pathname}${query ? `?${query}` : ''}`, { scroll: false });
     }
   }, [router]);
+  const openUpsell = useCallback(
+    (reason: UpsellReason) => {
+      setActiveUpsellReason(reason);
+      setIsUpsellOpen(true);
+    },
+    []
+  );
+  const [activeSection, setActiveSection] = useState<SectionKey | null>(null);
+  const updateSectionParam = useCallback(
+    (section: SectionKey | null) => {
+      if (typeof window === 'undefined') return;
+      const params = new URLSearchParams(window.location.search);
+      if (section) {
+        params.set('section', section);
+      } else {
+        params.delete('section');
+      }
+      const query = params.toString();
+      const nextUrl = `${window.location.pathname}${query ? `?${query}` : ''}`;
+      const currentUrl = `${window.location.pathname}${window.location.search}`;
+      if (nextUrl !== currentUrl) {
+        router.replace(nextUrl, { scroll: Boolean(section) });
+      }
+    },
+    [router]
+  );
+
+  useEffect(() => {
+    if (!isSimpleVariant) {
+      setActiveSection(null);
+      return;
+    }
+
+    if (!initialSection) {
+      setActiveSection(null);
+      updateSectionParam(null);
+      return;
+    }
+
+    if (initialSection === 'wishlist' && isFreePlan) {
+      openUpsell('wishlist');
+      updateSectionParam(null);
+      return;
+    }
+
+    setActiveSection(initialSection);
+  }, [initialSection, isFreePlan, isSimpleVariant, openUpsell, updateSectionParam]);
+
+  useEffect(() => {
+    if (!isSimpleVariant || !activeSection) {
+      return;
+    }
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const target = document.getElementById(`dashboard-${activeSection}`);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [activeSection, isSimpleVariant]);
+
+  const handleSectionNavigate = useCallback(
+    (section: SectionKey) => {
+      if (section === 'wishlist' && isFreePlan) {
+        openUpsell('wishlist');
+        return;
+      }
+      setActiveSection(section);
+      updateSectionParam(section);
+    },
+    [isFreePlan, openUpsell, updateSectionParam]
+  );
+
+  const handleBackToOverview = useCallback(() => {
+    setActiveSection(null);
+    updateSectionParam(null);
+  }, [updateSectionParam]);
+
+  const CalendarIcon = (props: SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10m-12 9h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v11a2 2 0 002 2z" />
+    </svg>
+  );
+
+  const UsersIcon = (props: SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2m18 0v-2a4 4 0 00-3-3.87M15 3a3 3 0 11-6 0 3 3 0 016 0zm6 9a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+
+  const HeartIcon = (props: SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.347-1.903-4.25-4.25-4.25-1.5 0-2.819.779-3.5 1.95-.681-1.171-2-1.95-3.5-1.95C6.403 4 4.5 5.903 4.5 8.25c0 6.167 7.25 9.5 7.25 9.5s7.25-3.333 7.25-9.5z" />
+    </svg>
+  );
+
+  const LockIcon = (props: SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 10-8 0v4m-2 0h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7a2 2 0 012-2z" />
+    </svg>
+  );
+
+  const ArrowLeftIcon = (props: SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l6-6m-6 6l6 6" />
+    </svg>
+  );
+
+  const simpleActions = useMemo(
+    () => [
+      {
+        key: 'events' as SectionKey,
+        label: tEvents('title'),
+        description: tEvents('subtitle'),
+        icon: <CalendarIcon className="h-5 w-5" />,
+        locked: false,
+      },
+      {
+        key: 'trusted-circle' as SectionKey,
+        label: tCircle('title'),
+        description: tCircle('subtitle'),
+        icon: <UsersIcon className="h-5 w-5" />,
+        locked: false,
+      },
+      {
+        key: 'wishlist' as SectionKey,
+        label: tWishlistSection('title'),
+        description: tWishlistSection('helper'),
+        icon: <HeartIcon className="h-5 w-5" />,
+        locked: isFreePlan,
+      },
+    ],
+    [tCircle, tEvents, tWishlistSection, isFreePlan]
+  );
+
+  const quickSizeTilesGrid = useCallback(
+    (variant: 'full' | 'simple') => {
+      const gridClass =
+        variant === 'full'
+          ? 'grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7'
+          : 'grid gap-3 sm:grid-cols-2';
+      return (
+        <div className={gridClass}>
+          {quickSizeTiles.map((tile) => {
+            let categoryLabel: string;
+            try {
+              categoryLabel = tQuickCategories(tile.categoryId as any);
+            } catch {
+              categoryLabel = tile.label;
+            }
+
+            let translatedProductType = tile.productTypeLabel;
+            if (tile.productTypeId) {
+              try {
+                translatedProductType = tProductTypes(tile.productTypeId as any);
+              } catch {}
+            }
+
+            const buttonClass =
+              variant === 'full'
+                ? 'group flex min-h-[170px] flex-col items-center justify-between rounded-[26px] border border-border/60 bg-[var(--surface-interactive)] p-5 text-center shadow-[0_20px_45px_-32px_rgba(6,134,239,0.45)] transition hover:border-[#48A9A6] hover:shadow-[#48A9A6]/25'
+                : 'group flex h-full flex-col justify-between rounded-2xl border border-border/60 bg-[var(--surface-interactive)] p-4 text-left shadow-sm transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10';
+
+            return (
+              <button
+                key={`${variant}-${tile.categoryId}`}
+                type="button"
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  if (tile.productTypeId) {
+                    params.set('productType', tile.productTypeId);
+                  }
+                  if (tile.quickCategoryId) {
+                    params.set('quickCategory', tile.quickCategoryId);
+                  }
+                  const query = params.toString();
+                  router.push(`/dashboard/garments/add/${tile.primaryCategory}${query ? `?${query}` : ''}`);
+                }}
+                className={buttonClass}
+              >
+                <p className="text-sm font-semibold text-foreground">
+                  {categoryLabel}
+                </p>
+                {tile.hasData ? (
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-3xl font-semibold text-foreground">{tile.sizeValue}</p>
+                    {tile.sizeUnit ? (
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        {tile.sizeUnit}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : (
+                  <span className="text-3xl font-semibold text-foreground">--</span>
+                )}
+                <p
+                  className={
+                    variant === 'full'
+                      ? 'text-xs text-muted-foreground'
+                      : 'text-xs font-medium text-muted-foreground'
+                  }
+                >
+                  {tile.hasData ? translatedProductType : tSizesSection('emptyProductType')}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      );
+    },
+    [quickSizeTiles, router, tProductTypes, tQuickCategories, tSizesSection]
+  );
+
+  const renderSimpleSizesSection = () => (
+    <section id="dashboard-sizes" className="mt-6">
+      <SectionCard>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tSizesSection('title')}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{tSizesSection('helper')}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push('/dashboard/sizes')}
+            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+          >
+            {tSizesSection('cta')}
+          </button>
+        </div>
+        <div className="mt-4">
+          {quickSizeTilesGrid('simple')}
+        </div>
+      </SectionCard>
+    </section>
+  );
+
+  const renderFullSizesSection = () => (
+    <section id="dashboard-sizes" className="mt-6 flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tSizesSection('title')}</h2>
+          <button
+            type="button"
+            onClick={() => setPreferencesOpen(true)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-[var(--surface-muted)] text-muted-foreground shadow-sm transition hover:border-[#48A9A6] hover:text-[#48A9A6]"
+            aria-label={tSizesSection('configure')}
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h5m11 0h-6m-4 0v10m2 0h9m-13 0H4M9 7a2 2 0 114 0 2 2 0 11-4 0zm6 10a2 2 0 114 0 2 2 0 11-4 0z" />
+            </svg>
+          </button>
+        </div>
+        <Link
+          href="/dashboard/sizes"
+          className="text-sm font-semibold text-primary transition hover:text-primary/80"
+        >
+          {tSizesSection('cta')}
+        </Link>
+      </div>
+      {quickSizeTilesGrid('full')}
+    </section>
+  );
+
+  const renderSimpleShortcuts = () => (
+    <div className="mt-6 grid gap-3 sm:grid-cols-3">
+      {simpleActions.map((action) => {
+        const isActionActive = activeSection === action.key;
+        const baseClass = 'relative flex flex-col gap-2 rounded-2xl border px-4 py-3 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60';
+        const lockedClass = action.locked
+          ? 'border-dashed border-primary/50 text-muted-foreground hover:border-primary/50 hover:shadow-none'
+          : '';
+        const activeClass = isActionActive ? 'ring-2 ring-primary/40' : '';
+
+        return (
+          <button
+            key={action.key}
+            type="button"
+            onClick={() =>
+              action.locked ? openUpsell('wishlist') : handleSectionNavigate(action.key)
+            }
+            className={`${baseClass} ${lockedClass} ${activeClass}`.trim()}
+          >
+            <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              {action.icon}
+              {action.label}
+              {action.locked ? <LockIcon className="h-4 w-4" /> : null}
+            </span>
+            <span className="text-xs text-muted-foreground">{action.description}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const renderDataGapsSection = () => (
+    <section id="dashboard-body" className="mt-6">
+      <SectionCard>
+        <div className="flex items-center justify-between gap-3 pb-2">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tDataGaps('title')}</h2>
+            <p className="text-sm text-muted-foreground">{tDataGaps('subtitle')}</p>
+          </div>
+          <span
+            className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
+            aria-label={tDataGaps('progressLabel', {
+              remaining: missingMeasurements.length,
+              total: totalRequiredDefinitions,
+            })}
+          >
+            {missingMeasurements.length} / {totalRequiredDefinitions}
+          </span>
+        </div>
+        <div className="grid gap-3 pt-2 md:grid-cols-3">
+          {missingMeasurements.map((definition) => {
+            const translationKey = definition.translationKey ?? definition.id;
+            let localizedLabel = definition.label;
+            let localizedPurpose = definition.purpose;
+            try {
+              localizedLabel = tMeasurementDefinitions(`${translationKey}.label`);
+            } catch {}
+            try {
+              localizedPurpose = tMeasurementDefinitions(`${translationKey}.purpose`);
+            } catch {}
+
+            return (
+              <button
+                type="button"
+                key={definition.id}
+                onClick={() => setActiveBodyMeasurementDefinition(definition)}
+                className="data-gap-card flex h-full flex-col rounded-[26px] border border-dashed border-border/60 bg-[var(--surface-interactive)] px-6 py-5 text-left text-sm transition hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+              >
+                <h3 className="text-base font-semibold text-foreground">{localizedLabel}</h3>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  <span className="font-semibold text-foreground">{tMeasurementsForm('instructions.purposeLabel')}</span>
+                  <br />
+                  {localizedPurpose}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </SectionCard>
+    </section>
+  );
+
+  const renderEventsSection = (variant: 'full' | 'simple') => (
+    <section id="dashboard-events" className={variant === 'simple' ? 'mt-6' : 'mt-6'}>
+      <SectionCard>
+        <div className="flex items-center justify-between gap-3 pb-4">
+        <div className="flex items-center gap-3">
+          {variant === 'simple' && (
+            <button
+              type="button"
+              onClick={handleBackToOverview}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+              {tCommon('back')}
+            </button>
+          )}
+          <div>
+            <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tEvents('title')}</h2>
+            <p className="text-sm text-muted-foreground">{tEvents('subtitle')}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => openEventForm()}
+          className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
+          </svg>
+          {tEvents('add')}
+        </button>
+      </div>
+      {calendarItems.length ? (
+        <div className="relative">
+          <div
+            className="group relative"
+            onMouseEnter={updateEventScrollState}
+            onFocus={updateEventScrollState}
+          >
+            <div
+              ref={eventsScrollRef}
+              className="no-scrollbar flex gap-4 overflow-x-auto pb-2"
+            >
+              {calendarItems.map((event) => (
+                <div
+                  key={event.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedCalendarEvent(event)}
+                  onKeyDown={(keyboardEvent) => {
+                    if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+                      keyboardEvent.preventDefault();
+                      setSelectedCalendarEvent(event);
+                    }
+                  }}
+                  className="flex w-[calc(25%-0.75rem)] min-w-[260px] flex-col rounded-[26px] border border-border/70 bg-[var(--surface-interactive)] px-6 py-5 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                    {event.date}
+                  </p>
+                  <h3 className="mt-3 text-base font-semibold text-foreground">{event.title}</h3>
+                  <p className="text-sm font-semibold text-primary">{event.context}</p>
+                </div>
+              ))}
+            </div>
+
+            {eventsCanScrollLeft ? (
+              <button
+                type="button"
+                aria-label={tEvents('ariaLeft')}
+                onClick={() => handleEventScroll('left')}
+                className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-2xl bg-background/90 p-2 text-foreground shadow-lg shadow-primary/10 transition hover:bg-background group-hover:flex"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            ) : null}
+
+            {eventsCanScrollRight ? (
+              <button
+                type="button"
+                aria-label={tEvents('ariaRight')}
+                onClick={() => handleEventScroll('right')}
+                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-2xl bg-background/90 p-2 text-foreground shadow-lg shadow-primary/10 transition hover:bg-background group-hover:flex"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center rounded-[26px] border border-dashed border-border/70 bg-[var(--surface-interactive)] px-6 py-10 text-center">
+          <h3 className="text-base font-semibold text-foreground">{tEvents('emptyTitle')}</h3>
+          <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+            {tEvents('emptyBody')}
+          </p>
+        </div>
+      )}
+      </SectionCard>
+    </section>
+  );
+
+  const renderTrustedCircleSection = (variant: 'full' | 'simple') => (
+    <section
+      id="dashboard-trusted-circle"
+      className={variant === 'simple' ? 'mt-6 space-y-4' : 'mt-6'}
+    >
+      {variant === 'simple' && (
+        <button
+          type="button"
+          onClick={handleBackToOverview}
+          className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+        >
+          <ArrowLeftIcon className="h-4 w-4" />
+          {tCommon('back')}
+        </button>
+      )}
+      <TrustedCircle initialData={trustedCircleInitial ?? undefined} />
+    </section>
+  );
+
+  const renderWishlistSection = (variant: 'full' | 'simple') => {
+    const locked = isFreePlan;
+    return (
+      <section id="dashboard-wishlist" className={variant === 'simple' ? 'mt-6' : 'mt-6'}>
+        <SectionCard className="relative">
+          <div className="flex items-center justify-between gap-3 pb-4">
+          <div className="flex items-center gap-3">
+            {variant === 'simple' && (
+              <button
+                type="button"
+                onClick={handleBackToOverview}
+                className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+              >
+                <ArrowLeftIcon className="h-4 w-4" />
+                {tCommon('back')}
+              </button>
+            )}
+            <div>
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tWishlistSection('title')}</h2>
+              <p className="text-sm text-muted-foreground">
+                {tWishlistSection('subtitle')}
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/dashboard/wishlists"
+            onClick={(event) => {
+              if (locked) {
+                event.preventDefault();
+                openUpsell('wishlist');
+              }
+            }}
+            className={`inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 ${locked ? 'opacity-60' : ''}`}
+          >
+            {tWishlistSection('addButton')}
+          </Link>
+        </div>
+
+        {wishlistError ? (
+          <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {wishlistError}
+          </div>
+        ) : null}
+
+        {wishlistItems.length ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {wishlistItems.map((item) => {
+              const productName = item.productName?.trim() || tWishlistSection('fallbackName');
+              const productBrand = item.productBrand?.trim();
+              const priceLabel = formatWishlistPrice(item.priceSnapshot, locale);
+              const href = item.url ?? '#';
+
+              return (
+                <div
+                  key={item.id}
+                  data-testid="wishlist-card"
+                  data-item-id={item.id}
+                  className="group flex flex-col rounded-[24px] border border-border/70 bg-[var(--surface-interactive)] px-4 py-4 transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                >
+                  <a
+                    href={href}
+                    target={item.url ? '_blank' : undefined}
+                    rel={item.url ? 'noopener noreferrer' : undefined}
+                    className="flex items-center gap-4"
+                  >
+                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
+                      {item.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={item.imageUrl} alt={productName} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                          {tWishlist('cards.noImage')}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-foreground">{productName}</p>
+                      {productBrand ? (
+                        <p className="truncate text-xs uppercase tracking-wide text-muted-foreground">
+                          {productBrand}
+                        </p>
+                      ) : null}
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {tWishlistSection('priceLabel', { value: priceLabel ?? '—' })}
+                      </p>
+                    </div>
+                  </a>
+
+                  <div className="mt-4 flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      data-testid="wishlist-card-edit"
+                      className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+                      onClick={() => handleWishlistEdit(item)}
+                    >
+                      {tCommon('edit')}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="wishlist-card-delete"
+                      className="rounded-full border border-destructive/30 px-4 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10"
+                      onClick={() => handleOpenWishlistDelete(item)}
+                    >
+                      {tCommon('delete')}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-[26px] border border-dashed border-border/70 bg-[var(--surface-interactive)] px-6 py-10 text-center">
+            <h3 className="text-base font-semibold text-foreground">{tWishlistSection('emptyTitle')}</h3>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+              {tWishlistSection('emptyBody')}
+            </p>
+            <Link
+              href="/dashboard/wishlists"
+              onClick={(event) => {
+                if (locked) {
+                  event.preventDefault();
+                  openUpsell('wishlist');
+                }
+              }}
+              className={`mt-4 inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 ${locked ? 'opacity-60' : ''}`}
+            >
+              {tWishlistSection('addFirst')}
+            </Link>
+          </div>
+        )}
+
+        {locked ? (
+          <div className="pointer-events-auto absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-[26px] bg-background/85 backdrop-blur-sm text-center p-6">
+            <LockIcon className="h-6 w-6 text-primary" />
+            <p className="text-sm text-muted-foreground">
+              {tWishlistSection('lockedDescription')}
+            </p>
+            <button
+              type="button"
+              onClick={() => openUpsell('wishlist')}
+              className="inline-flex items-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+            >
+              {tWishlistSection('unlockButton')}
+            </button>
+          </div>
+        ) : null}
+        </SectionCard>
+      </section>
+    );
+  };
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [activeBodyMeasurementDefinition, setActiveBodyMeasurementDefinition] = useState<BodyMeasurementDefinition | null>(null);
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
@@ -1083,7 +1714,7 @@ export function HomePage({
     [requiredDefinitions, bodyMeasurements]
   );
 
-  const shouldShowDataGaps = missingMeasurements.length > 0;
+  const shouldShowDataGaps = showFullDashboard && missingMeasurements.length > 0;
   const hasBodyMeasurementsRecord = Boolean(bodyMeasurements);
 
   const calendarItems: CalendarEvent[] = useMemo(() => {
@@ -1464,338 +2095,23 @@ export function HomePage({
           </div>
         </Link>
 
-        {showFullDashboard ? (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tSizesSection('title')}</h2>
-                <button
-                  type="button"
-                  onClick={() => setPreferencesOpen(true)}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-[var(--surface-muted)] text-muted-foreground shadow-sm transition hover:border-[#48A9A6] hover:text-[#48A9A6]"
-                  aria-label={tSizesSection('configure')}
-                >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h5m11 0h-6m-4 0v10m2 0h9m-13 0H4M9 7a2 2 0 114 0 2 2 0 11-4 0zm6 10a2 2 0 114 0 2 2 0 11-4 0z" />
-                  </svg>
-                </button>
-              </div>
-              <Link
-                href="/dashboard/sizes"
-                className="text-sm font-semibold text-primary transition hover:text-primary/80"
-              >
-                {tSizesSection('cta')}
-              </Link>
-            </div>
-            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-              {quickSizeTiles.map((tile) => {
-              let categoryLabel: string;
-              try {
-                categoryLabel = tQuickCategories(tile.categoryId as any);
-              } catch {
-                categoryLabel = tile.label;
-              }
-
-              let translatedProductType = tile.productTypeLabel;
-              if (tile.productTypeId) {
-                try {
-                  translatedProductType = tProductTypes(tile.productTypeId as any);
-                } catch {}
-              }
-
-              return (
-              <button
-                key={tile.categoryId}
-                type="button"
-                onClick={() => {
-                  const targetCategory = tile.primaryCategory;
-                  const params = new URLSearchParams();
-                  if (tile.productTypeId) {
-                    params.set('productType', tile.productTypeId);
-                  }
-                  if (tile.quickCategoryId) {
-                    params.set('quickCategory', tile.quickCategoryId);
-                  }
-                  const query = params.toString();
-                  router.push(`/dashboard/garments/add/${targetCategory}${query ? `?${query}` : ''}`);
-                }}
-                className="group flex min-h-[170px] flex-col items-center justify-between rounded-[26px] border border-border/60 bg-[var(--surface-interactive)] p-5 text-center shadow-[0_20px_45px_-32px_rgba(6,134,239,0.45)] transition hover:border-[#48A9A6] hover:shadow-[#48A9A6]/25"
-              >
-                <p className="text-sm font-semibold text-foreground">
-                  {categoryLabel}
-                </p>
-                {tile.hasData ? (
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-3xl font-semibold text-foreground">{tile.sizeValue}</p>
-                    {tile.sizeUnit ? (
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                        {tile.sizeUnit}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : (
-                  <span className="text-3xl font-semibold text-foreground">--</span>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  {tile.hasData ? translatedProductType : tSizesSection('emptyProductType')}
-                </p>
-              </button>
-              );
-            })}
-            </div>
-          </div>
-        ) : null}
-
-        {shouldShowDataGaps ? (
-          <SectionCard>
-            <div className="flex items-center justify-between gap-3 pb-2">
-              <div>
-                <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tDataGaps('title')}</h2>
-                <p className="text-sm text-muted-foreground">{tDataGaps('subtitle')}</p>
-              </div>
-              <span
-                className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
-                aria-label={tDataGaps('progressLabel', {
-                  remaining: missingMeasurements.length,
-                  total: totalRequiredDefinitions,
-                })}
-              >
-                {missingMeasurements.length} / {totalRequiredDefinitions}
-              </span>
-            </div>
-            <div className="grid gap-3 pt-2 md:grid-cols-3">
-            {missingMeasurements.map((definition) => {
-              const translationKey = definition.translationKey ?? definition.id;
-              let localizedLabel = definition.label;
-              let localizedPurpose = definition.purpose;
-              try {
-                localizedLabel = tMeasurementDefinitions(`${translationKey}.label`);
-              } catch {}
-              try {
-                localizedPurpose = tMeasurementDefinitions(`${translationKey}.purpose`);
-              } catch {}
-
-              return (
-                <button
-                  type="button"
-                  key={definition.id}
-                  onClick={() => setActiveBodyMeasurementDefinition(definition)}
-                  className="data-gap-card flex h-full flex-col rounded-[26px] border border-dashed border-border/60 bg-[var(--surface-interactive)] px-6 py-5 text-left text-sm transition hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
-                >
-                  <h3 className="text-base font-semibold text-foreground">{localizedLabel}</h3>
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    <span className="font-semibold text-foreground">{tMeasurementsForm('instructions.purposeLabel')}</span>
-                    <br />
-                    {localizedPurpose}
-                  </p>
-                </button>
-              );
-            })}
-            </div>
-          </SectionCard>
-        ) : null}
-
-        {showFullDashboard ? (
-        <SectionCard>
-          <div className="flex items-center justify-between gap-3 pb-4">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tEvents('title')}</h2>
-              <p className="text-sm text-muted-foreground">
-                {tEvents('subtitle')}
-              </p>
-            </div>
-          <button
-            type="button"
-            onClick={() => openEventForm()}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
-            </svg>
-            {tEvents('add')}
-          </button>
-          </div>
-          {calendarItems.length ? (
-            <div className="relative">
-              <div
-                className="group relative"
-                onMouseEnter={updateEventScrollState}
-                onFocus={updateEventScrollState}
-              >
-                <div
-                  ref={eventsScrollRef}
-                  className="no-scrollbar flex gap-4 overflow-x-auto pb-2"
-                >
-                  {calendarItems.map((event) => (
-                    <div
-                      key={event.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => setSelectedCalendarEvent(event)}
-                      onKeyDown={(keyboardEvent) => {
-                        if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
-                          keyboardEvent.preventDefault();
-                          setSelectedCalendarEvent(event);
-                        }
-                      }}
-                      className="flex w-[calc(25%-0.75rem)] min-w-[260px] flex-col rounded-[26px] border border-border/70 bg-[var(--surface-interactive)] px-6 py-5 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer"
-                    >
-                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-                        {event.date}
-                      </p>
-                      <h3 className="mt-3 text-base font-semibold text-foreground">{event.title}</h3>
-                      <p className="text-sm font-semibold text-primary">{event.context}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {eventsCanScrollLeft ? (
-                  <button
-                    type="button"
-                  aria-label={tEvents('ariaLeft')}
-                    onClick={() => handleEventScroll('left')}
-                    className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-2xl bg-background/90 p-2 text-foreground shadow-lg shadow-primary/10 transition hover:bg-background group-hover:flex"
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                ) : null}
-
-                {eventsCanScrollRight ? (
-                  <button
-                    type="button"
-                  aria-label={tEvents('ariaRight')}
-                    onClick={() => handleEventScroll('right')}
-                    className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-2xl bg-background/90 p-2 text-foreground shadow-lg shadow-primary/10 transition hover:bg-background group-hover:flex"
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                ) : null}
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center rounded-[26px] border border-dashed border-border/70 bg-[var(--surface-interactive)] px-6 py-10 text-center">
-              <h3 className="text-base font-semibold text-foreground">{tEvents('emptyTitle')}</h3>
-              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                {tEvents('emptyBody')}
-              </p>
-            </div>
-          )}
-        </SectionCard>
-        ) : null}
-        {showFullDashboard ? (
-        <TrustedCircle initialData={trustedCircleInitial ?? undefined} />
-        ) : null}
-
-        {showFullDashboard ? (
-        <SectionCard>
-          <div className="flex items-center justify-between gap-3 pb-4">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tWishlistSection('title')}</h2>
-              <p className="text-sm text-muted-foreground">
-                {tWishlistSection('subtitle')}
-              </p>
-            </div>
-            <Link
-              href="/dashboard/wishlists"
-              className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-            >
-              {tWishlistSection('addButton')}
-            </Link>
-          </div>
-
-          {wishlistError ? (
-            <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              {wishlistError}
-            </div>
-          ) : null}
-
-          {wishlistItems.length ? (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {wishlistItems.map((item) => {
-                const productName = item.productName?.trim() || tWishlistSection('fallbackName');
-                const productBrand = item.productBrand?.trim();
-                const priceLabel = formatWishlistPrice(item.priceSnapshot, locale);
-                const href = item.url ?? '#';
-
-                return (
-                  <div
-                    key={item.id}
-                    data-testid="wishlist-card"
-                    data-item-id={item.id}
-                    className="group flex flex-col rounded-[24px] border border-border/70 bg-[var(--surface-interactive)] px-4 py-4 transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
-                  >
-                    <a
-                      href={href}
-                      target={item.url ? '_blank' : undefined}
-                      rel={item.url ? 'noopener noreferrer' : undefined}
-                      className="flex items-center gap-4"
-                    >
-                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl bg-[var(--surface-muted)]">
-                        {item.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={item.imageUrl} alt={productName} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                            {tWishlist('cards.noImage')}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-foreground">{productName}</p>
-                        {productBrand ? (
-                          <p className="truncate text-xs uppercase tracking-wide text-muted-foreground">
-                            {productBrand}
-                          </p>
-                        ) : null}
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {tWishlistSection('priceLabel', { value: priceLabel ?? '—' })}
-                        </p>
-                      </div>
-                    </a>
-
-                    <div className="mt-4 flex items-center justify-end gap-2">
-                      <button
-                        type="button"
-                        data-testid="wishlist-card-edit"
-                        className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
-                        onClick={() => handleWishlistEdit(item)}
-                      >
-                        {tCommon('edit')}
-                      </button>
-                      <button
-                        type="button"
-                        data-testid="wishlist-card-delete"
-                        className="rounded-full border border-destructive/30 px-4 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/10"
-                        onClick={() => handleOpenWishlistDelete(item)}
-                      >
-                        {tCommon('delete')}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center rounded-[26px] border border-dashed border-border/70 bg-[var(--surface-interactive)] px-6 py-10 text-center">
-              <h3 className="text-base font-semibold text-foreground">{tWishlistSection('emptyTitle')}</h3>
-              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                {tWishlistSection('emptyBody')}
-              </p>
-              <Link
-                href="/dashboard/wishlists"
-                className="mt-4 inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-              >
-                {tWishlistSection('addFirst')}
-              </Link>
-            </div>
-          )}
-        </SectionCard>
-        ) : null}
+        {isSimpleVariant ? (
+          <>
+            {renderSimpleSizesSection()}
+            {renderSimpleShortcuts()}
+            {activeSection === 'events' ? renderEventsSection('simple') : null}
+            {activeSection === 'trusted-circle' ? renderTrustedCircleSection('simple') : null}
+            {activeSection === 'wishlist' ? renderWishlistSection('simple') : null}
+          </>
+        ) : (
+          <>
+            {renderFullSizesSection()}
+            {shouldShowDataGaps ? renderDataGapsSection() : null}
+            {renderEventsSection('full')}
+            {renderTrustedCircleSection('full')}
+            {renderWishlistSection('full')}
+          </>
+        )}
 
       </main>
 
