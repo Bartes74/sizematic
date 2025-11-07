@@ -3,6 +3,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 import { getTrustedCircleLimit } from '@/lib/trusted-circle/utils';
+import type { PlanType, UserRole } from '@/lib/types';
 
 type CreateCirclePayload = {
   name?: string;
@@ -46,7 +47,8 @@ export async function POST(request: Request) {
   const allowWishlistAccess = Boolean(payload.allowWishlistAccess);
   const allowSizeAccess = payload.allowSizeAccess !== undefined ? Boolean(payload.allowSizeAccess) : true;
 
-  const planLimit = getTrustedCircleLimit((profile.plan_type ?? profile.role) as string | null | undefined);
+  const planKey = (profile.plan_type ?? profile.role) as PlanType | UserRole | null | undefined;
+  const planLimit = getTrustedCircleLimit(planKey);
 
   if (planLimit !== null) {
     const { count: currentCircles, error: circlesError } = await admin
