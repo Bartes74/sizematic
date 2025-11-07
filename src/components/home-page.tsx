@@ -65,7 +65,7 @@ type HomePageProps = {
     plan: string | null;
     plan_type: string | null;
     limit: number | null;
-    pending_invitations: Array<{ id: string; invitee_email: string; status: string; created_at: string }>;
+    pending_invitations: Array<{ id: string; invitee_email: string; status: string; created_at: string; circle_id: string | null }>;
     circles: Array<{
       id: string;
       name: string;
