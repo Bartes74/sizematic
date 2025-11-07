@@ -2,13 +2,15 @@
 
 import { createSupabaseAdminClient } from '@/lib/supabase';
 
+type CircleRelation = {
+  name: string | null;
+  allow_wishlist_access: boolean | null;
+  allow_size_access: boolean | null;
+};
+
 type CircleMembershipRow = {
   circle_id: string;
-  circle?: {
-    name: string;
-    allow_wishlist_access: boolean;
-    allow_size_access: boolean;
-  } | null;
+  circle?: CircleRelation | CircleRelation[] | null;
   created_at: string;
 };
 
@@ -54,13 +56,16 @@ export async function getCircleMembershipAccess(
     throw new Error(`Failed to load trusted circle permissions: ${permissionsError.message}`);
   }
 
-  const memberships = (membershipsData ?? []).map((row: CircleMembershipRow) => ({
-    circle_id: row.circle_id,
-    circle_name: row.circle?.name ?? 'Krąg',
-    allow_wishlist_access: row.circle?.allow_wishlist_access ?? false,
-    allow_size_access: row.circle?.allow_size_access ?? false,
-    created_at: row.created_at,
-  }));
+  const memberships = (membershipsData ?? []).map((row: CircleMembershipRow) => {
+    const relation = Array.isArray(row.circle) ? row.circle[0] : row.circle;
+    return {
+      circle_id: row.circle_id,
+      circle_name: relation?.name ?? 'Krąg',
+      allow_wishlist_access: relation?.allow_wishlist_access ?? false,
+      allow_size_access: relation?.allow_size_access ?? false,
+      created_at: row.created_at,
+    } satisfies CircleMembershipAccess;
+  });
 
   return {
     memberships,
