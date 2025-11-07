@@ -1485,14 +1485,14 @@ export function HomePage({
           <div className="pointer-events-auto absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-[26px] bg-background/85 backdrop-blur-sm text-center p-6">
             <LockIcon className="h-6 w-6 text-primary" />
             <p className="text-sm text-muted-foreground">
-              {tWishlistSection('lockedDescription')}
+              {tWishlist('lockedDescription')}
             </p>
             <button
               type="button"
               onClick={() => openUpsell('wishlist')}
               className="inline-flex items-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
             >
-              {tWishlistSection('unlockButton')}
+              {tWishlist('unlockButton')}
             </button>
           </div>
         ) : null}
