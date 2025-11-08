@@ -248,7 +248,12 @@ export function AdminUsersExplorer() {
               {tPanel('empty')}
             </div>
           ) : (
-            <AdminUsersTable users={users} onRefresh={() => mutate()} />
+            <AdminUsersTable
+              users={users}
+              onRefresh={async () => {
+                await mutate();
+              }}
+            />
           )}
         </div>
       ) : null}
