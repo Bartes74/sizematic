@@ -28,5 +28,3 @@ export async function getPricingSettings(): Promise<PricingSettings> {
   };
 }
 
-export { PRICING_DEFAULTS as DEFAULT_PRICING };
-
