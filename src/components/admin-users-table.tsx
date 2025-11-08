@@ -320,7 +320,7 @@ export function AdminUsersTable({ users, onRefresh }: AdminUsersTableProps) {
 
             <div className="mt-6 flex justify-end">
               <button
-                onClick={closeModal}
+                onClick={() => closeModal()}
                 disabled={isChanging}
                 className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
               >
