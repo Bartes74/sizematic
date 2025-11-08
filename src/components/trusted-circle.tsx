@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { UpsellModal } from '@/components/upsell-modal';
 import { useLocale } from '@/providers/locale-provider';
 import { useTrustedCircle } from '@/hooks/use-trusted-circle';
 import { PRODUCT_TREE, resolveCategoryLabel, resolveProductTypeLabel } from '@/data/product-tree';
@@ -119,6 +120,8 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
   const [activeCircleId, setActiveCircleId] = useState<string | null>(null);
   const [circleStatus, setCircleStatus] = useState<string | null>(null);
   const [circleError, setCircleError] = useState<string | null>(null);
+  const [isUpsellOpen, setIsUpsellOpen] = useState(false);
+  const [isCreatingCircle, setIsCreatingCircle] = useState(false);
 
   const circles = circle?.circles ?? [];
   const defaultCircleId = circles[0]?.id ?? null;
@@ -171,6 +174,7 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
 
   const canInvite = Boolean(activeCircleId) && (limit === null || usedSlots < limit);
   const canCreateCircle = planType !== 'free' || circles.length === 0;
+  const hasReachedCircleLimit = !canCreateCircle;
 
   const handleSendInvite = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -214,6 +218,7 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
 
     if (!canCreateCircle) {
       setCircleError(t('circle.createLimitReached'));
+      setIsUpsellOpen(true);
       return;
     }
 
@@ -225,6 +230,7 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
     }
 
     try {
+      setIsCreatingCircle(true);
       const response = await fetch('/api/v1/trusted-circle/circles', {
         method: 'POST',
         headers: {
@@ -248,6 +254,8 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
       await refresh();
     } catch (error) {
       setCircleError(error instanceof Error ? error.message : t('circle.createError'));
+    } finally {
+      setIsCreatingCircle(false);
     }
   };
 
@@ -314,8 +322,10 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
               <button
                 type="button"
                 onClick={handleCreateCircle}
-                disabled={!canCreateCircle}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-border/60 bg-[var(--surface-interactive)] px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/50 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isCreatingCircle}
+                aria-disabled={hasReachedCircleLimit}
+                title={hasReachedCircleLimit ? t('circle.createLimitReached') : undefined}
+                className={`inline-flex items-center justify-center gap-2 rounded-lg border border-border/60 bg-[var(--surface-interactive)] px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60 ${hasReachedCircleLimit ? 'cursor-pointer text-primary hover:border-primary/60 hover:text-primary' : 'text-foreground hover:border-primary/50 hover:text-primary'}`}
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} fill="none">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
@@ -515,6 +525,8 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
           error={permissionError}
         />
       ) : null}
+
+      <UpsellModal isOpen={isUpsellOpen} reason="max_circles" onClose={() => setIsUpsellOpen(false)} />
     </section>
   );
 }
