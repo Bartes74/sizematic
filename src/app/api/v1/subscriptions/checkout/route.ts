@@ -56,6 +56,14 @@ export async function POST(request: NextRequest) {
     const requestUrl = new URL(request.url);
     const siteUrl = SITE_URL ?? `${requestUrl.protocol}//${requestUrl.host}`;
 
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('POST /api/v1/subscriptions/checkout missing STRIPE_SECRET_KEY env');
+      return NextResponse.json(
+        { error: 'Brakuje konfiguracji Stripe. Skontaktuj się z administratorem.' },
+        { status: 500 },
+      );
+    }
+
     const session = await createSubscriptionCheckoutSession({
       userId: user.id,
       profileId: profile.id,

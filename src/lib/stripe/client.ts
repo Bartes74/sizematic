@@ -137,31 +137,53 @@ export async function createSubscriptionCheckoutSession(params: {
   cancelUrl: string;
 }) {
   const plan = STRIPE_CONFIG.subscriptionPlans[params.planKey];
+  const stripe = getStripe();
 
-  // First, create or retrieve the product and price
-  const product = await getStripe().products.create({
-    name: plan.name,
-    metadata: {
-      plan_key: params.planKey,
-      role: plan.role,
-    },
-  });
+  const existingPrice = await stripe.prices
+    .search({
+      query: `metadata["plan_key"]:"${params.planKey}"`,
+      limit: 1,
+    })
+    .then((result) => result.data[0])
+    .catch(() => null);
 
-  const price = await getStripe().prices.create({
-    product: product.id,
-    currency: STRIPE_CONFIG.currency,
-    unit_amount: plan.price,
-    recurring: {
-      interval: plan.interval,
-    },
-  });
+  let priceId = existingPrice?.id ?? null;
 
-  const session = await getStripe().checkout.sessions.create({
+  if (!priceId) {
+    const product = await stripe.products.create({
+      name: plan.name,
+      metadata: {
+        plan_key: params.planKey,
+        role: plan.role,
+      },
+    });
+
+    const price = await stripe.prices.create({
+      product: product.id,
+      currency: STRIPE_CONFIG.currency,
+      unit_amount: plan.price,
+      recurring: {
+        interval: plan.interval,
+      },
+      metadata: {
+        plan_key: params.planKey,
+        role: plan.role,
+      },
+    });
+
+    priceId = price.id;
+  }
+
+  if (!priceId) {
+    throw new Error(`Failed to resolve Stripe price for plan ${params.planKey}`);
+  }
+
+  const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
-    payment_method_types: ['card', 'blik', 'p24'],
+    payment_method_types: ['card'],
     line_items: [
       {
-        price: price.id,
+        price: priceId,
         quantity: 1,
       },
     ],
