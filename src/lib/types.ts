@@ -14,6 +14,14 @@ export type BrandingSettings = {
   logo_path: string | null;
 };
 
+export type PricingSettings = {
+  currency: string;
+  premium_monthly: number;
+  premium_yearly: number;
+  sg_pack_3: number;
+  sg_pack_10: number;
+};
+
 export type DashboardSizePreference = {
   quick_category: string;
   product_type: string | null;

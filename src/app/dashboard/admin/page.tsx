@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
-import { AdminUsersTable } from "@/components/admin-users-table";
 import { AdminBrandingForm } from "@/components/admin-branding-form";
+import { AdminPricingForm } from "@/components/admin-pricing-form";
+import { AdminUsersTable } from "@/components/admin-users-table";
+import { getPricingSettings } from "@/lib/pricing";
+import { createClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +51,8 @@ export default async function AdminPage() {
     logo_path: brandingData?.logo_path ?? null,
   };
 
+  const pricingSettings = await getPricingSettings();
+
   const t = await getTranslations('dashboard.admin');
 
   return (
@@ -78,6 +82,7 @@ export default async function AdminPage() {
 
         <div className="space-y-10">
           <AdminBrandingForm initial={brandingSettings} />
+          <AdminPricingForm initial={pricingSettings} />
           <div>
             <h2 className="mb-4 text-lg font-semibold text-foreground">{t('users.title')}</h2>
             <AdminUsersTable users={profiles || []} />

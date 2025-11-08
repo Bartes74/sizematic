@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useMemo, useState } from 'react';
+import { useLocale as useIntlLocale, useTranslations } from 'next-intl';
+import { usePricingSettings } from '@/hooks/use-pricing-settings';
+import { PRICING_DEFAULTS } from '@/lib/pricing-defaults';
 
 type Props = {
   isOpen: boolean;
@@ -12,29 +14,58 @@ type ProductType = 'sg_3_pack' | 'sg_10_pack' | 'premium_yearly' | 'premium_mont
 
 export function SGPaywallModal({ isOpen, onClose }: Props) {
   const t = useTranslations('secretGiver.paywall');
+  const locale = useIntlLocale();
   const [loading, setLoading] = useState(false);
-  
+  const { data: pricing } = usePricingSettings();
+  const activeCurrency = pricing.currency || PRICING_DEFAULTS.currency;
+
+  const priceFormatter = useMemo(() => {
+    try {
+      return new Intl.NumberFormat(locale ?? 'en-US', {
+        style: 'currency',
+        currency: activeCurrency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+    } catch {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: PRICING_DEFAULTS.currency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+    }
+  }, [activeCurrency, locale]);
+
   const PRODUCTS = {
     sg_3_pack: {
       name: t('products.sg_3_pack.name'),
-      price: t('products.sg_3_pack.price'),
+      price: t('products.sg_3_pack.price', {
+        amount: priceFormatter.format(pricing.sg_pack_3 ?? PRICING_DEFAULTS.sg_pack_3),
+      }),
       description: t('products.sg_3_pack.description'),
     },
     sg_10_pack: {
       name: t('products.sg_10_pack.name'),
-      price: t('products.sg_10_pack.price'),
+      price: t('products.sg_10_pack.price', {
+        amount: priceFormatter.format(pricing.sg_pack_10 ?? PRICING_DEFAULTS.sg_pack_10),
+      }),
       description: t('products.sg_10_pack.description'),
       badge: t('products.sg_10_pack.badge'),
     },
     premium_yearly: {
       name: t('products.premium_yearly.name'),
-      price: t('products.premium_yearly.price'),
+      price: t('products.premium_yearly.price', {
+        amount: priceFormatter.format(pricing.premium_yearly ?? PRICING_DEFAULTS.premium_yearly),
+      }),
       description: t('products.premium_yearly.description'),
       badge: t('products.premium_yearly.badge'),
     },
     premium_monthly: {
       name: t('products.premium_monthly.name'),
-      price: t('products.premium_monthly.price'),
+      price: t('products.premium_monthly.price', {
+        amount: priceFormatter.format(pricing.premium_monthly ?? PRICING_DEFAULTS.premium_monthly),
+      }),
       description: t('products.premium_monthly.description'),
     },
   };

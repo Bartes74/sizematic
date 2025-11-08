@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useMemo, useState } from 'react';
+import { useLocale as useIntlLocale, useTranslations } from 'next-intl';
+import { usePricingSettings } from '@/hooks/use-pricing-settings';
+import { PRICING_DEFAULTS } from '@/lib/pricing-defaults';
 
 type UpsellReason = 'wishlist' | 'max_circles' | 'max_members' | 'no_sg_pool' | 'general';
 
@@ -20,8 +22,39 @@ const PLAN_KEYS = {
 
 export function UpsellModal({ isOpen, reason, onClose }: UpsellModalProps) {
   const t = useTranslations('upsell');
+  const locale = useIntlLocale();
   const [loading, setLoading] = useState<LoadingState>(null);
   const showSgPack = reason === 'no_sg_pool';
+  const { data: pricing } = usePricingSettings();
+  const activeCurrency = pricing.currency || PRICING_DEFAULTS.currency;
+
+  const priceFormatter = useMemo(() => {
+    try {
+      return new Intl.NumberFormat(locale ?? 'en-US', {
+        style: 'currency',
+        currency: activeCurrency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+    } catch {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: PRICING_DEFAULTS.currency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+    }
+  }, [activeCurrency, locale]);
+
+  const monthlyPriceLabel = t('plans.monthly.price', {
+    amount: priceFormatter.format(pricing.premium_monthly ?? PRICING_DEFAULTS.premium_monthly),
+  });
+  const yearlyPriceLabel = t('plans.yearly.price', {
+    amount: priceFormatter.format(pricing.premium_yearly ?? PRICING_DEFAULTS.premium_yearly),
+  });
+  const sgPackPriceLabel = t('sgPack.price', {
+    amount: priceFormatter.format(pricing.sg_pack_10 ?? PRICING_DEFAULTS.sg_pack_10),
+  });
 
   if (!isOpen) {
     return null;
@@ -115,7 +148,7 @@ export function UpsellModal({ isOpen, reason, onClose }: UpsellModalProps) {
               {t('plans.monthly.badge')}
             </span>
             <h3 className="mt-3 text-xl font-semibold text-foreground">{t('plans.monthly.title')}</h3>
-            <p className="mt-2 text-2xl font-bold text-primary">{t('plans.monthly.price')}</p>
+            <p className="mt-2 text-2xl font-bold text-primary">{monthlyPriceLabel}</p>
             <p className="mt-4 text-sm text-muted-foreground">{t('plans.monthly.body')}</p>
             {loading === 'premium_monthly' && <LoadingOverlay label={t('processing')} />}
           </button>
@@ -129,7 +162,7 @@ export function UpsellModal({ isOpen, reason, onClose }: UpsellModalProps) {
               {t('plans.yearly.badge')}
             </span>
             <h3 className="mt-3 text-xl font-semibold text-foreground">{t('plans.yearly.title')}</h3>
-            <p className="mt-2 text-2xl font-bold text-primary">{t('plans.yearly.price')}</p>
+            <p className="mt-2 text-2xl font-bold text-primary">{yearlyPriceLabel}</p>
             <p className="mt-4 text-sm text-muted-foreground">{t('plans.yearly.body')}</p>
             {loading === 'premium_yearly' && <LoadingOverlay label={t('processing')} />}
           </button>
@@ -146,7 +179,7 @@ export function UpsellModal({ isOpen, reason, onClose }: UpsellModalProps) {
                 <h3 className="text-lg font-semibold text-foreground">{t('sgPack.title')}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{t('sgPack.body')}</p>
               </div>
-              <p className="text-xl font-bold text-primary">{t('sgPack.price')}</p>
+              <p className="text-xl font-bold text-primary">{sgPackPriceLabel}</p>
             </div>
             {loading === 'sg_pack' && <LoadingOverlay label={t('processing')} />}
           </button>

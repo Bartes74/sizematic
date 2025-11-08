@@ -287,20 +287,20 @@
       "monthly": {
         "badge": "Most flexible",
         "title": "Premium Monthly",
-        "price": "PLN 29 / month",
+        "price": "{amount} / month",
         "body": "Cancel anytime — perfect if you need Premium features right now."
       },
       "yearly": {
         "badge": "Best value",
         "title": "Premium Yearly",
-        "price": "PLN 269 / year",
+        "price": "{amount} / year",
         "body": "Save 25% compared to the monthly plan and enjoy Premium all year."
       }
     },
     "sgPack": {
       "title": "Need more Secret Giver requests?",
       "body": "Buy an extra Secret Giver bundle for upcoming surprises.",
-      "price": "PLN 39"
+      "price": "{amount}"
     },
     "errors": {
       "checkoutFailed": "We couldn't start the checkout. Try again.",
@@ -360,6 +360,45 @@
         "success": "Branding updated successfully.",
         "submit": {
           "save": "Save changes",
+          "saving": "Saving..."
+        }
+      },
+      "pricing": {
+        "title": "Pricing & plans",
+        "subtitle": "Manage the prices for Premium subscriptions and Secret Giver bundles. Changes apply instantly for every user.",
+        "sections": {
+          "secretGiver": "Secret Giver bundles"
+        },
+        "fields": {
+          "currency": {
+            "label": "Currency",
+            "hint": "ISO 4217 code (e.g. EUR)."
+          },
+          "premiumMonthly": {
+            "label": "Premium monthly",
+            "hint": "Shown to users as {preview} / month."
+          },
+          "premiumYearly": {
+            "label": "Premium yearly",
+            "hint": "Shown to users as {preview} / year."
+          },
+          "sgPack3": {
+            "label": "SG bundle (3 shots)",
+            "hint": "Shown to users as {preview}."
+          },
+          "sgPack10": {
+            "label": "SG bundle (10 shots)",
+            "hint": "Shown to users as {preview}."
+          }
+        },
+        "errors": {
+          "invalidCurrency": "Provide a valid currency code (e.g. EUR).",
+          "invalidNumber": "Amounts must be numbers greater than or equal to zero.",
+          "saveFailed": "We couldn't save the prices. Try again."
+        },
+        "success": "Pricing updated successfully.",
+        "submit": {
+          "save": "Save pricing",
           "saving": "Saving..."
         }
       },
@@ -1045,25 +1084,25 @@
       "products": {
         "sg_3_pack": {
           "name": "3 SG Shots",
-          "price": "19.99 PLN",
+          "price": "{amount}",
           "description": "One-time package of 3 Secret Giver requests"
         },
         "sg_10_pack": {
           "name": "10 SG Shots",
-          "price": "49.99 PLN",
+          "price": "{amount}",
           "description": "One-time package of 10 Secret Giver requests",
           "badge": "Best value"
         },
         "premium_yearly": {
           "name": "Premium - Yearly",
-          "price": "99.99 PLN / year",
-          "description": "Unlimited SG and Circles + all Premium features",
+          "price": "{amount} / year",
+          "description": "Unlimited SG and circles + all Premium features",
           "badge": "Best option!"
         },
         "premium_monthly": {
           "name": "Premium - Monthly",
-          "price": "19.99 PLN / month",
-          "description": "Unlimited SG and Circles + all Premium features"
+          "price": "{amount} / month",
+          "description": "Unlimited SG and circles + all Premium features"
         }
       },
       "errors": {

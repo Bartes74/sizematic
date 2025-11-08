@@ -287,20 +287,20 @@
       "monthly": {
         "badge": "Najbardziej elastyczny",
         "title": "Premium miesięczny",
-        "price": "29 zł / mies.",
+        "price": "{amount} / mies.",
         "body": "Anulujesz kiedy chcesz — idealne na testy."
       },
       "yearly": {
         "badge": "Najlepsza cena",
         "title": "Premium roczny",
-        "price": "269 zł / rok",
+        "price": "{amount} / rok",
         "body": "Oszczędzasz 25% względem planu miesięcznego i masz Premium cały rok."
       }
     },
     "sgPack": {
       "title": "Potrzebujesz więcej strzałów Secret Giver?",
       "body": "Dokup dodatkowy pakiet i szykuj kolejne niespodzianki.",
-      "price": "39 zł"
+      "price": "{amount}"
     },
     "errors": {
       "checkoutFailed": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
@@ -360,6 +360,45 @@
         "success": "Branding został zaktualizowany.",
         "submit": {
           "save": "Zapisz zmiany",
+          "saving": "Zapisywanie..."
+        }
+      },
+      "pricing": {
+        "title": "Cennik i plany",
+        "subtitle": "Ustaw kwoty dla abonamentów Premium oraz pakietów Secret Giver. Zmiany widzą od razu wszyscy użytkownicy.",
+        "sections": {
+          "secretGiver": "Pakiety Secret Giver"
+        },
+        "fields": {
+          "currency": {
+            "label": "Waluta",
+            "hint": "Kod ISO 4217 (np. EUR)."
+          },
+          "premiumMonthly": {
+            "label": "Premium miesięczny",
+            "hint": "Wyświetlane jako {preview} / mies."
+          },
+          "premiumYearly": {
+            "label": "Premium roczny",
+            "hint": "Wyświetlane jako {preview} / rok."
+          },
+          "sgPack3": {
+            "label": "Pakiet SG (3 strzały)",
+            "hint": "Wyświetlane jako {preview}."
+          },
+          "sgPack10": {
+            "label": "Pakiet SG (10 strzałów)",
+            "hint": "Wyświetlane jako {preview}."
+          }
+        },
+        "errors": {
+          "invalidCurrency": "Podaj prawidłowy kod waluty (np. EUR).",
+          "invalidNumber": "Kwoty muszą być liczbami większymi lub równymi zero.",
+          "saveFailed": "Nie udało się zapisać cen. Spróbuj ponownie."
+        },
+        "success": "Ceny zostały zaktualizowane.",
+        "submit": {
+          "save": "Zapisz ceny",
           "saving": "Zapisywanie..."
         }
       },
@@ -1045,24 +1084,24 @@
       "products": {
         "sg_3_pack": {
           "name": "3 Strzały SG",
-          "price": "19.99 PLN",
+          "price": "{amount}",
           "description": "Jednorazowy pakiet 3 próśb Secret Giver"
         },
         "sg_10_pack": {
           "name": "10 Strzałów SG",
-          "price": "49.99 PLN",
+          "price": "{amount}",
           "description": "Jednorazowy pakiet 10 próśb Secret Giver",
           "badge": "Najlepsza wartość"
         },
         "premium_yearly": {
           "name": "Premium - Roczny",
-          "price": "99.99 PLN / rok",
+          "price": "{amount} / rok",
           "description": "Nielimitowane SG i Kręgi + wszystkie funkcje Premium",
           "badge": "Najlepsza opcja!"
         },
         "premium_monthly": {
           "name": "Premium - Miesięczny",
-          "price": "19.99 PLN / miesiąc",
+          "price": "{amount} / miesiąc",
           "description": "Nielimitowane SG i Kręgi + wszystkie funkcje Premium"
         }
       },
