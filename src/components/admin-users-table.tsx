@@ -255,7 +255,7 @@ export function AdminUsersTable({ users, onRefresh }: AdminUsersTableProps) {
       {selectedUserId && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          onClick={closeModal}
+          onClick={() => closeModal()}
         >
           <div
             className="bg-card border border-border rounded-2xl shadow-xl max-w-md w-full mx-4 p-6"
