@@ -328,6 +328,31 @@
       "back": "Powrót do dashboardu",
       "pageTitle": "Panel administratora",
       "pageSubtitle": "Zarządzaj użytkownikami i ich rolami w systemie",
+      "analytics": {
+        "title": "Statystyki wykorzystania",
+        "subtitle": "Podgląd najważniejszych wskaźników aktywności SizeHub w ostatnich dniach.",
+        "cards": {
+          "totalUsers": "Łączna liczba użytkowników",
+          "activeUsers": "Aktywni w ostatnich 7 dniach",
+          "premiumUsers": "Użytkownicy planów Premium",
+          "measurements": "Zapisane pomiary",
+          "sizeLabels": "Etykiety rozmiarów",
+          "wishlistItems": "Pozycje list życzeń",
+          "activeSubscriptions": "Aktywne subskrypcje"
+        },
+        "updated": "Aktualizacja: {timestamp}"
+      },
+      "abTest": {
+        "title": "Test A/B dashboardu",
+        "subtitle": "Porównanie wyników wariantu pełnego oraz uproszczonego.",
+        "metrics": {
+          "total": "Użytkownicy: {value}",
+          "active": "Aktywni 7 dni",
+          "activeRate": "Aktywność 7 dni",
+          "premium": "Użytkownicy Premium",
+          "premiumRate": "Konwersja Premium"
+        }
+      },
       "branding": {
         "title": "Branding aplikacji",
         "subtitle": "Zarządzaj logo, nazwą oraz claimem widocznymi w nagłówku aplikacji.",
@@ -404,6 +429,7 @@
       },
       "users": {
         "title": "Zarządzanie użytkownikami",
+        "subtitle": "Lista ładuje się dopiero po kliknięciu przycisku, dzięki czemu panel pozostaje szybki nawet przy dużej liczbie kont.",
         "columns": {
           "user": "Użytkownik",
           "email": "Email",
@@ -413,8 +439,8 @@
           "actions": "Akcje"
         },
         "actions": {
-          "changeRole": "Zmień rolę",
-          "manage": "Zmień rolę lub wariant"
+          "changeRole": "Modyfikuj",
+          "manage": "Modyfikuj"
         },
         "empty": "Brak użytkowników w systemie",
         "modal": {
@@ -439,6 +465,39 @@
         "variantLabels": {
           "full": "Pełny",
           "simple": "Prosty"
+        }
+      },
+      "usersPanel": {
+        "title": "Kontrola listy",
+        "subtitle": "Wyświetlane maksymalnie {limit} rekordów – filtruj dane, aby zawęzić listę.",
+        "open": "Pokaż listę użytkowników",
+        "close": "Ukryj listę użytkowników",
+        "loading": "Ładowanie danych...",
+        "error": "Nie udało się pobrać listy użytkowników. Spróbuj ponownie.",
+        "empty": "Brak użytkowników spełniających podane kryteria.",
+        "refresh": "Odśwież",
+        "results": "{count, plural, one {Znaleziono # użytkownika} few {Znaleziono # użytkowników} many {Znaleziono # użytkowników} other {Znaleziono # użytkowników}}",
+        "search": {
+          "label": "Wyszukaj",
+          "placeholder": "Imię, e-mail lub ID..."
+        },
+        "filters": {
+          "role": "Rola",
+          "roleAll": "Wszystkie role",
+          "variant": "Wariant",
+          "variantAll": "Wszystkie warianty",
+          "variantUnset": "Bez przypisanego wariantu",
+          "sort": "Sortowanie",
+          "sortOptions": {
+            "created_desc": "Najnowsze konta",
+            "created_asc": "Najstarsze konta",
+            "name_asc": "Nazwa A-Z",
+            "name_desc": "Nazwa Z-A",
+            "role_asc": "Rola rosnąco",
+            "role_desc": "Rola malejąco",
+            "variant_asc": "Wariant A-Z",
+            "variant_desc": "Wariant Z-A"
+          }
         }
       },
       "roles": {

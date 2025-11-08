@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import type { DashboardVariant, UserRole } from '@/lib/types';
 
-type Profile = {
+export type AdminUserProfile = {
   id: string;
   display_name: string | null;
   email: string | null;
@@ -15,7 +15,8 @@ type Profile = {
 };
 
 type AdminUsersTableProps = {
-  users: Profile[];
+  users: AdminUserProfile[];
+  onRefresh?: () => Promise<void> | void;
 };
 
 const ROLE_TRANSLATION_KEYS: Record<UserRole, string> = {
@@ -37,7 +38,7 @@ const VARIANT_COLORS: Record<DashboardVariant, string> = {
   simple: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300'
 };
 
-export function AdminUsersTable({ users }: AdminUsersTableProps) {
+export function AdminUsersTable({ users, onRefresh }: AdminUsersTableProps) {
   const locale = useLocale();
   const t = useTranslations('dashboard.admin.users');
   const tRoles = useTranslations('dashboard.admin.roles');
@@ -61,11 +62,12 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
     setCurrentVariant(variant ?? 'full');
   };
 
-  const closeModal = () => {
-    if (!isChanging) {
-      setSelectedUserId(null);
-      setSelectedUserName('');
+  const closeModal = (force = false) => {
+    if (!force && isChanging) {
+      return;
     }
+    setSelectedUserId(null);
+    setSelectedUserName('');
   };
 
   const handleRoleChange = async (newRole: UserRole) => {
@@ -82,8 +84,10 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
       });
 
       if (response.ok) {
-        // Refresh the page to show updated data
-        window.location.reload();
+        setCurrentRole(newRole);
+        await onRefresh?.();
+        closeModal(true);
+        return;
       } else {
         let message = '';
         try {
@@ -103,7 +107,6 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
       window.alert(t('errors.unexpected'));
     } finally {
       setIsChanging(false);
-      setSelectedUserId(null);
     }
   };
 
@@ -121,7 +124,10 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
       });
 
       if (response.ok) {
-        window.location.reload();
+        setCurrentVariant(newVariant);
+        await onRefresh?.();
+        closeModal(true);
+        return;
       } else {
         let message = '';
         try {
@@ -141,7 +147,6 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
       window.alert(t('errors.unexpected'));
     } finally {
       setIsChanging(false);
-      setSelectedUserId(null);
     }
   };
 
@@ -231,7 +236,7 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
                     disabled={isChanging}
                     className="text-sm font-medium text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {t('actions.changeRole')}
+                    {t('actions.manage')}
                   </button>
                 </td>
               </tr>

@@ -328,6 +328,31 @@
       "back": "Back to dashboard",
       "pageTitle": "Admin panel",
       "pageSubtitle": "Manage users and their roles across the system",
+      "analytics": {
+        "title": "Usage analytics",
+        "subtitle": "A quick look at how people are engaging with SizeHub over the past few days.",
+        "cards": {
+          "totalUsers": "Total users",
+          "activeUsers": "Active in the last 7 days",
+          "premiumUsers": "Premium-plan users",
+          "measurements": "Recorded measurements",
+          "sizeLabels": "Saved size labels",
+          "wishlistItems": "Wishlist items",
+          "activeSubscriptions": "Active subscriptions"
+        },
+        "updated": "Last updated: {timestamp}"
+      },
+      "abTest": {
+        "title": "Dashboard A/B test",
+        "subtitle": "Comparing the full and simplified dashboard variants.",
+        "metrics": {
+          "total": "Users: {value}",
+          "active": "Active (7 days)",
+          "activeRate": "7-day activity rate",
+          "premium": "Premium users",
+          "premiumRate": "Premium conversion"
+        }
+      },
       "branding": {
         "title": "App branding",
         "subtitle": "Control the logo, name and claim shown in the app header.",
@@ -404,6 +429,7 @@
       },
       "users": {
         "title": "User management",
+        "subtitle": "The full list loads on demand so the admin panel stays fast even with many accounts.",
         "columns": {
           "user": "User",
           "email": "Email",
@@ -413,8 +439,8 @@
           "actions": "Actions"
         },
         "actions": {
-          "changeRole": "Change role",
-          "manage": "Change role or variant"
+          "changeRole": "Modify",
+          "manage": "Modify"
         },
         "empty": "There are no users in the system yet",
         "modal": {
@@ -439,6 +465,39 @@
         "variantLabels": {
           "full": "Full",
           "simple": "Simple"
+        }
+      },
+      "usersPanel": {
+        "title": "List controls",
+        "subtitle": "Showing up to {limit} records—use filters to narrow the dataset.",
+        "open": "Show user list",
+        "close": "Hide user list",
+        "loading": "Loading data...",
+        "error": "We couldn't load the user list. Try again.",
+        "empty": "No users match the selected filters.",
+        "refresh": "Refresh",
+        "results": "{count, plural, one {Found # user} other {Found # users}}",
+        "search": {
+          "label": "Search",
+          "placeholder": "Name, email or ID..."
+        },
+        "filters": {
+          "role": "Role",
+          "roleAll": "All roles",
+          "variant": "Variant",
+          "variantAll": "All variants",
+          "variantUnset": "No variant assigned",
+          "sort": "Sorting",
+          "sortOptions": {
+            "created_desc": "Newest accounts",
+            "created_asc": "Oldest accounts",
+            "name_asc": "Name A-Z",
+            "name_desc": "Name Z-A",
+            "role_asc": "Role ascending",
+            "role_desc": "Role descending",
+            "variant_asc": "Variant A-Z",
+            "variant_desc": "Variant Z-A"
+          }
         }
       },
       "roles": {
