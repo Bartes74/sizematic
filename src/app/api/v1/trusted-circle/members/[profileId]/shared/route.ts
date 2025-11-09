@@ -5,9 +5,13 @@ import { createSupabaseAdminClient } from '@/lib/supabase';
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { profileId: string } }
+  context: { params: Promise<{ profileId: string }> } | { params: { profileId: string } }
 ): Promise<Response> {
   try {
+    const params = 'params' in context && typeof context.params === 'object' && 'then' in context.params
+      ? await context.params
+      : (context as { params: { profileId: string } }).params;
+
     const supabase = await createClient();
     const {
       data: { user },
