@@ -1,43 +1,68 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getAccessibleSizeLabels } from '@/server/trusted-circle/access';
+import { createSupabaseAdminClient } from '@/lib/supabase';
 
-export async function GET(_request: Request, context: unknown) {
-  const { params } = context as { params: { memberId: string } };
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+type RouteContext = {
+  params: Promise<{ memberId: string }>;
+};
 
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 500 });
-  }
-
-  if (!user) {
-    return NextResponse.json({ error: 'Brak autoryzacji' }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('owner_id', user.id)
-    .maybeSingle();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Profil nie istnieje.' }, { status: 404 });
-  }
-
-  const memberId = params.memberId;
-
+export async function GET(
+  _request: NextRequest,
+  context: RouteContext
+): Promise<Response> {
   try {
-    const sizeLabels = await getAccessibleSizeLabels(memberId, profile.id);
-    if (sizeLabels.length === 0) {
-      return NextResponse.json({ size_labels: [] });
+    const params = await context.params;
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError) {
+      return NextResponse.json({ error: authError.message }, { status: 500 });
     }
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    }
+
+    const memberProfileId = params.memberId?.trim();
+    if (!memberProfileId) {
+      return NextResponse.json({ error: 'invalid_member' }, { status: 400 });
+    }
+
+    const { data: currentProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('owner_id', user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      return NextResponse.json({ error: profileError.message }, { status: 500 });
+    }
+
+    if (!currentProfile) {
+      return NextResponse.json({ error: 'profile_not_found' }, { status: 404 });
+    }
+
+    const admin = createSupabaseAdminClient();
+    const { data: ownerProfile } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('id', memberProfileId)
+      .maybeSingle();
+
+    if (!ownerProfile) {
+      return NextResponse.json({ error: 'member_not_found' }, { status: 404 });
+    }
+
+    const sizeLabels = await getAccessibleSizeLabels(memberProfileId, currentProfile.id);
+
     return NextResponse.json({ size_labels: sizeLabels });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udało się pobrać danych.';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('GET /api/v1/trusted-circle/members/[memberId]/shared failed:', error);
+    return NextResponse.json({ error: 'server_error' }, { status: 500 });
   }
 }
