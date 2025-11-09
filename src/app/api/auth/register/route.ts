@@ -18,7 +18,8 @@ function isValidPassword(value: string | undefined): value is string {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json().catch(() => null)) as RegisterPayload | null;
+    const rawBody = await request.json().catch(() => null);
+    const body: RegisterPayload | null = rawBody && typeof rawBody === 'object' ? rawBody : null;
 
     if (!body || !isValidEmail(body.email) || !isValidPassword(body.password)) {
       return NextResponse.json({ error: 'invalid_payload' }, { status: 400 });
