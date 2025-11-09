@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
     const displayName = typeof body.displayName === 'string' ? body.displayName.trim() : undefined;
 
     const supabase = await createClient();
-    const admin = createSupabaseAdminClient();
 
     const origin = process.env.NEXT_PUBLIC_SITE_URL ?? request.headers.get('origin') ?? 'http://localhost:3000';
 
@@ -54,21 +53,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'no_user' }, { status: 500 });
     }
 
-    const { data: profile } = await admin
-      .from('profiles')
-      .select('id')
-      .eq('owner_id', data.user.id)
-      .maybeSingle();
-
-    if (profile) {
-      await admin
+    try {
+      const admin = createSupabaseAdminClient();
+      const { data: profile } = await admin
         .from('profiles')
-        .update({
-          display_name: displayName || email.split('@')[0],
-          first_name: displayName || null,
-          has_completed_onboarding: false,
-        })
-        .eq('id', profile.id);
+        .select('id')
+        .eq('owner_id', data.user.id)
+        .maybeSingle();
+
+      if (profile) {
+        await admin
+          .from('profiles')
+          .update({
+            display_name: displayName || email.split('@')[0],
+            first_name: displayName || null,
+            has_completed_onboarding: false,
+          })
+          .eq('id', profile.id);
+      }
+    } catch (adminError) {
+      console.warn('Failed to sync profile metadata after registration', adminError);
     }
 
     return NextResponse.json({ ok: true });

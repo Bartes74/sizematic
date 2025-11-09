@@ -114,6 +114,7 @@ export function RegisterForm() {
             type="text"
             value={displayName}
             onChange={(event) => setDisplayName(event.target.value)}
+            autoComplete="name"
             className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
             placeholder={t('auth.register.displayNamePlaceholder')}
           />
@@ -128,6 +129,7 @@ export function RegisterForm() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            autoComplete="email"
             className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
             placeholder={t('auth.register.emailPlaceholder')}
           />
@@ -143,6 +145,7 @@ export function RegisterForm() {
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              autoComplete="new-password"
               className="w-full rounded-xl border border-input bg-background px-4 py-3 pr-12 text-sm font-medium text-foreground transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
               placeholder={t('auth.login.passwordPlaceholder')}
             />
@@ -214,6 +217,7 @@ export function RegisterForm() {
               required
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
+              autoComplete="new-password"
               className={`w-full rounded-xl border px-4 py-3 pr-12 text-sm font-medium transition-all focus:outline-none focus:ring-4 focus:ring-primary/10 ${
                 passwordsMatch || confirmPassword.length === 0
                   ? 'border-input bg-background text-foreground'
