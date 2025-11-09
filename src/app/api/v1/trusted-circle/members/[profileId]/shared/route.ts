@@ -3,14 +3,16 @@ import { createClient } from '@/lib/supabase/server';
 import { getAccessibleSizeLabels } from '@/server/trusted-circle/access';
 import { createSupabaseAdminClient } from '@/lib/supabase';
 
+type RouteContext = {
+  params: Promise<{ profileId: string }>;
+};
+
 export async function GET(
   _request: NextRequest,
-  context: { params: Promise<{ profileId: string }> } | { params: { profileId: string } }
+  context: RouteContext
 ): Promise<Response> {
   try {
-    const params = 'params' in context && typeof context.params === 'object' && 'then' in context.params
-      ? await context.params
-      : (context as { params: { profileId: string } }).params;
+    const params = await context.params;
 
     const supabase = await createClient();
     const {
