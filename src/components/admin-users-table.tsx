@@ -49,6 +49,8 @@ export function AdminUsersTable({ users, onRefresh }: AdminUsersTableProps) {
   const [currentRole, setCurrentRole] = useState<UserRole>('free');
   const [currentVariant, setCurrentVariant] = useState<DashboardVariant>('full');
   const [isChanging, setIsChanging] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const openModal = (
     userId: string,
@@ -68,6 +70,8 @@ export function AdminUsersTable({ users, onRefresh }: AdminUsersTableProps) {
     }
     setSelectedUserId(null);
     setSelectedUserName('');
+    setDeleteError(null);
+    setIsDeleting(false);
   };
 
   const handleRoleChange = async (newRole: UserRole) => {
@@ -147,6 +151,37 @@ export function AdminUsersTable({ users, onRefresh }: AdminUsersTableProps) {
       window.alert(t('errors.unexpected'));
     } finally {
       setIsChanging(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUserId || isDeleting) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      const response = await fetch('/api/admin/delete-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: selectedUserId }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        const message = typeof payload?.error === 'string' ? payload.error : t('errors.deleteFailed');
+        setDeleteError(message);
+        setIsDeleting(false);
+        return;
+      }
+
+      await onRefresh?.();
+      closeModal(true);
+    } catch (error) {
+      console.error('Error deleting user', error);
+      setDeleteError(t('errors.deleteFailed'));
+      setIsDeleting(false);
     }
   };
 
@@ -318,7 +353,20 @@ export function AdminUsersTable({ users, onRefresh }: AdminUsersTableProps) {
               ))}
             </div>
 
-            <div className="mt-6 flex justify-end">
+            {deleteError ? (
+              <div className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-xs text-destructive">
+                {deleteError}
+              </div>
+            ) : null}
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                onClick={handleDeleteUser}
+                disabled={isDeleting || isChanging}
+                className="inline-flex items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm font-semibold text-destructive transition hover:bg-destructive/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDeleting ? t('actions.deleting') : t('actions.deleteUser')}
+              </button>
               <button
                 onClick={() => closeModal()}
                 disabled={isChanging}

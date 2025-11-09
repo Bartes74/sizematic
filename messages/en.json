@@ -514,19 +514,24 @@
         },
         "actions": {
           "changeRole": "Modify",
-          "manage": "Modify"
+          "manage": "Modify",
+          "deleteUser": "Remove user",
+          "deleting": "Removing..."
         },
         "empty": "There are no users in the system yet",
         "modal": {
           "title": "Manage user profile",
           "rolesTitle": "Select role",
           "variantTitle": "Select dashboard variant",
-          "current": "Current"
+          "current": "Current",
+          "deleteConfirm": "Removing the user deletes the account and all associated data permanently.",
+          "deleteWarning": "This action cannot be undone."
         },
         "errors": {
           "updateFailed": "We couldn't change the role. Try again.",
           "updateFailedWithMessage": "We couldn't change the role. Details: {message}",
-          "unexpected": "Something went wrong while updating the role."
+          "unexpected": "Something went wrong while updating the role.",
+          "deleteFailed": "We couldn't delete the user. Please try again."
         },
         "fallbacks": {
           "noName": "No name",

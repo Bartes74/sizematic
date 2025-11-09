@@ -514,19 +514,24 @@
         },
         "actions": {
           "changeRole": "Modyfikuj",
-          "manage": "Modyfikuj"
+          "manage": "Modyfikuj",
+          "deleteUser": "Usuń użytkownika",
+          "deleting": "Usuwam..."
         },
         "empty": "Brak użytkowników w systemie",
         "modal": {
           "title": "Zarządzaj profilem użytkownika",
           "rolesTitle": "Wybierz rolę",
           "variantTitle": "Wybierz wariant dashboardu",
-          "current": "Obecna"
+          "current": "Obecna",
+          "deleteConfirm": "Usunięcie spowoduje trwałe skasowanie konta i wszystkich powiązanych danych.",
+          "deleteWarning": "Tej operacji nie da się cofnąć."
         },
         "errors": {
           "updateFailed": "Nie udało się zmienić roli. Spróbuj ponownie.",
           "updateFailedWithMessage": "Nie udało się zmienić roli. Szczegóły: {message}",
-          "unexpected": "Wystąpił błąd podczas zmiany roli."
+          "unexpected": "Wystąpił błąd podczas zmiany roli.",
+          "deleteFailed": "Nie udało się usunąć użytkownika. Spróbuj ponownie."
         },
         "fallbacks": {
           "noName": "Brak nazwy",
