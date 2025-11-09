@@ -627,7 +627,7 @@ export function HomePage({
   const displayName = userName || 'Twoja garderoba';
   const showFullDashboard = dashboardVariant !== 'simple';
   const isSimpleVariant = !showFullDashboard;
-  const planType = (trustedCircleInitial?.plan_type ?? 'free') as PlanType;
+  const planType = (trustedCircleInitial?.plan_type ?? 'free') as PlanType | UserRole;
   const isFreePlan = planType === 'free';
   const initialUpsellReason = normalizeUpsellReason(upsellReason);
   const [activeUpsellReason, setActiveUpsellReason] = useState<UpsellReason | null>(initialUpsellReason);

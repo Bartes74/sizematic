@@ -209,7 +209,8 @@
       "free": "Free",
       "premium_monthly": "Premium Monthly",
       "premium_yearly": "Premium Yearly",
-      "premium": "Premium"
+      "premium": "Premium",
+      "admin": "Admin"
     },
     "defaultCircle": "My trusted circle",
     "memberCount": "{count, plural, one {{count} person} other {{count} people}}",

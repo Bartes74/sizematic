@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getTrustedCircleSnapshot } from '@/server/trusted-circle';
-import { getTrustedCircleLimit } from '@/lib/trusted-circle/utils';
+import { getTrustedCircleLimit, resolveTrustedCirclePlan } from '@/lib/trusted-circle/utils';
 import type { PlanType, UserRole } from '@/lib/types';
 
 export async function GET() {
@@ -37,13 +37,14 @@ export async function GET() {
 
   try {
     const snapshot = await getTrustedCircleSnapshot(user.id);
+    const effectivePlan = resolveTrustedCirclePlan(snapshot.plan_type as PlanType | null | undefined, profile.role as UserRole | null | undefined);
 
     return NextResponse.json({
       plan: profile.role,
-      plan_type: snapshot.plan_type,
-        limit:
-          snapshot.limit ??
-          getTrustedCircleLimit((snapshot.plan_type ?? profile.role) as PlanType | UserRole | null | undefined),
+      plan_type: effectivePlan,
+      limit:
+        snapshot.limit ??
+        getTrustedCircleLimit(effectivePlan),
       pending_invitations: snapshot.pending_invitations,
       circles: snapshot.circles,
       members: snapshot.members,

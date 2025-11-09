@@ -24,11 +24,14 @@ export async function GET() {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("plan_type")
+      .select("plan_type, role")
       .eq("owner_id", user.id)
       .maybeSingle();
 
-    if (!profile || (profile.plan_type ?? "free") === "free") {
+    const planType = profile?.plan_type ?? "free";
+    const role = profile?.role ?? "free";
+
+    if (!profile || (planType === "free" && role !== "admin")) {
       return NextResponse.json(
         { message: "Lista życzeń dostępna jest tylko w planie Premium." },
         { status: 402 }
@@ -80,7 +83,10 @@ export async function POST(request: NextRequest) {
 
     const profile = await getProfileForUser(adminClient, user.id);
 
-    if ((profile.plan_type ?? "free") === "free") {
+    const planType = profile.plan_type ?? "free";
+    const role = profile.role ?? "free";
+
+    if (planType === "free" && role !== "admin") {
       return NextResponse.json(
         { message: "Lista życzeń dostępna jest tylko w planie Premium." },
         { status: 402 }

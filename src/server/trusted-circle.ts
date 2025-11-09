@@ -51,10 +51,9 @@ export async function getTrustedCircleSnapshot(ownerId: string): Promise<Trusted
     throw new Error('Profil nie istnieje.');
   }
 
-  const planKey = (profile.plan_type ?? profile.role) as PlanType | UserRole | null | undefined;
-  const limitRow = await import('@/lib/trusted-circle/utils').then((mod) =>
-    mod.getTrustedCircleLimit(planKey)
-  );
+  const { getTrustedCircleLimit, resolveTrustedCirclePlan } = await import('@/lib/trusted-circle/utils');
+  const planKey = resolveTrustedCirclePlan(profile.plan_type as PlanType | null | undefined, profile.role as UserRole | null | undefined);
+  const limitRow = getTrustedCircleLimit(planKey);
 
   const [pending, circlesRes, memberships, outgoingPermissions, incomingPermissions] = await Promise.all([
     supabase
@@ -152,7 +151,7 @@ export async function getTrustedCircleSnapshot(ownerId: string): Promise<Trusted
 
   return {
     plan: profile.role,
-    plan_type: profile.plan_type,
+    plan_type: planKey,
     limit: limitRow,
     pending_invitations: pending.data ?? [],
     circles,

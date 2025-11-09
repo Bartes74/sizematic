@@ -36,7 +36,8 @@ type Eligibility = {
   is_premium: boolean;
   free_sg_pool: number;
   iap_sg_pool: number;
-  plan_type: 'free' | 'premium_monthly' | 'premium_yearly';
+  plan_type: 'free' | 'premium_monthly' | 'premium_yearly' | 'admin';
+  role?: 'free' | 'premium' | 'premium_plus' | 'admin';
   can_send_if_verified: boolean;
 };
 

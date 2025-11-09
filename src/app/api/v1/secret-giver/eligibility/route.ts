@@ -28,7 +28,9 @@ export async function GET() {
     }
 
     const planType = profile.plan_type ?? 'free';
+    const role = profile.role ?? 'free';
     const isPremium =
+      role === 'admin' ||
       planType === 'premium_monthly' ||
       planType === 'premium_yearly';
     const totalPool = profile.free_sg_pool + profile.iap_sg_pool;
@@ -41,7 +43,8 @@ export async function GET() {
       is_premium: isPremium,
       free_sg_pool: profile.free_sg_pool,
       iap_sg_pool: profile.iap_sg_pool,
-      plan_type: planType,
+      plan_type: role === 'admin' ? 'admin' : planType,
+      role,
       can_send_if_verified: isPremium || totalPool > 0,
     });
   } catch (error) {

@@ -138,7 +138,9 @@ export async function POST(request: NextRequest) {
 
     // Check eligibility (premium or has pool)
     const planType = senderProfile.plan_type ?? 'free';
+    const role = senderProfile.role ?? 'free';
     const isPremium =
+      role === 'admin' ||
       planType === 'premium_monthly' ||
       planType === 'premium_yearly';
 

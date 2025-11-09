@@ -58,7 +58,7 @@ export default async function DashboardWishlistsPage({
     throw new Error("Profil użytkownika nie istnieje dla zalogowanego konta.");
   }
 
-  if ((profile.plan_type ?? 'free') === 'free') {
+  if ((profile.plan_type ?? 'free') === 'free' && profile.role !== 'admin') {
     redirect("/dashboard?upsell=wishlist");
   }
 
