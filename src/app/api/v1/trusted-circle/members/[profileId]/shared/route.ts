@@ -3,13 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getAccessibleSizeLabels } from '@/server/trusted-circle/access';
 import { createSupabaseAdminClient } from '@/lib/supabase';
 
-type RouteParams = {
-  params: {
-    profileId: string;
-  };
-};
-
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export async function GET(_request: NextRequest, { params }: { params: { profileId: string } }) {
   try {
     const supabase = await createClient();
     const {
