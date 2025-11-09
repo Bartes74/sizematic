@@ -3,13 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 import { getAccessibleSizeLabels } from '@/server/trusted-circle/access';
 import { createSupabaseAdminClient } from '@/lib/supabase';
 
-interface RouteContext {
+type RouteContext = {
   params?: {
     profileId?: string | string[];
   };
-}
+};
 
-export async function GET(_request: Request, context?: RouteContext | null) {
+export async function GET(_request: Request, context: RouteContext) {
   try {
     const supabase = await createClient();
     const {
@@ -25,11 +25,11 @@ export async function GET(_request: Request, context?: RouteContext | null) {
       return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
     }
 
-    const profileParam = Array.isArray(context?.params?.profileId)
-      ? context?.params?.profileId[0]
-      : context?.params?.profileId;
+    const rawProfileId = Array.isArray(context.params?.profileId)
+      ? context.params?.profileId[0]
+      : context.params?.profileId;
 
-    const memberProfileId = profileParam?.trim();
+    const memberProfileId = typeof rawProfileId === 'string' ? rawProfileId.trim() : undefined;
     if (!memberProfileId) {
       return NextResponse.json({ error: 'invalid_member' }, { status: 400 });
     }
