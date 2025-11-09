@@ -1,26 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { createClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  displayName: z.string().optional(),
-});
+type RegisterPayload = {
+  email?: string;
+  password?: string;
+  displayName?: string;
+};
+
+function isValidEmail(value: string | undefined): value is string {
+  if (!value) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+function isValidPassword(value: string | undefined): value is string {
+  return typeof value === 'string' && value.length >= 8;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json().catch(() => null);
-    const parsed = registerSchema.safeParse(body);
+    const body = (await request.json().catch(() => null)) as RegisterPayload | null;
 
-    if (!parsed.success) {
+    if (!body || !isValidEmail(body.email) || !isValidPassword(body.password)) {
       return NextResponse.json({ error: 'invalid_payload' }, { status: 400 });
     }
 
-    const { email, password, displayName } = parsed.data;
+    const email = body.email.trim();
+    const password = body.password;
+    const displayName = typeof body.displayName === 'string' ? body.displayName.trim() : undefined;
 
     const supabase = await createClient();
     const admin = createSupabaseAdminClient();
+
+    const origin = process.env.NEXT_PUBLIC_SITE_URL ?? request.headers.get('origin') ?? 'http://localhost:3000';
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -31,7 +42,7 @@ export async function POST(request: NextRequest) {
           first_name: displayName || null,
           has_completed_onboarding: false,
         },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/auth/callback`,
+        emailRedirectTo: `${origin}/auth/callback`,
       },
     });
 
