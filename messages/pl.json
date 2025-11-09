@@ -1103,7 +1103,8 @@
       "submit": "Zarejestruj się",
       "submitting": "Rejestracja...",
       "successTitle": "Sprawdź swoją skrzynkę!",
-      "successBody": "Wysłaliśmy email na adres {email}. Kliknij link w wiadomości, aby potwierdzić konto i rozpocząć korzystanie z GiftFit."
+      "successBody": "Wysłaliśmy email na adres {email}. Kliknij link w wiadomości, aby potwierdzić konto i rozpocząć korzystanie z GiftFit.",
+      "verificationSubject": "Potwierdź swoje konto GiftFit ({email})"
     },
     "password": {
       "strengthLabel": "Siła hasła:",

@@ -14,7 +14,7 @@ type ProfileRow = {
 export async function getProfileForUser(supabase: SupabaseClient, ownerId: string) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, role, plan_type, dashboard_variant, has_completed_onboarding")
+    .select("id, email, role, plan_type, dashboard_variant, has_completed_onboarding, first_name")
     .eq("owner_id", ownerId)
     .maybeSingle();
 

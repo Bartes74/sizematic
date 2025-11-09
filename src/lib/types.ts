@@ -99,6 +99,7 @@ export type Profile = {
   owner_id: string;
   email: string | null;
   display_name: string | null;
+  first_name?: string | null;
   unit_pref: "metric" | "imperial";
   role: UserRole;
   plan_type: PlanType;

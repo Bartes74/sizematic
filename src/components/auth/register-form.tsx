@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useLocale } from '@/providers/locale-provider';
 import { validatePassword, getPasswordStrength } from '@/lib/password-validation';
-import { createClient } from '@/lib/supabase/client';
 
 const PASSWORD_ERROR_KEY_BY_MESSAGE: Record<string, string> = {
   'Hasło musi mieć minimum 8 znaków': 'auth.errors.password.minLength',
@@ -52,30 +51,27 @@ export function RegisterForm() {
     setLoading(true);
 
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            display_name: displayName || email.split('@')[0],
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, displayName }),
       });
 
-      if (error) {
-        if (error.message?.toLowerCase().includes('already registered')) {
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        const errorCode = typeof payload?.error === 'string' ? payload.error : 'unknown';
+
+        if (errorCode.includes('already registered') || errorCode === 'user_already_exists') {
           setErrorKey('auth.errors.register.emailTaken');
+        } else if (errorCode === 'invalid_payload') {
+          setErrorKey('auth.errors.invalidEmail');
         } else {
           setErrorKey('auth.errors.register.generic');
         }
         return;
       }
 
-      if (data.user) {
-        setSuccess(true);
-      }
+      setSuccess(true);
     } catch (error) {
       console.error(error);
       setErrorKey('auth.errors.register.generic');
@@ -95,7 +91,7 @@ export function RegisterForm() {
           </div>
           <h2 className="text-2xl font-bold text-foreground">{t('auth.register.successTitle')}</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            {t('auth.register.successBody').replace('{{email}}', email)}
+            {t('auth.register.successBody', { email })}
           </p>
         </div>
       </div>

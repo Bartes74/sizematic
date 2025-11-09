@@ -1103,7 +1103,11 @@
       "submit": "Sign up",
       "submitting": "Signing up...",
       "successTitle": "Check your inbox!",
-      "successBody": "We sent an email to {email}. Click the link inside to confirm your account and start using GiftFit."
+      "successBody": "Check your inbox {email} to confirm registration.",
+      "verificationSubject": "Confirm your GiftFit account ({email})",
+      "testAccountsTitle": "Test accounts:",
+      "adminLabel": "Admin",
+      "demoLabel": "Demo"
     },
     "password": {
       "strengthLabel": "Password strength:",

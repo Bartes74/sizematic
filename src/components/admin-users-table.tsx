@@ -353,6 +353,11 @@ export function AdminUsersTable({ users, onRefresh }: AdminUsersTableProps) {
               ))}
             </div>
 
+            <div className="mt-6 space-y-2 rounded-xl border border-amber-200/60 bg-amber-100/20 px-4 py-3 text-xs text-amber-900 dark:border-amber-600/50 dark:bg-amber-900/20 dark:text-amber-100">
+              <p className="font-semibold">{t('modal.deleteWarning')}</p>
+              <p>{t('modal.deleteConfirm')}</p>
+            </div>
+
             {deleteError ? (
               <div className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-xs text-destructive">
                 {deleteError}
@@ -369,7 +374,7 @@ export function AdminUsersTable({ users, onRefresh }: AdminUsersTableProps) {
               </button>
               <button
                 onClick={() => closeModal()}
-                disabled={isChanging}
+                disabled={isChanging || isDeleting}
                 className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
               >
                 {tCommon('cancel')}
