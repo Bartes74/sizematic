@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getAccessibleSizeLabels } from '@/server/trusted-circle/access';
 import { createSupabaseAdminClient } from '@/lib/supabase';
 
 export async function GET(
-  _request: Request,
-  { params }: { params: { profileId: string | string[] } }
+  _request: NextRequest,
+  { params }: { params: { profileId: string } }
 ): Promise<Response> {
   try {
     const supabase = await createClient();
@@ -22,9 +22,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
     }
 
-    const rawProfileId = Array.isArray(params.profileId) ? params.profileId[0] : params.profileId;
-
-    const memberProfileId = typeof rawProfileId === 'string' ? rawProfileId.trim() : undefined;
+    const memberProfileId = params.profileId?.trim();
     if (!memberProfileId) {
       return NextResponse.json({ error: 'invalid_member' }, { status: 400 });
     }
