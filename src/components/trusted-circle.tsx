@@ -180,7 +180,10 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
     event.preventDefault();
     setInviteStatus(null);
     setInviteError(null);
-    if (!activeCircleId) {
+    const ownedCircleIds = new Set(circles.map((circleItem) => circleItem.id));
+    const targetCircleId = activeCircleId && ownedCircleIds.has(activeCircleId) ? activeCircleId : null;
+
+    if (circles.length === 0) {
       setInviteError(t('circle.noCircleSelected'));
       return;
     }
@@ -195,7 +198,7 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, message: inviteMessage, circle_id: activeCircleId }),
+        body: JSON.stringify({ email, message: inviteMessage, circle_id: targetCircleId }),
       });
 
       if (!response.ok) {
