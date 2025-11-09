@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useLocale } from '@/providers/locale-provider';
 import { validatePassword, getPasswordStrength } from '@/lib/password-validation';
+import { createClient } from '@/lib/supabase/client';
 
 const PASSWORD_ERROR_KEY_BY_MESSAGE: Record<string, string> = {
   'Hasło musi mieć minimum 8 znaków': 'auth.errors.password.minLength',
@@ -51,19 +52,25 @@ export function RegisterForm() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, displayName }),
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: displayName || email.split('@')[0],
+            first_name: displayName || null,
+            has_completed_onboarding: false,
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
 
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        const errorCode = typeof payload?.error === 'string' ? payload.error : 'unknown';
-
-        if (errorCode.includes('already registered') || errorCode === 'user_already_exists') {
+      if (error) {
+        const normalized = error.message?.toLowerCase() ?? '';
+        if (normalized.includes('already registered')) {
           setErrorKey('auth.errors.register.emailTaken');
-        } else if (errorCode === 'invalid_payload') {
+        } else if (normalized.includes('invalid email')) {
           setErrorKey('auth.errors.invalidEmail');
         } else {
           setErrorKey('auth.errors.register.generic');
@@ -71,7 +78,9 @@ export function RegisterForm() {
         return;
       }
 
-      setSuccess(true);
+      if (data.user) {
+        setSuccess(true);
+      }
     } catch (error) {
       console.error(error);
       setErrorKey('auth.errors.register.generic');
