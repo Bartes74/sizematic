@@ -122,6 +122,15 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
   const [circleError, setCircleError] = useState<string | null>(null);
   const [isUpsellOpen, setIsUpsellOpen] = useState(false);
   const [isCreatingCircle, setIsCreatingCircle] = useState(false);
+  const inviteErrorMessages = useMemo<Record<string, string>>(() => ({
+    max_circles: t('circle.inviteErrors.max_circles'),
+    limit_reached: t('circle.inviteErrors.limit_reached'),
+    already_member: t('circle.inviteErrors.already_member'),
+    already_invited: t('circle.inviteErrors.already_invited'),
+    invitee_limit_reached: t('circle.inviteErrors.invitee_limit_reached'),
+    circle_not_found: t('circle.inviteErrors.circle_not_found'),
+    circle_not_owned: t('circle.inviteErrors.circle_not_owned'),
+  }), [t]);
 
   const circles = circle?.circles ?? [];
   const defaultCircleId = circles[0]?.id ?? null;
@@ -203,12 +212,9 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
-        const errorCode = payload?.error;
-        if (errorCode && t.has(`circle.inviteErrors.${errorCode}`)) {
-          setInviteError(t(`circle.inviteErrors.${errorCode}`));
-        } else {
-          setInviteError(payload?.message ?? t('circle.inviteErrorGeneric'));
-        }
+        const errorCode = payload?.error as keyof typeof inviteErrorMessages | undefined;
+        const localized = errorCode ? inviteErrorMessages[errorCode] : undefined;
+        setInviteError(localized ?? payload?.message ?? t('circle.inviteErrorGeneric'));
         return;
       }
       setInviteStatus(t('circle.inviteSent'));

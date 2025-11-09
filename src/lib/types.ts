@@ -105,6 +105,7 @@ export type Profile = {
   free_sg_pool: number;
   iap_sg_pool: number;
   dashboard_variant?: DashboardVariant | null;
+  has_completed_onboarding?: boolean;
   created_at: string;
   updated_at: string;
 };

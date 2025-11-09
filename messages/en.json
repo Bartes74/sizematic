@@ -334,6 +334,60 @@
         "logout": "Sign out"
       }
     },
+    "onboarding": {
+      "title": "Welcome to GiftFit",
+      "subtitle": "A quick walkthrough highlights the most important areas so you know where to start.",
+      "progress": "Step {current} of {total}",
+      "actions": {
+        "next": "Next",
+        "back": "Back",
+        "skip": "Remind me later",
+        "finish": "Finish",
+        "never": "Don't show again",
+        "processing": "Saving..."
+      },
+      "errors": {
+        "generic": "We couldn't save your onboarding preference. Try again."
+      },
+      "steps": {
+        "overview": {
+          "title": "Dashboard is your control center",
+          "description": "See shortcuts, missing data and upcoming events in one place – it's the best starting point each time you log in.",
+          "points": {
+            "shortcuts": "Use shortcuts to add sizes and wishlists with a single click.",
+            "events": "Stay ahead of gifts and deadlines with the events timeline."
+          },
+          "cta": "Switch the tabs on top to explore different dashboard views."
+        },
+        "trustedCircle": {
+          "title": "Share sizes with trusted people",
+          "description": "Invite friends or family and decide exactly which categories they can access.",
+          "points": {
+            "permissions": "Grant access per category or even per product type whenever you need.",
+            "activity": "Easily see who shares sizes with you and who you share them with."
+          },
+          "cta": "Create your first circle and send an invite right from the dashboard."
+        },
+        "measurements": {
+          "title": "Measurements and size labels",
+          "description": "Keep body measurements and clothing tags in one place for accurate fitting.",
+          "points": {
+            "measurements": "Add body measurements – we'll show which values are missing.",
+            "labels": "Store label notes, brands and fit tips for future reference."
+          },
+          "cta": "Open \"My measurements\" to complete the essentials."
+        },
+        "secretGiver": {
+          "title": "Secret Giver & wishlists",
+          "description": "Request sizes for a limited time and share gift ideas without spoiling surprises.",
+          "points": {
+            "requests": "Send Secret Giver requests to borrow a size for 48 hours.",
+            "wishlists": "Create wishlists and share them with circles or family."
+          },
+          "cta": "Head to Secret Giver to send your first request or build a wishlist."
+        }
+      }
+    },
     "admin": {
       "back": "Back to dashboard",
       "pageTitle": "Admin panel",

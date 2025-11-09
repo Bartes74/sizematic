@@ -95,6 +95,7 @@ type HomePageProps = {
   dashboardVariant: DashboardVariant;
   upsellReason?: string | null;
   initialSection?: SectionKey | null;
+  hasCompletedOnboarding?: boolean;
 };
 
 const ALLOWED_UPSELL_REASONS: UpsellReason[] = ['wishlist', 'max_circles', 'max_members', 'no_sg_pool', 'general'];
@@ -604,6 +605,7 @@ export function HomePage({
   dashboardVariant,
   upsellReason,
   initialSection = null,
+  hasCompletedOnboarding = false,
 }: HomePageProps) {
   const locale = useLocale();
   const tCommon = useTranslations('common');
@@ -622,6 +624,7 @@ export function HomePage({
   const tWishlistSection = useTranslations('dashboard.wishlistSection');
   const tSecretGiver = useTranslations('secretGiver');
   const tCircle = useTranslations('circle');
+  const tOnboarding = useTranslations('dashboard.onboarding');
   void _measurements;
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
@@ -2028,515 +2031,775 @@ export function HomePage({
     ]
   );
 
-  return (
-    <div className="relative min-h-screen bg-background text-foreground">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-surface-elevated via-background to-background dark:from-[#08142a] dark:via-[#071225] dark:to-[#071225]" />
-      <GlobalHeader
-        userName={displayName}
-        role={userRole}
-        avatarUrl={avatarUrl}
-        branding={branding}
-      />
-
-      <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-16 pt-12 lg:px-6">
-
-        {/* Secret Giver - Prominentny CTA Box */}
-        <Link
-          href="/dashboard/secret-giver"
-          className="group relative overflow-hidden rounded-3xl border-2 border-purple-400 bg-gradient-to-br from-purple-400 via-pink-400 to-blue-400 p-8 shadow-xl shadow-purple-400/50 transition-all hover:border-purple-500 hover:shadow-2xl hover:shadow-purple-500/60 dark:border-purple-800 dark:from-purple-950/40 dark:via-pink-950/30 dark:to-blue-950/40 dark:shadow-purple-900/30"
-        >
-          <div className="absolute right-0 top-0 h-full w-1/3 opacity-30 dark:opacity-10">
-            <svg className="h-full w-full" viewBox="0 0 100 100" fill="currentColor">
-              <path d="M50 10 L90 90 L10 90 Z" className="text-purple-600 dark:text-purple-400" />
-              <circle cx="50" cy="35" r="8" className="text-pink-600 dark:text-pink-400" />
+  const onboardingSteps = useMemo(() => {
+    return [
+      {
+        key: 'overview',
+        title: tOnboarding('steps.overview.title'),
+        description: tOnboarding('steps.overview.description'),
+        points: [
+          tOnboarding('steps.overview.points.shortcuts'),
+          tOnboarding('steps.overview.points.events'),
+        ],
+        icon: (
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 via-sky-500/10 to-sky-400/30 text-sky-600 dark:text-sky-300">
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+              <rect x="3" y="3" width="8" height="8" rx="2" />
+              <rect x="13" y="3" width="8" height="5" rx="2" />
+              <rect x="13" y="10" width="8" height="11" rx="2" />
+              <rect x="3" y="13" width="8" height="8" rx="2" />
             </svg>
           </div>
-          <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex-1">
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-1.5 text-xs font-bold text-white shadow-md">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-                <span>{tSecretGiver('badge')}</span>
-              </div>
-              <h2 className="mb-2 text-2xl font-bold text-white drop-shadow-lg md:text-3xl">
-                {tSecretGiver('title')}
-              </h2>
-              <p className="text-sm text-white drop-shadow-md md:text-base font-semibold">
-                {tSecretGiver('description')}
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1 rounded-lg border border-purple-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-purple-700 shadow-sm dark:border-purple-700 dark:bg-purple-900/40 dark:text-purple-200">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                  {tSecretGiver('features.anonymous')}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-lg border border-pink-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-pink-700 shadow-sm dark:border-pink-700 dark:bg-pink-900/40 dark:text-pink-200">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {tSecretGiver('features.access48h')}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-lg border border-blue-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm dark:border-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  {tSecretGiver('features.emailNotifications')}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-3 font-bold text-white shadow-lg shadow-purple-400/40 transition group-hover:shadow-xl group-hover:shadow-purple-500/50 group-hover:scale-105">
-                {tSecretGiver('cta')}
-              </div>
-            </div>
+        ),
+        cta: tOnboarding('steps.overview.cta'),
+      },
+      {
+        key: 'trustedCircle',
+        title: tOnboarding('steps.trustedCircle.title'),
+        description: tOnboarding('steps.trustedCircle.description'),
+        points: [
+          tOnboarding('steps.trustedCircle.points.permissions'),
+          tOnboarding('steps.trustedCircle.points.activity'),
+        ],
+        icon: (
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-teal-400/30 text-emerald-600 dark:text-emerald-300">
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 7.5a3.75 3.75 0 017.5 0 3.75 3.75 0 01-7.5 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5a4.5 4.5 0 019 0v.75H4.5V19.5z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 19.5v-.75a4.5 4.5 0 018.25-2.625" />
+            </svg>
           </div>
-        </Link>
-
-        {isSimpleVariant ? (
-          <>
-            {renderSimpleSizesSection()}
-            {renderSimpleShortcuts()}
-            {activeSection === 'events' ? renderEventsSection('simple') : null}
-            {activeSection === 'trusted-circle' ? renderTrustedCircleSection('simple') : null}
-            {activeSection === 'wishlist' ? renderWishlistSection('simple') : null}
-          </>
-        ) : (
-          <>
-            {renderFullSizesSection()}
-            {shouldShowDataGaps ? renderDataGapsSection() : null}
-            {renderEventsSection('full')}
-            {renderTrustedCircleSection('full')}
-            {renderWishlistSection('full')}
-          </>
-        )}
-
-      </main>
-
-      {pendingDeleteItem ? (
-        <ModalShell onClose={handleCancelWishlistDelete} maxWidth="max-w-md" closeLabel={tCommon('close')}>
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-foreground">
-                {tWishlist('deleteModal.title')}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {tWishlist('deleteModal.body', {
-                  name: pendingDeleteItem.productName ?? tWishlist('deleteModal.fallbackName'),
-                })}
-              </p>
-            </div>
-
-            {deleteError ? (
-              <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                {deleteError}
-              </div>
-            ) : null}
-
-            <div className="flex items-center justify-end gap-3">
-              <button
-                type="button"
-                className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
-                onClick={handleCancelWishlistDelete}
-                disabled={isDeletingWishlistItem}
-              >
-                {tCommon('cancel')}
-              </button>
-              <button
-                type="button"
-                className="rounded-full bg-destructive px-5 py-2 text-sm font-semibold text-destructive-foreground shadow transition hover:bg-destructive/90 disabled:cursor-not-allowed disabled:opacity-60"
-                onClick={handleConfirmWishlistDelete}
-                disabled={isDeletingWishlistItem}
-              >
-                {isDeletingWishlistItem ? tWishlist('deleteModal.deleting') : tCommon('delete')}
-              </button>
-            </div>
+        ),
+        cta: tOnboarding('steps.trustedCircle.cta'),
+      },
+      {
+        key: 'measurements',
+        title: tOnboarding('steps.measurements.title'),
+        description: tOnboarding('steps.measurements.description'),
+        points: [
+          tOnboarding('steps.measurements.points.measurements'),
+          tOnboarding('steps.measurements.points.labels'),
+        ],
+        icon: (
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-500/10 to-orange-400/30 text-amber-600 dark:text-amber-300">
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h10m-4 5h10" />
+              <rect x="3" y="4" width="18" height="16" rx="3" />
+            </svg>
           </div>
-        </ModalShell>
-      ) : null}
+        ),
+        cta: tOnboarding('steps.measurements.cta'),
+      },
+      {
+        key: 'secretGiver',
+        title: tOnboarding('steps.secretGiver.title'),
+        description: tOnboarding('steps.secretGiver.description'),
+        points: [
+          tOnboarding('steps.secretGiver.points.requests'),
+          tOnboarding('steps.secretGiver.points.wishlists'),
+        ],
+        icon: (
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 via-purple-500/10 to-pink-400/30 text-purple-600 dark:text-purple-300">
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25V3m0 5.25A2.25 2.25 0 019.75 6 2.25 2.25 0 0112 3.75 2.25 2.25 0 0114.25 6 2.25 2.25 0 0112 8.25z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5v10.5a1.5 1.5 0 01-1.5 1.5h-13.5a1.5 1.5 0 01-1.5-1.5V9z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5" />
+            </svg>
+          </div>
+        ),
+        cta: tOnboarding('steps.secretGiver.cta'),
+      },
+    ];
+  }, [tOnboarding]);
 
-      <UpsellModal
-        isOpen={isUpsellOpen && !!activeUpsellReason}
-        reason={activeUpsellReason ?? 'general'}
-        onClose={handleCloseUpsell}
-      />
+  const hasOnboardingSteps = onboardingSteps.length > 0;
+  const [showOnboarding, setShowOnboarding] = useState(() => !hasCompletedOnboarding && hasOnboardingSteps);
+  const [currentOnboardingStep, setCurrentOnboardingStep] = useState(0);
+  const [onboardingError, setOnboardingError] = useState<string | null>(null);
+  const [isPersistingOnboarding, setIsPersistingOnboarding] = useState(false);
 
-      {isAddEventOpen ? (
-        <ModalShell onClose={handleCloseEventModal} maxWidth="max-w-2xl" closeLabel={tCommon('close')}>
-          <form onSubmit={handleEventSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-foreground">
-                {editingEventId ? tEventsModal('titleEdit') : tEventsModal('titleCreate')}
-              </h3>
-              <p className="text-sm text-muted-foreground">{tEventsModal('subtitle')}</p>
+  useEffect(() => {
+    if (!hasCompletedOnboarding && hasOnboardingSteps) {
+      setShowOnboarding(true);
+    }
+  }, [hasCompletedOnboarding, hasOnboardingSteps]);
+
+  const persistOnboarding = useCallback(async () => {
+    if (isPersistingOnboarding) {
+      return false;
+    }
+    setIsPersistingOnboarding(true);
+    setOnboardingError(null);
+    try {
+      const response = await fetch('/api/v1/profile/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: true }),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error ?? tOnboarding('errors.generic'));
+      }
+      setShowOnboarding(false);
+      setCurrentOnboardingStep(0);
+      setOnboardingError(null);
+      router.refresh();
+      return true;
+    } catch (error) {
+      console.error('Failed to persist onboarding status', error);
+      setOnboardingError(error instanceof Error ? error.message : tOnboarding('errors.generic'));
+      return false;
+    } finally {
+      setIsPersistingOnboarding(false);
+    }
+  }, [isPersistingOnboarding, router, tOnboarding]);
+
+  const handleSkipOnboarding = useCallback(() => {
+    setShowOnboarding(false);
+    setOnboardingError(null);
+  }, []);
+
+  const handleNextOnboardingStep = useCallback(() => {
+    setCurrentOnboardingStep((prev) => Math.min(prev + 1, Math.max(onboardingSteps.length - 1, 0)));
+  }, [onboardingSteps.length]);
+
+  const handlePrevOnboardingStep = useCallback(() => {
+    setCurrentOnboardingStep((prev) => Math.max(prev - 1, 0));
+  }, []);
+
+  const handleCompleteOnboarding = useCallback(async () => {
+    await persistOnboarding();
+  }, [persistOnboarding]);
+
+  const handleNeverShowOnboarding = useCallback(() => {
+    void persistOnboarding();
+  }, [persistOnboarding]);
+
+  const shouldShowOnboarding = showOnboarding && hasOnboardingSteps;
+  const isFirstOnboardingStep = currentOnboardingStep === 0;
+  const isLastOnboardingStep = currentOnboardingStep >= onboardingSteps.length - 1;
+  const currentOnboardingStepData = onboardingSteps[currentOnboardingStep] ?? onboardingSteps[0];
+
+  return (
+    <>
+      {shouldShowOnboarding && currentOnboardingStepData ? (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 px-4 py-10 backdrop-blur-sm">
+          <div className="relative w-full max-w-3xl rounded-3xl border border-border/70 bg-card/95 p-6 text-left shadow-2xl shadow-black/40 sm:p-8">
+            <button
+              type="button"
+              onClick={handleSkipOnboarding}
+              className="absolute right-4 top-4 rounded-full border border-border/60 bg-background/80 p-2 text-muted-foreground transition hover:text-foreground"
+              aria-label={tOnboarding('actions.skip')}
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />
+              </svg>
+            </button>
+
+            <div className="flex flex-col gap-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {tOnboarding('progress', { current: currentOnboardingStep + 1, total: onboardingSteps.length })}
+              </div>
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">{tOnboarding('title')}</h2>
+              <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">{tOnboarding('subtitle')}</p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  {tEventsModal('dateLabel')} <span className="text-destructive">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={eventDate}
-                  onChange={(event) => setEventDate(event.target.value)}
-                  required
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
+            <div className="mt-6 grid gap-6 sm:grid-cols-[auto,1fr] sm:items-start">
+              <div className="flex items-center justify-center sm:justify-start">
+                {currentOnboardingStepData.icon}
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  {tEventsModal('nameLabel')} <span className="text-destructive">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={eventTitle}
-                  onChange={(event) => setEventTitle(event.target.value)}
-                  placeholder={tEventsModal('namePlaceholder')}
-                  required
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">{tEventsModal('notesLabel')}</label>
-              <textarea
-                value={eventNotes}
-                onChange={(event) => setEventNotes(event.target.value)}
-                rows={3}
-                placeholder={tEventsModal('notesPlaceholder')}
-                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-
-            <label className="flex items-center gap-3 rounded-2xl border border-border/60 bg-[var(--surface-interactive)] px-4 py-3 text-sm font-medium text-foreground">
-              <input
-                type="checkbox"
-                checked={isRecurring}
-                onChange={(event) => setIsRecurring(event.target.checked)}
-                className="h-4 w-4 rounded border-border text-primary focus:ring-primary/40"
-              />
-              {tEventsModal('recurringLabel')}
-            </label>
-
-            {eventError ? (
-              <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                {eventError}
-              </div>
-            ) : null}
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-foreground">{tEventsModal('participants.title')}</h4>
-                <button
-                  type="button"
-                  onClick={handleAddParticipant}
-                  className="inline-flex items-center gap-2 rounded-full border border-border/60 px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
-                  </svg>
-                  {tEventsModal('participants.add')}
-                </button>
-              </div>
-
-              <div className="space-y-4 max-h-[320px] overflow-y-auto pr-1">
-                {participants.map((participant, index) => (
-                  <div
-                    key={participant.id}
-                    className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] p-4"
-                  >
-                    <div className="flex items-center justify-between pb-2">
-                      <p className="text-sm font-semibold text-foreground">
-                        {tEventsModal('participants.personLabel', { index: index + 1 })}
-                      </p>
-                      {participants.length > 1 ? (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveParticipant(participant.id)}
-                          className="text-xs font-medium text-destructive transition hover:text-destructive/80"
-                        >
-                          {tCommon('delete')}
-                        </button>
-                      ) : null}
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold uppercase text-muted-foreground">
-                          {tEventsModal('participants.fields.firstName.label')}
-                        </label>
-                        <input
-                          type="text"
-                          value={participant.firstName}
-                          onChange={(event) =>
-                            handleParticipantChange(participant.id, 'firstName', event.target.value)
-                          }
-                          placeholder={tEventsModal('participants.fields.firstName.placeholder')}
-                          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold uppercase text-muted-foreground">
-                          {tEventsModal('participants.fields.lastName.label')}
-                        </label>
-                        <input
-                          type="text"
-                          value={participant.lastName}
-                          onChange={(event) =>
-                            handleParticipantChange(participant.id, 'lastName', event.target.value)
-                          }
-                          placeholder={tEventsModal('participants.fields.lastName.placeholder')}
-                          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold uppercase text-muted-foreground">
-                          {tEventsModal('participants.fields.phone.label')}
-                        </label>
-                        <input
-                          type="tel"
-                          value={participant.phone}
-                          onChange={(event) =>
-                            handleParticipantChange(participant.id, 'phone', event.target.value)
-                          }
-                          placeholder={tEventsModal('participants.fields.phone.placeholder')}
-                          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold uppercase text-muted-foreground">
-                          {tEventsModal('participants.fields.email.label')}
-                        </label>
-                        <input
-                          type="email"
-                          value={participant.email}
-                          onChange={(event) =>
-                            handleParticipantChange(participant.id, 'email', event.target.value)
-                          }
-                          placeholder={tEventsModal('participants.fields.email.placeholder')}
-                          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {trustedMembers.length > 0 ? (
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-foreground">{tEventsModal('participants.trustedLabel')}</h4>
-                <div className="flex flex-wrap gap-2">
-                  {trustedMembers.map((member) => (
-                    <button
-                      type="button"
-                      key={member.id}
-                      onClick={() => handleAddTrustedMember(member)}
-                      className="rounded-full border border-border/60 px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
-                    >
-                      {member.firstName} {member.lastName}
-                    </button>
-                  ))}
+              <div className="space-y-3">
+                <div>
+                  <h3 className="text-xl font-semibold text-foreground sm:text-2xl">{currentOnboardingStepData.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground sm:text-base">{currentOnboardingStepData.description}</p>
                 </div>
-              </div>
-            ) : null}
-
-            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={handleCloseEventModal}
-                className="rounded-full border border-border/60 px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
-              >
-                {tCommon('cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={eventSubmitting || !eventDate || !eventTitle.trim()}
-                className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {eventSubmitting
-                  ? tEventsModal('saving')
-                  : editingEventId
-                    ? tEventsModal('submitUpdate')
-                    : tEventsModal('submitCreate')}
-              </button>
-            </div>
-          </form>
-        </ModalShell>
-      ) : null}
-
-      {selectedCalendarEvent ? (() => {
-        const eventDate = new Date(selectedCalendarEvent.eventDateISO);
-        const formattedDate = eventDate.toLocaleDateString(locale || undefined, {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
-        const todayMidnight = new Date();
-        todayMidnight.setHours(0, 0, 0, 0);
-        const diffDays = Math.max(0, Math.ceil((eventDate.getTime() - todayMidnight.getTime()) / (1000 * 60 * 60 * 24)));
-        const countdownText = tEventsDetails('countdown', { count: diffDays });
-        const userEvent = selectedCalendarEvent.userEvent;
-        const participants = (userEvent?.participants ?? []) as DashboardEventParticipant[];
-        const visibleParticipants = participants.filter((participant) =>
-          participant.firstName || participant.lastName || participant.email || participant.phone
-        );
-
-        return (
-          <ModalShell onClose={handleCloseEventDetails} maxWidth="max-w-xl" closeLabel={tCommon('close')}>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-foreground">{selectedCalendarEvent.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {formattedDate} · {selectedCalendarEvent.context}
-                </p>
-                <p className="text-sm font-medium text-primary">{countdownText}</p>
-                {selectedCalendarEvent.kind === 'user' && userEvent?.is_recurring ? (
-                  <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                    {tEventsDetails('recurringBadge')}
-                  </span>
+                {currentOnboardingStepData.points?.length ? (
+                  <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                    {currentOnboardingStepData.points.map((point) => (
+                      <li key={point} className="flex items-start gap-2">
+                        <span className="mt-[7px] h-2 w-2 rounded-full bg-primary/70" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {currentOnboardingStepData.cta ? (
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
+                    </svg>
+                    <span>{currentOnboardingStepData.cta}</span>
+                  </div>
                 ) : null}
               </div>
+            </div>
 
-              {selectedCalendarEvent.kind === 'user' ? (
-                <div className="space-y-6">
-                  {userEvent?.notes ? (
-                    <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
-                      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
-                        {tEventsDetails('notesLabel')}
-                      </p>
-                      <p>{userEvent.notes}</p>
-                    </div>
-                  ) : null}
+            {onboardingError ? (
+              <div className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {onboardingError}
+              </div>
+            ) : null}
 
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-foreground">{tEventsModal('participants.title')}</h4>
-                      <span className="text-xs text-muted-foreground">
-                        {visibleParticipants.length} / {participants.length}
-                      </span>
-                    </div>
-                    {visibleParticipants.length ? (
-                      <ul className="space-y-2">
-                        {visibleParticipants.map((participant, index) => {
-                          const name = [participant.firstName, participant.lastName]
-                            .filter(Boolean)
-                            .join(' ')
-                            .trim();
-                          const fallbackName =
-                            name || participant.email || tEventsDetails('participantFallback', { index: index + 1 });
-                          return (
-                            <li key={`${participant.email ?? participant.phone ?? index}`} className="rounded-xl border border-border/50 bg-[var(--surface-interactive)] px-4 py-3 text-sm text-foreground">
-                              <p className="font-semibold">{fallbackName}</p>
-                              <div className="mt-1 space-y-1 text-xs text-muted-foreground">
-                                {participant.email ? (
-                                  <p>
-                                    {tEventsDetails('contact.email')}: {participant.email}
-                                  </p>
-                                ) : null}
-                                {participant.phone ? (
-                                  <p>
-                                    {tEventsDetails('contact.phone')}: {participant.phone}
-                                  </p>
-                                ) : null}
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    ) : (
-                      <p className="rounded-xl border border-dashed border-border/60 bg-[var(--surface-interactive)] px-4 py-3 text-sm text-muted-foreground">
-                        {tEventsDetails('participantsEmpty')}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] px-4 py-4 text-sm text-muted-foreground">
-                  {tEventsDetails('autoSeedInfo')}
-                </div>
-              )}
-
-              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                type="button"
+                onClick={handleSkipOnboarding}
+                className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
+              >
+                {tOnboarding('actions.skip')}
+              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                {!isFirstOnboardingStep ? (
+                  <button
+                    type="button"
+                    onClick={handlePrevOnboardingStep}
+                    className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+                  >
+                    {tOnboarding('actions.back')}
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  onClick={handleCloseEventDetails}
-                  className="rounded-full border border-border/60 px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+                  onClick={async () => {
+                    if (isLastOnboardingStep) {
+                      await handleCompleteOnboarding();
+                    } else {
+                      handleNextOnboardingStep();
+                    }
+                  }}
+                  disabled={isPersistingOnboarding}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {tCommon('close')}
+                  {isPersistingOnboarding
+                    ? tOnboarding('actions.processing')
+                    : isLastOnboardingStep
+                      ? tOnboarding('actions.finish')
+                      : tOnboarding('actions.next')}
                 </button>
-                {selectedCalendarEvent.kind === 'user' && userEvent ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleCloseEventDetails();
-                      openEventForm({ event: userEvent });
-                    }}
-                    className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-                  >
-                    {tEventsDetails('edit')}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleCloseEventDetails();
-                      openEventForm({
-                        seed: {
-                          title: selectedCalendarEvent.title,
-                          dateISO: selectedCalendarEvent.eventDateISO,
-                        },
-                      });
-                    }}
-                    className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-                  >
-                    {tEventsDetails('personalize')}
-                  </button>
-                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleNeverShowOnboarding()}
+              disabled={isPersistingOnboarding}
+              className="mt-4 w-full text-xs font-medium text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {tOnboarding('actions.never')}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="relative min-h-screen bg-background text-foreground">
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-surface-elevated via-background to-background dark:from-[#08142a] dark:via-[#071225] dark:to-[#071225]" />
+        <GlobalHeader
+          userName={displayName}
+          role={userRole}
+          avatarUrl={avatarUrl}
+          branding={branding}
+        />
+
+        <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-16 pt-12 lg:px-6">
+
+          {/* Secret Giver - Prominentny CTA Box */}
+          <Link
+            href="/dashboard/secret-giver"
+            className="group relative overflow-hidden rounded-3xl border-2 border-purple-400 bg-gradient-to-br from-purple-400 via-pink-400 to-blue-400 p-8 shadow-xl shadow-purple-400/50 transition-all hover:border-purple-500 hover:shadow-2xl hover:shadow-purple-500/60 dark:border-purple-800 dark:from-purple-950/40 dark:via-pink-950/30 dark:to-blue-950/40 dark:shadow-purple-900/30"
+          >
+            <div className="absolute right-0 top-0 h-full w-1/3 opacity-30 dark:opacity-10">
+              <svg className="h-full w-full" viewBox="0 0 100 100" fill="currentColor">
+                <path d="M50 10 L90 90 L10 90 Z" className="text-purple-600 dark:text-purple-400" />
+                <circle cx="50" cy="35" r="8" className="text-pink-600 dark:text-pink-400" />
+              </svg>
+            </div>
+            <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex-1">
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-1.5 text-xs font-bold text-white shadow-md">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                  <span>{tSecretGiver('badge')}</span>
+                </div>
+                <h2 className="mb-2 text-2xl font-bold text-white drop-shadow-lg md:text-3xl">
+                  {tSecretGiver('title')}
+                </h2>
+                <p className="text-sm text-white drop-shadow-md md:text-base font-semibold">
+                  {tSecretGiver('description')}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-purple-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-purple-700 shadow-sm dark:border-purple-700 dark:bg-purple-900/40 dark:text-purple-200">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    {tSecretGiver('features.anonymous')}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-pink-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-pink-700 shadow-sm dark:border-pink-700 dark:bg-pink-900/40 dark:text-pink-200">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {tSecretGiver('features.access48h')}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-blue-300 bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm dark:border-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    {tSecretGiver('features.emailNotifications')}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-3 font-bold text-white shadow-lg shadow-purple-400/40 transition group-hover:shadow-xl group-hover:shadow-purple-500/50 group-hover:scale-105">
+                  {tSecretGiver('cta')}
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {isSimpleVariant ? (
+            <>
+              {renderSimpleSizesSection()}
+              {renderSimpleShortcuts()}
+              {activeSection === 'events' ? renderEventsSection('simple') : null}
+              {activeSection === 'trusted-circle' ? renderTrustedCircleSection('simple') : null}
+              {activeSection === 'wishlist' ? renderWishlistSection('simple') : null}
+            </>
+          ) : (
+            <>
+              {renderFullSizesSection()}
+              {shouldShowDataGaps ? renderDataGapsSection() : null}
+              {renderEventsSection('full')}
+              {renderTrustedCircleSection('full')}
+              {renderWishlistSection('full')}
+            </>
+          )}
+
+        </main>
+
+        {pendingDeleteItem ? (
+          <ModalShell onClose={handleCancelWishlistDelete} maxWidth="max-w-md" closeLabel={tCommon('close')}>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {tWishlist('deleteModal.title')}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {tWishlist('deleteModal.body', {
+                    name: pendingDeleteItem.productName ?? tWishlist('deleteModal.fallbackName'),
+                  })}
+                </p>
+              </div>
+
+              {deleteError ? (
+                <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  {deleteError}
+                </div>
+              ) : null}
+
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={handleCancelWishlistDelete}
+                  disabled={isDeletingWishlistItem}
+                >
+                  {tCommon('cancel')}
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full bg-destructive px-5 py-2 text-sm font-semibold text-destructive-foreground shadow transition hover:bg-destructive/90 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={handleConfirmWishlistDelete}
+                  disabled={isDeletingWishlistItem}
+                >
+                  {isDeletingWishlistItem ? tWishlist('deleteModal.deleting') : tCommon('delete')}
+                </button>
               </div>
             </div>
           </ModalShell>
-        );
-      })()
-        : null}
+        ) : null}
 
-      {activeBodyMeasurementDefinition && (
-        <ModalShell
-          onClose={() => setActiveBodyMeasurementDefinition(null)}
-          maxWidth="max-w-xl"
-          closeLabel={tCommon('close')}
-        >
-          <BodyMeasurementQuickModal
-            definition={activeBodyMeasurementDefinition}
-            profileId={profileId}
-            bodyMeasurements={bodyMeasurements}
-            hasExistingRecord={hasBodyMeasurementsRecord}
-            onSuccess={() => {
-              setActiveBodyMeasurementDefinition(null);
-              router.refresh();
-            }}
-            onCancel={() => setActiveBodyMeasurementDefinition(null)}
-          />
-        </ModalShell>
-      )}
+        <UpsellModal
+          isOpen={isUpsellOpen && !!activeUpsellReason}
+          reason={activeUpsellReason ?? 'general'}
+          onClose={handleCloseUpsell}
+        />
 
-      {preferencesOpen && (
-        <ModalShell onClose={() => setPreferencesOpen(false)} maxWidth="max-w-3xl" closeLabel={tCommon('close')}>
-          <QuickSizePreferencesModal
-            profileId={profileId}
-            sizeLabels={sizeLabels}
-            garments={garments}
-            sizePreferences={sizePreferences}
-            onClose={() => setPreferencesOpen(false)}
-            onSaved={() => {
-              setPreferencesOpen(false);
-              router.refresh();
-            }}
-          />
-        </ModalShell>
-      )}
-    </div>
+        {isAddEventOpen ? (
+          <ModalShell onClose={handleCloseEventModal} maxWidth="max-w-2xl" closeLabel={tCommon('close')}>
+            <form onSubmit={handleEventSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold text-foreground">
+                  {editingEventId ? tEventsModal('titleEdit') : tEventsModal('titleCreate')}
+                </h3>
+                <p className="text-sm text-muted-foreground">{tEventsModal('subtitle')}</p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    {tEventsModal('dateLabel')} <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={eventDate}
+                    onChange={(event) => setEventDate(event.target.value)}
+                    required
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    {tEventsModal('nameLabel')} <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={eventTitle}
+                    onChange={(event) => setEventTitle(event.target.value)}
+                    placeholder={tEventsModal('namePlaceholder')}
+                    required
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">{tEventsModal('notesLabel')}</label>
+                <textarea
+                  value={eventNotes}
+                  onChange={(event) => setEventNotes(event.target.value)}
+                  rows={3}
+                  placeholder={tEventsModal('notesPlaceholder')}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <label className="flex items-center gap-3 rounded-2xl border border-border/60 bg-[var(--surface-interactive)] px-4 py-3 text-sm font-medium text-foreground">
+                <input
+                  type="checkbox"
+                  checked={isRecurring}
+                  onChange={(event) => setIsRecurring(event.target.checked)}
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary/40"
+                />
+                {tEventsModal('recurringLabel')}
+              </label>
+
+              {eventError ? (
+                <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  {eventError}
+                </div>
+              ) : null}
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-semibold text-foreground">{tEventsModal('participants.title')}</h4>
+                  <button
+                    type="button"
+                    onClick={handleAddParticipant}
+                    className="inline-flex items-center gap-2 rounded-full border border-border/60 px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
+                    </svg>
+                    {tEventsModal('participants.add')}
+                  </button>
+                </div>
+
+                <div className="space-y-4 max-h-[320px] overflow-y-auto pr-1">
+                  {participants.map((participant, index) => (
+                    <div
+                      key={participant.id}
+                      className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] p-4"
+                    >
+                      <div className="flex items-center justify-between pb-2">
+                        <p className="text-sm font-semibold text-foreground">
+                          {tEventsModal('participants.personLabel', { index: index + 1 })}
+                        </p>
+                        {participants.length > 1 ? (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveParticipant(participant.id)}
+                            className="text-xs font-medium text-destructive transition hover:text-destructive/80"
+                          >
+                            {tCommon('delete')}
+                          </button>
+                        ) : null}
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold uppercase text-muted-foreground">
+                            {tEventsModal('participants.fields.firstName.label')}
+                          </label>
+                          <input
+                            type="text"
+                            value={participant.firstName}
+                            onChange={(event) =>
+                              handleParticipantChange(participant.id, 'firstName', event.target.value)
+                            }
+                            placeholder={tEventsModal('participants.fields.firstName.placeholder')}
+                            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold uppercase text-muted-foreground">
+                            {tEventsModal('participants.fields.lastName.label')}
+                          </label>
+                          <input
+                            type="text"
+                            value={participant.lastName}
+                            onChange={(event) =>
+                              handleParticipantChange(participant.id, 'lastName', event.target.value)
+                            }
+                            placeholder={tEventsModal('participants.fields.lastName.placeholder')}
+                            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold uppercase text-muted-foreground">
+                            {tEventsModal('participants.fields.phone.label')}
+                          </label>
+                          <input
+                            type="tel"
+                            value={participant.phone}
+                            onChange={(event) =>
+                              handleParticipantChange(participant.id, 'phone', event.target.value)
+                            }
+                            placeholder={tEventsModal('participants.fields.phone.placeholder')}
+                            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold uppercase text-muted-foreground">
+                            {tEventsModal('participants.fields.email.label')}
+                          </label>
+                          <input
+                            type="email"
+                            value={participant.email}
+                            onChange={(event) =>
+                              handleParticipantChange(participant.id, 'email', event.target.value)
+                            }
+                            placeholder={tEventsModal('participants.fields.email.placeholder')}
+                            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {trustedMembers.length > 0 ? (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-foreground">{tEventsModal('participants.trustedLabel')}</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {trustedMembers.map((member) => (
+                      <button
+                        type="button"
+                        key={member.id}
+                        onClick={() => handleAddTrustedMember(member)}
+                        className="rounded-full border border-border/60 px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
+                      >
+                        {member.firstName} {member.lastName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={handleCloseEventModal}
+                  className="rounded-full border border-border/60 px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+                >
+                  {tCommon('cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={eventSubmitting || !eventDate || !eventTitle.trim()}
+                  className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {eventSubmitting
+                    ? tEventsModal('saving')
+                    : editingEventId
+                      ? tEventsModal('submitUpdate')
+                      : tEventsModal('submitCreate')}
+                </button>
+              </div>
+            </form>
+          </ModalShell>
+        ) : null}
+
+        {selectedCalendarEvent ? (() => {
+          const eventDate = new Date(selectedCalendarEvent.eventDateISO);
+          const formattedDate = eventDate.toLocaleDateString(locale || undefined, {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          });
+          const todayMidnight = new Date();
+          todayMidnight.setHours(0, 0, 0, 0);
+          const diffDays = Math.max(0, Math.ceil((eventDate.getTime() - todayMidnight.getTime()) / (1000 * 60 * 60 * 24)));
+          const countdownText = tEventsDetails('countdown', { count: diffDays });
+          const userEvent = selectedCalendarEvent.userEvent;
+          const participants = (userEvent?.participants ?? []) as DashboardEventParticipant[];
+          const visibleParticipants = participants.filter((participant) =>
+            participant.firstName || participant.lastName || participant.email || participant.phone
+          );
+
+          return (
+            <ModalShell onClose={handleCloseEventDetails} maxWidth="max-w-xl" closeLabel={tCommon('close')}>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-semibold text-foreground">{selectedCalendarEvent.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {formattedDate} · {selectedCalendarEvent.context}
+                  </p>
+                  <p className="text-sm font-medium text-primary">{countdownText}</p>
+                  {selectedCalendarEvent.kind === 'user' && userEvent?.is_recurring ? (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                      {tEventsDetails('recurringBadge')}
+                    </span>
+                  ) : null}
+                </div>
+
+                {selectedCalendarEvent.kind === 'user' ? (
+                  <div className="space-y-6">
+                    {userEvent?.notes ? (
+                      <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
+                          {tEventsDetails('notesLabel')}
+                        </p>
+                        <p>{userEvent.notes}</p>
+                      </div>
+                    ) : null}
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-foreground">{tEventsModal('participants.title')}</h4>
+                        <span className="text-xs text-muted-foreground">
+                          {visibleParticipants.length} / {participants.length}
+                        </span>
+                      </div>
+                      {visibleParticipants.length ? (
+                        <ul className="space-y-2">
+                          {visibleParticipants.map((participant, index) => {
+                            const name = [participant.firstName, participant.lastName]
+                              .filter(Boolean)
+                              .join(' ')
+                              .trim();
+                            const fallbackName =
+                              name || participant.email || tEventsDetails('participantFallback', { index: index + 1 });
+                            return (
+                              <li key={`${participant.email ?? participant.phone ?? index}`} className="rounded-xl border border-border/50 bg-[var(--surface-interactive)] px-4 py-3 text-sm text-foreground">
+                                <p className="font-semibold">{fallbackName}</p>
+                                <div className="mt-1 space-y-1 text-xs text-muted-foreground">
+                                  {participant.email ? (
+                                    <p>
+                                      {tEventsDetails('contact.email')}: {participant.email}
+                                    </p>
+                                  ) : null}
+                                  {participant.phone ? (
+                                    <p>
+                                      {tEventsDetails('contact.phone')}: {participant.phone}
+                                    </p>
+                                  ) : null}
+                                </div>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      ) : (
+                        <p className="rounded-xl border border-dashed border-border/60 bg-[var(--surface-interactive)] px-4 py-3 text-sm text-muted-foreground">
+                          {tEventsDetails('participantsEmpty')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-border/60 bg-[var(--surface-interactive)] px-4 py-4 text-sm text-muted-foreground">
+                    {tEventsDetails('autoSeedInfo')}
+                  </div>
+                )}
+
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={handleCloseEventDetails}
+                    className="rounded-full border border-border/60 px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+                  >
+                    {tCommon('close')}
+                  </button>
+                  {selectedCalendarEvent.kind === 'user' && userEvent ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleCloseEventDetails();
+                        openEventForm({ event: userEvent });
+                      }}
+                      className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                    >
+                      {tEventsDetails('edit')}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleCloseEventDetails();
+                        openEventForm({
+                          seed: {
+                            title: selectedCalendarEvent.title,
+                            dateISO: selectedCalendarEvent.eventDateISO,
+                          },
+                        });
+                      }}
+                      className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                    >
+                      {tEventsDetails('personalize')}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </ModalShell>
+          );
+        })()
+          : null}
+
+        {activeBodyMeasurementDefinition && (
+          <ModalShell
+            onClose={() => setActiveBodyMeasurementDefinition(null)}
+            maxWidth="max-w-xl"
+            closeLabel={tCommon('close')}
+          >
+            <BodyMeasurementQuickModal
+              definition={activeBodyMeasurementDefinition}
+              profileId={profileId}
+              bodyMeasurements={bodyMeasurements}
+              hasExistingRecord={hasBodyMeasurementsRecord}
+              onSuccess={() => {
+                setActiveBodyMeasurementDefinition(null);
+                router.refresh();
+              }}
+              onCancel={() => setActiveBodyMeasurementDefinition(null)}
+            />
+          </ModalShell>
+        )}
+
+        {preferencesOpen && (
+          <ModalShell onClose={() => setPreferencesOpen(false)} maxWidth="max-w-3xl" closeLabel={tCommon('close')}>
+            <QuickSizePreferencesModal
+              profileId={profileId}
+              sizeLabels={sizeLabels}
+              garments={garments}
+              sizePreferences={sizePreferences}
+              onClose={() => setPreferencesOpen(false)}
+              onSaved={() => {
+                setPreferencesOpen(false);
+                router.refresh();
+              }}
+            />
+          </ModalShell>
+        )}
+      </div>
+    </>
   );
 }

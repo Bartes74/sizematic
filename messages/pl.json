@@ -334,6 +334,60 @@
         "logout": "Wyloguj"
       }
     },
+    "onboarding": {
+      "title": "Poznaj GiftFit",
+      "subtitle": "W kilka kroków pokażemy Ci najważniejsze miejsca i akcje, żebyś szybciej poczuł(a) się jak u siebie.",
+      "progress": "Krok {current} z {total}",
+      "actions": {
+        "next": "Dalej",
+        "back": "Wstecz",
+        "skip": "Przypomnij później",
+        "finish": "Zakończ",
+        "never": "Nie pokazuj tego więcej",
+        "processing": "Zapisuję..."
+      },
+      "errors": {
+        "generic": "Nie udało się zapisać ustawień onboarding. Spróbuj ponownie."
+      },
+      "steps": {
+        "overview": {
+          "title": "Dashboard jako centrum sterowania",
+          "description": "Tutaj zobaczysz skróty, brakujące dane i nadchodzące wydarzenia – to Twój punkt startowy każdego dnia.",
+          "points": {
+            "shortcuts": "Dodawaj rozmiary i listy życzeń jednym kliknięciem, korzystając ze skrótów.",
+            "events": "Kalendarz wydarzeń pomoże Ci zaplanować prezenty i zadania."
+          },
+          "cta": "Przełączaj sekcje na górze, by oglądać różne widoki dashboardu."
+        },
+        "trustedCircle": {
+          "title": "Udostępniaj rozmiary w Kręgu Zaufanych",
+          "description": "Zapraszaj bliskich i decyduj, które kategorie rozmiarów im pokazujesz.",
+          "points": {
+            "permissions": "Steruj dostępem dla całych kategorii lub pojedynczych typów produktów.",
+            "activity": "Sprawdzisz, komu udostępniasz rozmiary i kto udostępnia je Tobie."
+          },
+          "cta": "Stwórz pierwszy krąg i wyślij zaproszenie z poziomu dashboardu."
+        },
+        "measurements": {
+          "title": "Pomiary ciała i metki rozmiarów",
+          "description": "Uzupełniaj dane w ZPR, by mieć wszystkie wymiary i etykiety pod ręką.",
+          "points": {
+            "measurements": "Dodawaj pomiary ciała, a my podpowiemy, które values jeszcze warto uzupełnić.",
+            "labels": "Zachowuj metki, notatki o dopasowaniu i marki, które działają najlepiej."
+          },
+          "cta": "Wróć do sekcji \"Moje wymiary\" i dodaj kluczowe informacje."
+        },
+        "secretGiver": {
+          "title": "Secret Giver i listy życzeń",
+          "description": "Proś o rozmiary na chwilę i dziel się pomysłami na prezenty bez zdradzania niespodzianki.",
+          "points": {
+            "requests": "Wysyłaj prośby Secret Giver, aby uzyskać rozmiar na 48 godzin.",
+            "wishlists": "Buduj wishlisty i dziel się nimi z Kręgiem lub rodziną."
+          },
+          "cta": "Przejdź do Secret Giver i utwórz pierwszą prośbę albo listę."
+        }
+      }
+    },
     "admin": {
       "back": "Powrót do dashboardu",
       "pageTitle": "Panel administratora",
