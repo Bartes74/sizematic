@@ -5,7 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useLocale } from '@/providers/locale-provider';
 import { createClient } from '@/lib/supabase/client';
 
-export function LoginForm() {
+type LoginFormProps = {
+  onSuccess?: () => Promise<void> | void;
+  redirectPath?: string | null;
+};
+
+export function LoginForm({ onSuccess, redirectPath = '/dashboard' }: LoginFormProps = {}) {
   const { t } = useLocale();
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -41,7 +46,15 @@ export function LoginForm() {
         return;
       }
 
-      router.push('/dashboard');
+      if (onSuccess) {
+        await onSuccess();
+        router.refresh();
+        return;
+      }
+
+      if (redirectPath) {
+        router.push(redirectPath);
+      }
       router.refresh();
     } catch (error) {
       console.error(error);
