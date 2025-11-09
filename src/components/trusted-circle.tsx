@@ -122,6 +122,9 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
   const [circleError, setCircleError] = useState<string | null>(null);
   const [isUpsellOpen, setIsUpsellOpen] = useState(false);
   const [isCreatingCircle, setIsCreatingCircle] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newCircleName, setNewCircleName] = useState('');
+  const [newCircleError, setNewCircleError] = useState<string | null>(null);
   const inviteErrorMessages = useMemo<Record<string, string>>(() => ({
     max_circles: t('circle.inviteErrors.max_circles'),
     limit_reached: t('circle.inviteErrors.limit_reached'),
@@ -230,6 +233,7 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
   const handleCreateCircle = async () => {
     setCircleStatus(null);
     setCircleError(null);
+    setNewCircleError(null);
 
     if (!canCreateCircle) {
       setCircleError(t('circle.createLimitReached'));
@@ -237,10 +241,10 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
       return;
     }
 
-    const proposed = typeof window !== 'undefined' ? window.prompt(t('circle.createPrompt')) : null;
-    const trimmed = proposed?.trim();
+    const trimmed = newCircleName.trim();
 
     if (!trimmed) {
+      setNewCircleError(t('circle.createModal.nameRequired'));
       return;
     }
 
@@ -257,7 +261,7 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
       const payload = await response.json().catch(() => null);
 
       if (!response.ok) {
-        setCircleError(payload?.error ?? t('circle.createError'));
+        setNewCircleError(payload?.error ?? t('circle.createError'));
         return;
       }
 
@@ -266,9 +270,12 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
         setActiveCircleId(createdId);
       }
       setCircleStatus(t('circle.createSuccess', { name: trimmed }));
+      setIsCreateDialogOpen(false);
+      setNewCircleName('');
+      setNewCircleError(null);
       await refresh();
     } catch (error) {
-      setCircleError(error instanceof Error ? error.message : t('circle.createError'));
+      setNewCircleError(error instanceof Error ? error.message : t('circle.createError'));
     } finally {
       setIsCreatingCircle(false);
     }
@@ -336,7 +343,16 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
               </div>
               <button
                 type="button"
-                onClick={handleCreateCircle}
+                onClick={() => {
+                  if (!canCreateCircle) {
+                    setCircleError(t('circle.createLimitReached'));
+                    setIsUpsellOpen(true);
+                    return;
+                  }
+                  setNewCircleName('');
+                  setNewCircleError(null);
+                  setIsCreateDialogOpen(true);
+                }}
                 disabled={isCreatingCircle}
                 aria-disabled={hasReachedCircleLimit}
                 title={hasReachedCircleLimit ? t('circle.createLimitReached') : undefined}
@@ -539,6 +555,63 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
           status={permissionStatus}
           error={permissionError}
         />
+      ) : null}
+
+      {isCreateDialogOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-10 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-border/70 bg-card/95 p-6 shadow-2xl">
+            <div className="mb-4 space-y-2">
+              <h2 className="text-xl font-semibold text-foreground">{t('circle.createModal.title')}</h2>
+              <p className="text-sm text-muted-foreground">{t('circle.createModal.description')}</p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground" htmlFor="new-circle-name">
+                {t('circle.createModal.nameLabel')}
+              </label>
+              <input
+                id="new-circle-name"
+                type="text"
+                value={newCircleName}
+                onChange={(event) => {
+                  setNewCircleName(event.target.value);
+                  setNewCircleError(null);
+                }}
+                placeholder={t('circle.createModal.namePlaceholder')}
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                autoFocus
+              />
+            </div>
+            {newCircleError ? (
+              <div className="mt-3 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-xs text-destructive">
+                {newCircleError}
+              </div>
+            ) : null}
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (isCreatingCircle) {
+                    return;
+                  }
+                  setIsCreateDialogOpen(false);
+                  setNewCircleName('');
+                  setNewCircleError(null);
+                }}
+                className="rounded-xl border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+              >
+                {t('circle.createModal.cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={handleCreateCircle}
+                disabled={isCreatingCircle}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isCreatingCircle ? t('circle.createModal.saving') : t('circle.createModal.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
 
       <UpsellModal isOpen={isUpsellOpen} reason="max_circles" onClose={() => setIsUpsellOpen(false)} />

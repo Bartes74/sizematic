@@ -238,6 +238,16 @@
       "circle_not_found": "We couldn't find the selected trusted circle.",
       "circle_not_owned": "You can't invite people to this circle."
     },
+    "createModal": {
+      "title": "Name your new trusted circle",
+      "description": "Create a circle to share sizes with selected people.",
+      "nameLabel": "Circle name",
+      "namePlaceholder": "e.g. Family, Friends, Team",
+      "nameRequired": "Enter a name for the circle.",
+      "cancel": "Cancel",
+      "confirm": "Create circle",
+      "saving": "Creating..."
+    },
     "pendingTitle": "Pending invitations",
     "sentAt": "sent {date}",
     "cancelInvite": "Cancel",
