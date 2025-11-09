@@ -229,6 +229,15 @@
     "emailRequired": "Podaj adres e-mail.",
     "inviteSent": "Zaproszenie wysłane.",
     "inviteErrorGeneric": "Nie udało się wysłać zaproszenia.",
+    "inviteErrors": {
+      "max_circles": "Osiągnąłeś limit kręgów w swoim planie.",
+      "limit_reached": "Limit osób w tym kręgu został wykorzystany.",
+      "already_member": "Ta osoba jest już w Twoim Kręgu Zaufanych.",
+      "already_invited": "Zaproszenie do tej osoby już oczekuje.",
+      "invitee_limit_reached": "Zapraszana osoba wykorzystała swój limit członków.",
+      "circle_not_found": "Nie znaleziono wskazanego Kręgu Zaufanych.",
+      "circle_not_owned": "Nie możesz zapraszać do tego kręgu."
+    },
     "pendingTitle": "Oczekujące zaproszenia",
     "sentAt": "wysłano {date}",
     "cancelInvite": "Anuluj",

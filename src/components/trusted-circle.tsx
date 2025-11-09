@@ -203,7 +203,12 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
-        setInviteError(payload?.message ?? t('circle.inviteErrorGeneric'));
+        const errorCode = payload?.error;
+        if (errorCode && t.has(`circle.inviteErrors.${errorCode}`)) {
+          setInviteError(t(`circle.inviteErrors.${errorCode}`));
+        } else {
+          setInviteError(payload?.message ?? t('circle.inviteErrorGeneric'));
+        }
         return;
       }
       setInviteStatus(t('circle.inviteSent'));
@@ -211,7 +216,8 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
       setInviteMessage('');
       refresh();
     } catch (err) {
-      setInviteError(err instanceof Error ? err.message : t('circle.inviteErrorGeneric'));
+      console.error(err);
+      setInviteError(t('circle.inviteErrorGeneric'));
     }
   };
 
