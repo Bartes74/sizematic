@@ -9,9 +9,10 @@ type UpdatePayload = {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { circleId: string } }
+  context: { params: Promise<{ circleId: string }> }
 ) {
-  const circleId = params.circleId?.trim();
+  const { circleId: rawCircleId } = await context.params;
+  const circleId = rawCircleId?.trim();
 
   if (!circleId) {
     return NextResponse.json({ error: 'circle_id_required' }, { status: 400 });
