@@ -601,7 +601,6 @@ export function HomePage({
   bodyMeasurements: bodyMeasurementsProp = null,
   dashboardVariant,
   upsellReason,
-  initialSection = null,
   hasCompletedOnboarding = false,
 }: HomePageProps) {
   const locale = useLocale();
@@ -620,7 +619,6 @@ export function HomePage({
   const tMeasurementDefinitions = useTranslations('measurements.definitions');
   const tWishlistSection = useTranslations('dashboard.wishlistSection');
   const tSecretGiver = useTranslations('secretGiver');
-  const tCircle = useTranslations('circle');
   const tOnboarding = useTranslations('dashboard.onboarding');
   void _measurements;
   const router = useRouter();
@@ -1071,21 +1069,11 @@ export function HomePage({
     </section>
   );
 
-  const renderEventsSection = (variant: 'full' | 'simple') => (
-    <section id="dashboard-events" className={variant === 'simple' ? 'mt-6' : 'mt-6'}>
+  const renderEventsSection = () => (
+    <section id="dashboard-events" className="mt-6">
       <SectionCard>
         <div className="flex items-center justify-between gap-3 pb-4">
         <div className="flex items-center gap-3">
-          {variant === 'simple' && (
-            <button
-              type="button"
-              onClick={handleBackToOverview}
-              className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
-            >
-              <ArrowLeftIcon className="h-4 w-4" />
-              {tCommon('back')}
-            </button>
-          )}
           <div>
             <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tEvents('title')}</h2>
             <p className="text-sm text-muted-foreground">{tEvents('subtitle')}</p>
@@ -1175,42 +1163,19 @@ export function HomePage({
     </section>
   );
 
-  const renderTrustedCircleSection = (variant: 'full' | 'simple') => (
-    <section
-      id="dashboard-trusted-circle"
-      className={variant === 'simple' ? 'mt-6 space-y-4' : 'mt-6'}
-    >
-      {variant === 'simple' && (
-        <button
-          type="button"
-          onClick={handleBackToOverview}
-          className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
-        >
-          <ArrowLeftIcon className="h-4 w-4" />
-          {tCommon('back')}
-        </button>
-      )}
+  const renderTrustedCircleSection = () => (
+    <section id="dashboard-trusted-circle" className="mt-6">
       <TrustedCircle initialData={trustedCircleInitial ?? undefined} />
     </section>
   );
 
-  const renderWishlistSection = (variant: 'full' | 'simple') => {
+  const renderWishlistSection = () => {
     const locked = isFreePlan;
     return (
-      <section id="dashboard-wishlist" className={variant === 'simple' ? 'mt-6' : 'mt-6'}>
+      <section id="dashboard-wishlist" className="mt-6">
         <SectionCard className="relative">
           <div className="flex items-center justify-between gap-3 pb-4">
           <div className="flex items-center gap-3">
-            {variant === 'simple' && (
-              <button
-                type="button"
-                onClick={handleBackToOverview}
-                className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
-              >
-                <ArrowLeftIcon className="h-4 w-4" />
-                {tCommon('back')}
-              </button>
-            )}
             <div>
               <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tWishlistSection('title')}</h2>
               <p className="text-sm text-muted-foreground">
@@ -2206,9 +2171,9 @@ export function HomePage({
             <>
               {renderFullSizesSection()}
               {shouldShowDataGaps ? renderDataGapsSection() : null}
-              {renderEventsSection('full')}
-              {renderTrustedCircleSection('full')}
-              {renderWishlistSection('full')}
+              {renderEventsSection()}
+              {renderTrustedCircleSection()}
+              {renderWishlistSection()}
             </>
           )}
 
