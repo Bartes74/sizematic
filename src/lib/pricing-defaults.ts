@@ -1,10 +1,9 @@
 import type { PricingSettings } from '@/lib/types';
 
 export const PRICING_DEFAULTS: PricingSettings = {
-  currency: 'EUR',
-  premium_monthly: 5,
-  premium_yearly: 24,
-  sg_pack_3: 5,
-  sg_pack_10: 12,
+  currency: 'PLN',
+  premium_monthly: 29.99,
+  premium_yearly: 99.99,
+  sg_pack_5: 49.99,
 };
 

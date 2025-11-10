@@ -19,8 +19,7 @@ export function AdminPricingForm({ initial }: AdminPricingFormProps) {
   const [currency, setCurrency] = useState(initial.currency || PRICING_DEFAULTS.currency);
   const [premiumMonthly, setPremiumMonthly] = useState(initial.premium_monthly.toString());
   const [premiumYearly, setPremiumYearly] = useState(initial.premium_yearly.toString());
-  const [sgPack3, setSgPack3] = useState(initial.sg_pack_3.toString());
-  const [sgPack10, setSgPack10] = useState(initial.sg_pack_10.toString());
+  const [sgPack5, setSgPack5] = useState(initial.sg_pack_5.toString());
 
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,14 +89,12 @@ export function AdminPricingForm({ initial }: AdminPricingFormProps) {
 
       let nextPremiumMonthly: number;
       let nextPremiumYearly: number;
-      let nextSgPack3: number;
-      let nextSgPack10: number;
+      let nextSgPack5: number;
 
       try {
         nextPremiumMonthly = parseAmount(premiumMonthly, initial.premium_monthly);
         nextPremiumYearly = parseAmount(premiumYearly, initial.premium_yearly);
-        nextSgPack3 = parseAmount(sgPack3, initial.sg_pack_3);
-        nextSgPack10 = parseAmount(sgPack10, initial.sg_pack_10);
+        nextSgPack5 = parseAmount(sgPack5, initial.sg_pack_5);
       } catch (parseError) {
         const message = parseError instanceof Error ? parseError.message : null;
         setError(message ?? t('errors.invalidNumber'));
@@ -114,8 +111,7 @@ export function AdminPricingForm({ initial }: AdminPricingFormProps) {
             currency: normalizedCurrency,
             premium_monthly: nextPremiumMonthly,
             premium_yearly: nextPremiumYearly,
-            sg_pack_3: nextSgPack3,
-            sg_pack_10: nextSgPack10,
+            sg_pack_5: nextSgPack5,
           })
           .eq('id', true);
 
@@ -139,14 +135,12 @@ export function AdminPricingForm({ initial }: AdminPricingFormProps) {
       currency,
       initial.premium_monthly,
       initial.premium_yearly,
-      initial.sg_pack_3,
-      initial.sg_pack_10,
+      initial.sg_pack_5,
       parseAmount,
       premiumMonthly,
       premiumYearly,
       router,
-      sgPack10,
-      sgPack3,
+      sgPack5,
       t,
       resetFeedback,
     ],
@@ -156,10 +150,9 @@ export function AdminPricingForm({ initial }: AdminPricingFormProps) {
     () => ({
       premiumMonthly: computePreview(premiumMonthly, initial.premium_monthly),
       premiumYearly: computePreview(premiumYearly, initial.premium_yearly),
-      sgPack3: computePreview(sgPack3, initial.sg_pack_3),
-      sgPack10: computePreview(sgPack10, initial.sg_pack_10),
+      sgPack5: computePreview(sgPack5, initial.sg_pack_5),
     }),
-    [computePreview, initial.premium_monthly, initial.premium_yearly, initial.sg_pack_10, initial.sg_pack_3, premiumMonthly, premiumYearly, sgPack10, sgPack3],
+    [computePreview, initial.premium_monthly, initial.premium_yearly, initial.sg_pack_5, premiumMonthly, premiumYearly, sgPack5],
   );
 
   return (
@@ -247,50 +240,26 @@ export function AdminPricingForm({ initial }: AdminPricingFormProps) {
               </h3>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="sgPack3" className="text-sm font-semibold text-foreground">
-                  {t('fields.sgPack3.label')}
-                </label>
-                <input
-                  id="sgPack3"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={sgPack3}
-                  onChange={(event) => {
-                    resetFeedback();
-                    setSgPack3(event.target.value);
-                  }}
-                  className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder={PRICING_DEFAULTS.sg_pack_3.toString()}
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t('fields.sgPack3.hint', { preview: previewValues.sgPack3 })}
-                </p>
-              </div>
-
-              <div>
-                <label htmlFor="sgPack10" className="text-sm font-semibold text-foreground">
-                  {t('fields.sgPack10.label')}
-                </label>
-                <input
-                  id="sgPack10"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={sgPack10}
-                  onChange={(event) => {
-                    resetFeedback();
-                    setSgPack10(event.target.value);
-                  }}
-                  className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder={PRICING_DEFAULTS.sg_pack_10.toString()}
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t('fields.sgPack10.hint', { preview: previewValues.sgPack10 })}
-                </p>
-              </div>
+            <div>
+              <label htmlFor="sgPack5" className="text-sm font-semibold text-foreground">
+                {t('fields.sgPack5.label')}
+              </label>
+              <input
+                id="sgPack5"
+                type="number"
+                min={0}
+                step="0.01"
+                value={sgPack5}
+                onChange={(event) => {
+                  resetFeedback();
+                  setSgPack5(event.target.value);
+                }}
+                className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder={PRICING_DEFAULTS.sg_pack_5.toString()}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t('fields.sgPack5.hint', { preview: previewValues.sgPack5 })}
+              </p>
             </div>
           </div>
         </div>

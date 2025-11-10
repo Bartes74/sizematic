@@ -9,7 +9,7 @@ export async function getPricingSettings(): Promise<PricingSettings> {
 
   const { data, error } = await supabase
     .from('pricing_settings')
-    .select('currency, premium_monthly, premium_yearly, sg_pack_3, sg_pack_10')
+    .select('currency, premium_monthly, premium_yearly, sg_pack_5')
     .single();
 
   if (error) {
@@ -23,8 +23,7 @@ export async function getPricingSettings(): Promise<PricingSettings> {
     currency: data?.currency ?? PRICING_DEFAULTS.currency,
     premium_monthly: Number(data?.premium_monthly ?? PRICING_DEFAULTS.premium_monthly),
     premium_yearly: Number(data?.premium_yearly ?? PRICING_DEFAULTS.premium_yearly),
-    sg_pack_3: Number(data?.sg_pack_3 ?? PRICING_DEFAULTS.sg_pack_3),
-    sg_pack_10: Number(data?.sg_pack_10 ?? PRICING_DEFAULTS.sg_pack_10),
+    sg_pack_5: Number(data?.sg_pack_5 ?? PRICING_DEFAULTS.sg_pack_5),
   };
 }
 

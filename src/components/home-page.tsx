@@ -47,8 +47,6 @@ import {
 } from '@/data/body-measurements';
 import { createClient as createSupabaseClient } from '@/lib/supabase/client';
 
-type SectionKey = 'events' | 'trusted-circle' | 'wishlist';
-
 type HomePageProps = {
   measurements: Measurement[];
   userName?: string | null;
@@ -94,7 +92,6 @@ type HomePageProps = {
   bodyMeasurements?: BodyMeasurements | null;
   dashboardVariant: DashboardVariant;
   upsellReason?: string | null;
-  initialSection?: SectionKey | null;
   hasCompletedOnboarding?: boolean;
 };
 
@@ -661,134 +658,10 @@ export function HomePage({
     },
     []
   );
-  const [activeSection, setActiveSection] = useState<SectionKey | null>(null);
-  const updateSectionParam = useCallback(
-    (section: SectionKey | null) => {
-      if (typeof window === 'undefined') return;
-      const params = new URLSearchParams(window.location.search);
-      if (section) {
-        params.set('section', section);
-      } else {
-        params.delete('section');
-      }
-      const query = params.toString();
-      const nextUrl = `${window.location.pathname}${query ? `?${query}` : ''}`;
-      const currentUrl = `${window.location.pathname}${window.location.search}`;
-      if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-      }
-    },
-    [router]
-  );
-
-  useEffect(() => {
-    if (!isSimpleVariant) {
-      setActiveSection(null);
-      return;
-    }
-
-    if (!initialSection) {
-      setActiveSection(null);
-      updateSectionParam(null);
-      return;
-    }
-
-    if (initialSection === 'wishlist' && isFreePlan) {
-      openUpsell('wishlist');
-      updateSectionParam(null);
-      return;
-    }
-
-    setActiveSection(initialSection);
-  }, [initialSection, isFreePlan, isSimpleVariant, openUpsell, updateSectionParam]);
-
-  useEffect(() => {
-    if (!isSimpleVariant || !activeSection) {
-      return;
-    }
-
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const target = document.getElementById(`dashboard-${activeSection}`);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [activeSection, isSimpleVariant]);
-
-  const handleSectionNavigate = useCallback(
-    (section: SectionKey) => {
-      if (section === 'wishlist' && isFreePlan) {
-        openUpsell('wishlist');
-        return;
-      }
-      setActiveSection(section);
-      updateSectionParam(section);
-    },
-    [isFreePlan, openUpsell, updateSectionParam]
-  );
-
-  const handleBackToOverview = useCallback(() => {
-    setActiveSection(null);
-    updateSectionParam(null);
-  }, [updateSectionParam]);
-
-  const CalendarIcon = (props: SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10m-12 9h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v11a2 2 0 002 2z" />
-    </svg>
-  );
-
-  const UsersIcon = (props: SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2m18 0v-2a4 4 0 00-3-3.87M15 3a3 3 0 11-6 0 3 3 0 016 0zm6 9a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-  );
-
-  const HeartIcon = (props: SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.347-1.903-4.25-4.25-4.25-1.5 0-2.819.779-3.5 1.95-.681-1.171-2-1.95-3.5-1.95C6.403 4 4.5 5.903 4.5 8.25c0 6.167 7.25 9.5 7.25 9.5s7.25-3.333 7.25-9.5z" />
-    </svg>
-  );
-
   const LockIcon = (props: SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 10-8 0v4m-2 0h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7a2 2 0 012-2z" />
     </svg>
-  );
-
-  const ArrowLeftIcon = (props: SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l6-6m-6 6l6 6" />
-    </svg>
-  );
-
-  const simpleActions = useMemo(
-    () => [
-      {
-        key: 'events' as SectionKey,
-        label: tEvents('title'),
-        description: tEvents('subtitle'),
-        icon: <CalendarIcon className="h-5 w-5" />,
-        locked: false,
-      },
-      {
-        key: 'trusted-circle' as SectionKey,
-        label: tCircle('title'),
-        description: tCircle('subtitle'),
-        icon: <UsersIcon className="h-5 w-5" />,
-        locked: false,
-      },
-      {
-        key: 'wishlist' as SectionKey,
-        label: tWishlistSection('title'),
-              description: tWishlistSection('subtitle'),
-        icon: <HeartIcon className="h-5 w-5" />,
-        locked: isFreePlan,
-      },
-    ],
-    [tCircle, tEvents, tWishlistSection, isFreePlan]
   );
 
   const sizeLabelsById = useMemo(() => {
@@ -1145,37 +1018,6 @@ export function HomePage({
       </div>
       {quickSizeTilesGrid('full')}
     </section>
-  );
-
-  const renderSimpleShortcuts = () => (
-    <div className="mt-6 grid gap-3 sm:grid-cols-3">
-      {simpleActions.map((action) => {
-        const isActionActive = activeSection === action.key;
-        const baseClass = 'relative flex flex-col gap-2 rounded-2xl border px-4 py-3 text-left transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60';
-        const lockedClass = action.locked
-          ? 'border-dashed border-primary/50 text-muted-foreground hover:border-primary/50 hover:shadow-none'
-          : '';
-        const activeClass = isActionActive ? 'ring-2 ring-primary/40' : '';
-
-        return (
-          <button
-            key={action.key}
-            type="button"
-            onClick={() =>
-              action.locked ? openUpsell('wishlist') : handleSectionNavigate(action.key)
-            }
-            className={`${baseClass} ${lockedClass} ${activeClass}`.trim()}
-          >
-            <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              {action.icon}
-              {action.label}
-              {action.locked ? <LockIcon className="h-4 w-4" /> : null}
-            </span>
-            <span className="text-xs text-muted-foreground">{action.description}</span>
-          </button>
-        );
-      })}
-    </div>
   );
 
   const renderDataGapsSection = () => (
@@ -2359,10 +2201,6 @@ export function HomePage({
           {isSimpleVariant ? (
             <>
               {renderSimpleSizesSection()}
-              {renderSimpleShortcuts()}
-              {activeSection === 'events' ? renderEventsSection('simple') : null}
-              {activeSection === 'trusted-circle' ? renderTrustedCircleSection('simple') : null}
-              {activeSection === 'wishlist' ? renderWishlistSection('simple') : null}
             </>
           ) : (
             <>

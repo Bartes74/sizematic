@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createSGCheckoutSession, STRIPE_CONFIG } from '@/lib/stripe/client';
 
 type CheckoutPayload = {
-  product_key: 'sg_3_pack' | 'sg_10_pack';
+  product_key: 'sg_5_pack';
 };
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;

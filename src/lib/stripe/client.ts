@@ -31,15 +31,10 @@ export const STRIPE_CONFIG = {
   
   // Secret Giver product prices (in grosze - PLN cents)
   sgProducts: {
-    sg_3_pack: {
-      name: 'Secret Giver - 3 strzały',
-      price: 1999, // 19.99 PLN
-      quantity: 3,
-    },
-    sg_10_pack: {
-      name: 'Secret Giver - 10 strzałów',
+    sg_5_pack: {
+      name: 'Secret Giver - 5 strzałów',
       price: 4999, // 49.99 PLN
-      quantity: 10,
+      quantity: 5,
     },
   },
 
@@ -53,7 +48,7 @@ export const STRIPE_CONFIG = {
     },
     premium_monthly: {
       name: 'Premium - Miesięczny',
-      price: 1999, // 19.99 PLN/month
+      price: 2999, // 29.99 PLN/month
       interval: 'month' as Stripe.Price.Recurring.Interval,
       role: 'premium' as const,
     },
@@ -90,7 +85,7 @@ export function verifyWebhookSignature(
 export async function createSGCheckoutSession(params: {
   userId: string;
   profileId: string;
-  productKey: 'sg_3_pack' | 'sg_10_pack';
+  productKey: 'sg_5_pack';
   successUrl: string;
   cancelUrl: string;
 }) {

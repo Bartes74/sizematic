@@ -10,7 +10,7 @@ type Props = {
   onClose: () => void;
 };
 
-type ProductType = 'sg_3_pack' | 'sg_10_pack' | 'premium_yearly' | 'premium_monthly';
+type ProductType = 'sg_5_pack' | 'premium_yearly' | 'premium_monthly';
 
 export function SGPaywallModal({ isOpen, onClose }: Props) {
   const t = useTranslations('secretGiver.paywall');
@@ -38,20 +38,13 @@ export function SGPaywallModal({ isOpen, onClose }: Props) {
   }, [activeCurrency, locale]);
 
   const PRODUCTS = {
-    sg_3_pack: {
-      name: t('products.sg_3_pack.name'),
-      price: t('products.sg_3_pack.price', {
-        amount: priceFormatter.format(pricing.sg_pack_3 ?? PRICING_DEFAULTS.sg_pack_3),
+    sg_5_pack: {
+      name: t('products.sg_5_pack.name'),
+      price: t('products.sg_5_pack.price', {
+        amount: priceFormatter.format(pricing.sg_pack_5 ?? PRICING_DEFAULTS.sg_pack_5),
       }),
-      description: t('products.sg_3_pack.description'),
-    },
-    sg_10_pack: {
-      name: t('products.sg_10_pack.name'),
-      price: t('products.sg_10_pack.price', {
-        amount: priceFormatter.format(pricing.sg_pack_10 ?? PRICING_DEFAULTS.sg_pack_10),
-      }),
-      description: t('products.sg_10_pack.description'),
-      badge: t('products.sg_10_pack.badge'),
+      description: t('products.sg_5_pack.description'),
+      badge: t('products.sg_5_pack.badge'),
     },
     premium_yearly: {
       name: t('products.premium_yearly.name'),
@@ -146,7 +139,7 @@ export function SGPaywallModal({ isOpen, onClose }: Props) {
               {t('tokenPackagesTitle')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {(['sg_3_pack', 'sg_10_pack'] as ProductType[]).map((key) => {
+              {(['sg_5_pack'] as ProductType[]).map((key) => {
                 const product = PRODUCTS[key];
                 return (
                   <button

@@ -21,7 +21,7 @@
   "wishlist": {
     "title": "Lista marzeń",
     "subtitle": "Dodawaj pomysły na prezenty, a my zadbamy o szczegóły.",
-    "helper": "Listy marzeń pozostają prywatne. Udostępniaj wybrane rozmiary bliskim przez Kręgi Zaufanych zamiast wysyłać publiczne linki.",
+    "helper": "Twoja Lista Marzeń jest automatycznie widoczna dla członków Kręgów Zaufanych, którym nadałeś odpowiednie uprawnienia.",
     "lockedDescription": "Lista marzeń jest dostępna w planie Premium. Przejdź na Premium, aby planować prezenty i dzielić się nimi ze swoim kręgiem.",
     "unlockButton": "Aktywuj Premium",
     "form": {
@@ -203,6 +203,8 @@
     "createPrompt": "Nazwij nowy krąg zaufanych",
     "createSuccess": "Krąg „{name}” został utworzony.",
     "createError": "Nie udało się utworzyć kręgu. Spróbuj ponownie później.",
+    "updateSuccess": "Krąg „{name}” został zaktualizowany.",
+    "updateError": "Nie udało się zaktualizować kręgu. Spróbuj ponownie później.",
     "createLimitReached": "Aby tworzyć kolejne kręgi, przejdź na Premium.",
     "planLabel": "Plan: {plan}",
     "plan": {
@@ -214,6 +216,12 @@
     },
     "defaultCircle": "Mój krąg zaufanych",
     "memberCount": "{count, plural, one {{count} osoba} few {{count} osoby} many {{count} osób} other {{count} osoby}}",
+    "badge": {
+      "sizeAccessOn": "Rozmiary udostępnione",
+      "sizeAccessOff": "Dostęp do rozmiarów wyłączony",
+      "wishlistAccessOn": "Lista marzeń widoczna",
+      "wishlistAccessOff": "Lista marzeń ukryta"
+    },
     "activeCircleLabel": "Aktywny krąg: {circle}",
     "inviteTitle": "Zaproś do {circle}",
     "inviteSubtitle": "Zaproś zaufane osoby i zdecyduj, co zobaczą.",
@@ -232,6 +240,7 @@
     "inviteErrors": {
       "max_circles": "Osiągnąłeś limit kręgów w swoim planie.",
       "limit_reached": "Limit osób w tym kręgu został wykorzystany.",
+      "max_members": "Limit osób w tym kręgu został wykorzystany.",
       "already_member": "Ta osoba jest już w Twoim Kręgu Zaufanych.",
       "already_invited": "Zaproszenie do tej osoby już oczekuje.",
       "invitee_limit_reached": "Zapraszana osoba wykorzystała swój limit członków.",
@@ -247,6 +256,7 @@
     },
     "membersTitle": "Zaufane osoby",
     "manage": "Zarządzaj",
+    "editCircle": "Edytuj krąg",
     "connectedSince": "w kręgu od",
     "onlyYou": "tylko Ty",
     "noPeople": "W tym kręgu nie ma jeszcze nikogo",
@@ -268,9 +278,17 @@
       "nameLabel": "Nazwa kręgu",
       "namePlaceholder": "Np. Rodzina, Przyjaciele, Zespół",
       "nameRequired": "Podaj nazwę kręgu.",
+      "wishlistLabel": "Udostępnij listy marzeń temu kręgowi",
+      "wishlistHint": "Po włączeniu członkowie zobaczą Twoje listy marzeń.",
+      "sizeLabel": "Udostępnij rozmiary temu kręgowi",
+      "sizeHint": "Wyłącz, jeśli zapraszasz tylko do planowania bez pokazywania wymiarów.",
       "cancel": "Anuluj",
       "confirm": "Utwórz krąg",
       "saving": "Tworzę krąg..."
+    },
+    "editModal": {
+      "title": "Edytuj Krąg Zaufanych",
+      "save": "Zapisz zmiany"
     }
   },
   "upsell": {
@@ -314,7 +332,7 @@
         "badge": "Najlepsza cena",
         "title": "Premium roczny",
         "price": "{amount} / rok",
-        "body": "Oszczędzasz 25% względem planu miesięcznego i masz Premium cały rok."
+        "body": "Płacisz raz i masz Premium przez cały rok."
       }
     },
     "sgPack": {
@@ -471,7 +489,7 @@
         "fields": {
           "currency": {
             "label": "Waluta",
-            "hint": "Kod ISO 4217 (np. EUR)."
+            "hint": "Kod ISO 4217 (np. PLN)."
           },
           "premiumMonthly": {
             "label": "Premium miesięczny",
@@ -481,12 +499,8 @@
             "label": "Premium roczny",
             "hint": "Wyświetlane jako {preview} / rok."
           },
-          "sgPack3": {
-            "label": "Pakiet SG (3 strzały)",
-            "hint": "Wyświetlane jako {preview}."
-          },
-          "sgPack10": {
-            "label": "Pakiet SG (10 strzałów)",
+          "sgPack5": {
+            "label": "Pakiet SG (5 strzałów)",
             "hint": "Wyświetlane jako {preview}."
           }
         },
@@ -1221,16 +1235,11 @@
       "subscriptionsTitle": "Subskrypcje Premium",
       "securePaymentNote": "Wszystkie płatności są bezpieczne i szyfrowane przez Stripe",
       "products": {
-        "sg_3_pack": {
-          "name": "3 Strzały SG",
+        "sg_5_pack": {
+          "name": "5 Strzałów SG",
           "price": "{amount}",
-          "description": "Jednorazowy pakiet 3 próśb Secret Giver"
-        },
-        "sg_10_pack": {
-          "name": "10 Strzałów SG",
-          "price": "{amount}",
-          "description": "Jednorazowy pakiet 10 próśb Secret Giver",
-          "badge": "Najlepsza wartość"
+          "description": "Jednorazowy pakiet 5 próśb Secret Giver",
+          "badge": "Najczęstszy wybór"
         },
         "premium_yearly": {
           "name": "Premium - Roczny",

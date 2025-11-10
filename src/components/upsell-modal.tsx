@@ -53,7 +53,7 @@ export function UpsellModal({ isOpen, reason, onClose }: UpsellModalProps) {
     amount: priceFormatter.format(pricing.premium_yearly ?? PRICING_DEFAULTS.premium_yearly),
   });
   const sgPackPriceLabel = t('sgPack.price', {
-    amount: priceFormatter.format(pricing.sg_pack_10 ?? PRICING_DEFAULTS.sg_pack_10),
+    amount: priceFormatter.format(pricing.sg_pack_5 ?? PRICING_DEFAULTS.sg_pack_5),
   });
 
   if (!isOpen) {
@@ -94,7 +94,7 @@ export function UpsellModal({ isOpen, reason, onClose }: UpsellModalProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ product_key: 'sg_10_pack' }),
+        body: JSON.stringify({ product_key: 'sg_5_pack' }),
       });
 
       const data = await res.json();

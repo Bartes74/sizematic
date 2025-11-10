@@ -18,8 +18,7 @@ export type PricingSettings = {
   currency: string;
   premium_monthly: number;
   premium_yearly: number;
-  sg_pack_3: number;
-  sg_pack_10: number;
+  sg_pack_5: number;
 };
 
 export type DashboardSizePreference = {

@@ -21,7 +21,7 @@
   "wishlist": {
     "title": "Wishlist",
     "subtitle": "Collect gift ideas and let GiftFit handle the details.",
-    "helper": "Wishlists stay private. Share selected sizes with friends through Trusted Circles instead of sending links.",
+    "helper": "Your Wishlist is automatically visible to Trusted Circle members you have granted access to.",
     "lockedDescription": "Wishlists are part of Premium. Upgrade to plan outfits and share ideas with your circle.",
     "unlockButton": "Upgrade now",
     "form": {
@@ -203,6 +203,8 @@
     "createPrompt": "Name your new trusted circle",
     "createSuccess": "Circle “{name}” created.",
     "createError": "We couldn't create the circle. Try again later.",
+    "updateSuccess": "Circle “{name}” updated.",
+    "updateError": "We couldn't update the circle. Try again later.",
     "createLimitReached": "Upgrade your plan to create more circles.",
     "planLabel": "Current plan: {plan}",
     "plan": {
@@ -214,6 +216,12 @@
     },
     "defaultCircle": "My trusted circle",
     "memberCount": "{count, plural, one {{count} person} other {{count} people}}",
+    "badge": {
+      "sizeAccessOn": "Sizes shared",
+      "sizeAccessOff": "Size access disabled",
+      "wishlistAccessOn": "Wishlist visible",
+      "wishlistAccessOff": "Wishlist hidden"
+    },
     "activeCircleLabel": "Active circle: {circle}",
     "inviteTitle": "Invite to {circle}",
     "inviteSubtitle": "Invite trusted people and choose exactly which sizes they can see.",
@@ -232,6 +240,7 @@
     "inviteErrors": {
       "max_circles": "You've reached the circle limit for your plan.",
       "limit_reached": "This circle already uses all available seats.",
+      "max_members": "This circle already uses all available seats.",
       "already_member": "This person is already in your trusted circle.",
       "already_invited": "An invitation to this person is already pending.",
       "invitee_limit_reached": "The invitee has reached their member limit.",
@@ -244,9 +253,17 @@
       "nameLabel": "Circle name",
       "namePlaceholder": "e.g. Family, Friends, Team",
       "nameRequired": "Enter a name for the circle.",
+      "wishlistLabel": "Share wishlists with this circle",
+      "wishlistHint": "When enabled, members can see items on your wishlists.",
+      "sizeLabel": "Share sizes with this circle",
+      "sizeHint": "Disable if you only want to invite people for planning without exposing measurements.",
       "cancel": "Cancel",
       "confirm": "Create circle",
       "saving": "Creating..."
+    },
+    "editModal": {
+      "title": "Edit trusted circle",
+      "save": "Save changes"
     },
     "pendingTitle": "Pending invitations",
     "sentAt": "sent {date}",
@@ -257,6 +274,7 @@
     },
     "membersTitle": "Trusted people",
     "manage": "Manage",
+    "editCircle": "Edit circle",
     "connectedSince": "connected since",
     "onlyYou": "only you",
     "noPeople": "No one is in this circle yet",
@@ -314,7 +332,7 @@
         "badge": "Best value",
         "title": "Premium Yearly",
         "price": "{amount} / year",
-        "body": "Save 25% compared to the monthly plan and enjoy Premium all year."
+        "body": "Pay once and enjoy Premium access all year round."
       }
     },
     "sgPack": {
@@ -471,7 +489,7 @@
         "fields": {
           "currency": {
             "label": "Currency",
-            "hint": "ISO 4217 code (e.g. EUR)."
+            "hint": "ISO 4217 code (e.g. PLN)."
           },
           "premiumMonthly": {
             "label": "Premium monthly",
@@ -481,12 +499,8 @@
             "label": "Premium yearly",
             "hint": "Shown to users as {preview} / year."
           },
-          "sgPack3": {
-            "label": "SG bundle (3 shots)",
-            "hint": "Shown to users as {preview}."
-          },
-          "sgPack10": {
-            "label": "SG bundle (10 shots)",
+          "sgPack5": {
+            "label": "SG bundle (5 shots)",
             "hint": "Shown to users as {preview}."
           }
         },
@@ -1224,16 +1238,11 @@
       "subscriptionsTitle": "Premium Subscriptions",
       "securePaymentNote": "All payments are secure and encrypted by Stripe",
       "products": {
-        "sg_3_pack": {
-          "name": "3 SG Shots",
+        "sg_5_pack": {
+          "name": "5 SG Shots",
           "price": "{amount}",
-          "description": "One-time package of 3 Secret Giver requests"
-        },
-        "sg_10_pack": {
-          "name": "10 SG Shots",
-          "price": "{amount}",
-          "description": "One-time package of 10 Secret Giver requests",
-          "badge": "Best value"
+          "description": "One-time package of 5 Secret Giver requests",
+          "badge": "Most popular"
         },
         "premium_yearly": {
           "name": "Premium - Yearly",
