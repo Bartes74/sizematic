@@ -92,6 +92,7 @@ type HomePageProps = {
   bodyMeasurements?: BodyMeasurements | null;
   dashboardVariant: DashboardVariant;
   upsellReason?: string | null;
+  initialSection?: string | null;
   hasCompletedOnboarding?: boolean;
 };
 
@@ -601,6 +602,7 @@ export function HomePage({
   bodyMeasurements: bodyMeasurementsProp = null,
   dashboardVariant,
   upsellReason,
+  initialSection: _initialSection = null,
   hasCompletedOnboarding = false,
 }: HomePageProps) {
   const locale = useLocale();
@@ -631,6 +633,7 @@ export function HomePage({
   const [activeUpsellReason, setActiveUpsellReason] = useState<UpsellReason | null>(initialUpsellReason);
   const [isUpsellOpen, setIsUpsellOpen] = useState(Boolean(initialUpsellReason));
   const bodyMeasurements = bodyMeasurementsProp ?? null;
+  void _initialSection;
 
   useEffect(() => {
     const normalized = normalizeUpsellReason(upsellReason);
