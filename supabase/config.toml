@@ -19,8 +19,8 @@ port = 54324
 file_size_limit = "50MB"
 
 [auth]
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+site_url = "https://sizematic.vercel.app"
+additional_redirect_urls = ["https://sizematic.vercel.app", "https://sizematic.vercel.app/*"]
 
 [auth.email]
 enable_signup = true
