@@ -600,13 +600,32 @@
         "admin": "Admin"
       }
     },
-    "sizesSection": {
-      "title": "Zapisz swoje rozmiary",
-      "helper": "Zachowaj najważniejsze rozmiary, aby szybciej dodawać garderobę.",
-      "cta": "Zobacz wszystkie",
-      "configure": "Konfiguruj skróty rozmiarów",
-      "emptyProductType": "Dodaj rozmiar"
+  "sizesSection": {
+    "title": "Zapisz swoje rozmiary",
+    "helper": "Zachowaj najważniejsze rozmiary, aby szybciej dodawać garderobę.",
+    "cta": "Zobacz wszystkie",
+    "configure": "Konfiguruj skróty rozmiarów",
+    "emptyProductType": "Dodaj rozmiar"
+  },
+  "simpleShortcuts": {
+    "title": "Szybkie skróty",
+    "subtitle": "Wybierz, co chcesz zrobić teraz",
+    "events": {
+      "title": "Kalendarz prezentów",
+      "description": "Zapisuj ważne daty i planuj niespodzianki z wyprzedzeniem."
     },
+    "circles": {
+      "title": "Kręgi Zaufanych",
+      "description": "Zaproś bliskich i decyduj, jakie rozmiary mogą zobaczyć."
+    },
+    "wishlist": {
+      "title": "Lista marzeń",
+      "description": "Zbieraj inspiracje prezentowe i linki do ulubionych produktów.",
+      "locked": "Lista marzeń to funkcja Premium. Wykup plan, aby zapisywać swoje inspiracje w jednym miejscu."
+    },
+    "close": "Zamknij",
+    "unlock": "Zobacz Premium"
+  },
     "dataGaps": {
       "title": "Uzupełnij wymiary ciała",
       "subtitle": "Zacznij od najważniejszych pomiarów, aby dopasowania i rekomendacje były jeszcze trafniejsze.",

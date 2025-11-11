@@ -241,6 +241,8 @@ export default async function Home({
     ? (sectionParam[0] as 'events' | 'trusted-circle' | 'wishlist' | undefined)
     : (sectionParam as 'events' | 'trusted-circle' | 'wishlist' | undefined);
 
+  const effectiveVariant = initialSection ? 'full' : dashboardVariant;
+
   return (
     <HomePage
       measurements={measurements}
@@ -256,7 +258,7 @@ export default async function Home({
       wishlistItems={wishlistItems}
       trustedCircleInitial={trustedCircleInitial ?? undefined}
       bodyMeasurements={bodyMeasurements}
-      dashboardVariant={dashboardVariant}
+      dashboardVariant={effectiveVariant}
       upsellReason={upsellReasonRaw}
       initialSection={initialSection ?? null}
       hasCompletedOnboarding={Boolean(profile.has_completed_onboarding)}

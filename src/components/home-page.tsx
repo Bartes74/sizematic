@@ -92,7 +92,7 @@ type HomePageProps = {
   bodyMeasurements?: BodyMeasurements | null;
   dashboardVariant: DashboardVariant;
   upsellReason?: string | null;
-  initialSection?: string | null;
+  initialSection?: 'events' | 'trusted-circle' | 'wishlist' | null;
   hasCompletedOnboarding?: boolean;
 };
 
@@ -622,6 +622,7 @@ export function HomePage({
   const tWishlistSection = useTranslations('dashboard.wishlistSection');
   const tSecretGiver = useTranslations('secretGiver');
   const tOnboarding = useTranslations('dashboard.onboarding');
+  const tDashboardSimple = useTranslations('dashboard.simpleShortcuts');
   void _measurements;
   const router = useRouter();
   const displayName = userName || 'Twoja garderoba';
@@ -633,13 +634,32 @@ export function HomePage({
   const [activeUpsellReason, setActiveUpsellReason] = useState<UpsellReason | null>(initialUpsellReason);
   const [isUpsellOpen, setIsUpsellOpen] = useState(Boolean(initialUpsellReason));
   const bodyMeasurements = bodyMeasurementsProp ?? null;
-  void _initialSection;
+  const initialSection = _initialSection;
 
   useEffect(() => {
     const normalized = normalizeUpsellReason(upsellReason);
     setActiveUpsellReason(normalized);
     setIsUpsellOpen(Boolean(normalized));
   }, [upsellReason]);
+
+  useEffect(() => {
+    if (isSimpleVariant) {
+      return;
+    }
+    if (!initialSection) {
+      return;
+    }
+    const targetId =
+      initialSection === 'trusted-circle'
+        ? 'dashboard-trusted-circle'
+        : initialSection === 'wishlist'
+        ? 'dashboard-wishlist'
+        : 'dashboard-events';
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [initialSection, isSimpleVariant]);
 
   const handleCloseUpsell = useCallback(() => {
     setIsUpsellOpen(false);
@@ -971,28 +991,144 @@ export function HomePage({
     [quickSizeTiles, router, tProductTypes, tQuickCategories, tSizesSection]
   );
 
-  const renderSimpleSizesSection = () => (
-    <section id="dashboard-sizes" className="mt-6">
-      <SectionCard>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tSizesSection('title')}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{tSizesSection('helper')}</p>
+  const renderSimpleSizesSection = () => {
+    const shortcuts = [
+      {
+        key: 'events',
+        title: tDashboardSimple('events.title'),
+        description: tDashboardSimple('events.description'),
+        locked: false,
+      },
+      {
+        key: 'circles',
+        title: tDashboardSimple('circles.title'),
+        description: tDashboardSimple('circles.description'),
+        locked: false,
+      },
+      {
+        key: 'wishlist',
+        title: tDashboardSimple('wishlist.title'),
+        description: tDashboardSimple('wishlist.description'),
+        locked: isFreePlan,
+      },
+    ] as const;
+
+    const handleShortcutClick = (key: typeof shortcuts[number]['key']) => {
+      const sectionMap: Record<typeof shortcuts[number]['key'], 'events' | 'trusted-circle' | 'wishlist'> = {
+        events: 'events',
+        circles: 'trusted-circle',
+        wishlist: 'wishlist',
+      };
+
+      if (key === 'wishlist' && isFreePlan) {
+        openUpsell('wishlist');
+        return;
+      }
+
+      const sectionParam = sectionMap[key];
+      if (sectionParam) {
+        router.push(`/dashboard?section=${sectionParam}`);
+      }
+    };
+
+    return (
+      <section id="dashboard-shortcuts" className="mt-6">
+        <SectionCard className="bg-gradient-to-br from-surface-muted/40 via-background to-background">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-foreground sm:text-xl">
+              {tDashboardSimple('title')}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {tDashboardSimple('subtitle')}
+            </p>
           </div>
-          <button
-            type="button"
-            onClick={() => router.push('/dashboard/sizes')}
-            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
-          >
-            {tSizesSection('cta')}
-          </button>
-        </div>
-        <div className="mt-4">
-          {quickSizeTilesGrid('simple')}
-        </div>
-      </SectionCard>
-    </section>
-  );
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {shortcuts.map((shortcut) => {
+              const isLocked = shortcut.locked;
+              return (
+                <button
+                  key={shortcut.key}
+                  type="button"
+                  onClick={() => handleShortcutClick(shortcut.key)}
+                  className={[
+                    'group relative flex flex-col gap-3 rounded-2xl border px-4 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                    isLocked
+                      ? 'border-dashed border-primary/40 bg-surface-muted/50 text-muted-foreground hover:border-primary hover:text-primary'
+                      : 'border-border/60 bg-[var(--surface-interactive)] hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10',
+                  ].join(' ')}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground group-hover:text-primary">
+                        {shortcut.title}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {shortcut.description}
+                      </p>
+                    </div>
+                    {shortcut.key === 'wishlist' && isLocked ? (
+                      <svg
+                        className={`h-4 w-4 ${isLocked ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-primary'}`}
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 2a4 4 0 00-4 4v2H5a1 1 0 00-1 1v7a2 2 0 002 2h8a2 2 0 002-2v-7a1 1 0 00-1-1h-1V6a4 4 0 00-4-4zm-2 6V6a2 2 0 114 0v2H8z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="h-4 w-4 text-muted-foreground/70 group-hover:text-primary"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    )}
+                  </div>
+                  {isLocked ? (
+                    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-primary">
+                      <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                          fillRule="evenodd"
+                          d="M10 2a4 4 0 00-4 4v2H5a1 1 0 00-1 1v7a2 2 0 002 2h8a2 2 0 002-2v-7a1 1 0 00-1-1h-1V6a4 4 0 00-4-4zm-2 6V6a2 2 0 114 0v2H8z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span>{tDashboardSimple('wishlist.locked')}</span>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openUpsell('wishlist');
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            openUpsell('wishlist');
+                          }
+                        }}
+                        className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary transition hover:bg-primary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer"
+                      >
+                        {tDashboardSimple('unlock')}
+                      </span>
+                    </div>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        </SectionCard>
+      </section>
+    );
+  };
 
   const renderFullSizesSection = () => (
     <section id="dashboard-sizes" className="mt-6 flex flex-col gap-4">

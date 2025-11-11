@@ -600,13 +600,32 @@
         "admin": "Admin"
       }
     },
-    "sizesSection": {
-      "title": "Save your sizes",
-      "helper": "Pin the most important sizes so you can add outfits faster.",
-      "cta": "View all",
-      "configure": "Configure quick size shortcuts",
-      "emptyProductType": "Add a size"
+  "sizesSection": {
+    "title": "Save your sizes",
+    "helper": "Pin the most important sizes so you can add outfits faster.",
+    "cta": "View all",
+    "configure": "Configure quick size shortcuts",
+    "emptyProductType": "Add a size"
+  },
+  "simpleShortcuts": {
+    "title": "Quick shortcuts",
+    "subtitle": "Choose what you want to do right now",
+    "events": {
+      "title": "Gift calendar",
+      "description": "Save important dates and plan surprises in advance."
     },
+    "circles": {
+      "title": "Trusted circles",
+      "description": "Invite trusted people and choose which sizes they can see."
+    },
+    "wishlist": {
+      "title": "Wishlist",
+      "description": "Collect gift ideas and links to favourite products.",
+      "locked": "Wishlist is a Premium feature. Upgrade to keep every inspiration organised."
+    },
+    "close": "Close",
+    "unlock": "See Premium plans"
+  },
     "dataGaps": {
       "title": "Fill in your body measurements",
       "subtitle": "Start with the essentials to make recommendations and matches even more accurate.",
