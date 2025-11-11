@@ -104,6 +104,7 @@ export type Profile = {
   plan_type: PlanType;
   free_sg_pool: number;
   iap_sg_pool: number;
+  allow_secret_giver?: boolean;
   dashboard_variant?: DashboardVariant | null;
   has_completed_onboarding?: boolean;
   created_at: string;

@@ -1272,6 +1272,7 @@
       "smsVerificationRequired": "SMS verification required",
       "poolExhausted": "You've used all free requests",
       "alreadyHaveAccess": "You already have this size! Go to \"Trusted Circle\" and select the Recipient's profile to see all sizes they share with you.",
+      "recipientOptedOut": "This user disabled Secret Giver requests. Please reach out in another way.",
       "genericError": "An error occurred while sending the request",
       "phoneRequired": "Please provide phone number",
       "codeRequired": "Please provide verification code",

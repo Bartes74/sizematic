@@ -11,6 +11,8 @@ type ProfileEditFormProps = {
     displayName: string;
     email: string;
     avatarUrl: string | null;
+    allowSecretGiver: boolean;
+    canDisableSecretGiver: boolean;
   };
 };
 
@@ -20,6 +22,8 @@ export function ProfileEditForm({ initialData }: ProfileEditFormProps) {
   const [avatarUrl, setAvatarUrl] = useState(initialData.avatarUrl);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [allowSecretGiver, setAllowSecretGiver] = useState(initialData.allowSecretGiver);
+  const canManageSecretGiver = initialData.canDisableSecretGiver;
 
   // Password change states
   const [oldPassword, setOldPassword] = useState('');
@@ -96,12 +100,18 @@ export function ProfileEditForm({ initialData }: ProfileEditFormProps) {
       }
 
       // Update profile
+      const updates: Record<string, unknown> = {
+        display_name: displayName,
+        avatar_url: newAvatarUrl,
+      };
+
+      if (canManageSecretGiver) {
+        updates.allow_secret_giver = allowSecretGiver;
+      }
+
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({
-          display_name: displayName,
-          avatar_url: newAvatarUrl
-        })
+        .update(updates)
         .eq('owner_id', user.id);
 
       if (updateError) {
@@ -256,6 +266,32 @@ export function ProfileEditForm({ initialData }: ProfileEditFormProps) {
               Email nie może być zmieniony
             </p>
           </div>
+
+          {canManageSecretGiver ? (
+            <div className="rounded-xl border border-border/60 bg-surface-muted/40 p-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Secret Giver
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {allowSecretGiver
+                      ? 'Premium możesz dopasować do swoich potrzeb – zostaw zaznaczone, aby bliscy mogli wysyłać prośby Secret Giver.'
+                      : 'Wyłączyłeś prośby Secret Giver. Członkowie Kręgu Zaufanych zobaczą informację, że dostęp jest zablokowany.'}
+                  </p>
+                </div>
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-foreground">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary/40"
+                    checked={allowSecretGiver}
+                    onChange={(event) => setAllowSecretGiver(event.target.checked)}
+                  />
+                  Akceptuję prośby Secret Giver
+                </label>
+              </div>
+            </div>
+          ) : null}
 
           {error && (
             <div className="rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">

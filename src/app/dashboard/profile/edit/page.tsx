@@ -16,9 +16,15 @@ export default async function ProfileEditPage() {
   // Get user profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('display_name, avatar_url, email')
+    .select('display_name, avatar_url, email, plan_type, role, allow_secret_giver')
     .eq('owner_id', user.id)
     .single();
+
+  const planType = profile?.plan_type ?? 'free';
+  const role = profile?.role ?? 'free';
+  const canDisableSecretGiver =
+    role === 'admin' || planType === 'premium_monthly' || planType === 'premium_yearly';
+  const allowSecretGiver = profile?.allow_secret_giver ?? true;
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,7 +53,9 @@ export default async function ProfileEditPage() {
           initialData={{
             displayName: profile?.display_name || '',
             email: profile?.email || user.email || '',
-            avatarUrl: profile?.avatar_url || null
+            avatarUrl: profile?.avatar_url || null,
+            allowSecretGiver,
+            canDisableSecretGiver,
           }}
         />
       </main>

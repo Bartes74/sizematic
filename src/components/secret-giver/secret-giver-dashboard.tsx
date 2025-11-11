@@ -149,6 +149,8 @@ export function SecretGiverDashboard() {
           setShowSMSModal(true);
         } else if (data.error === 'pool_exhausted' || data.error === 'no_sg_pool') {
           setShowPaywallModal(true);
+        } else if (data.error === 'recipient_opted_out') {
+          alert(tErrors('recipientOptedOut'));
         } else {
           alert(data.message || data.error || tErrors('genericError'));
         }

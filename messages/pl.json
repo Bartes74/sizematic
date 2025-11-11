@@ -1269,6 +1269,7 @@
       "smsVerificationRequired": "Wymagana weryfikacja SMS",
       "poolExhausted": "Wykorzystałeś wszystkie darmowe prośby",
       "alreadyHaveAccess": "Posiadasz już ten rozmiar! Wejdź do \"Zaufanego Kręgu\" i wybierz profil Odbiorcy, aby zobaczyć wszystkie rozmiary, jakie Ci udostępnia.",
+      "recipientOptedOut": "Ten użytkownik wyłączył prośby Secret Giver. Skontaktuj się z nim innym kanałem.",
       "genericError": "Wystąpił błąd podczas wysyłania prośby",
       "phoneRequired": "Podaj numer telefonu",
       "codeRequired": "Podaj kod weryfikacyjny",

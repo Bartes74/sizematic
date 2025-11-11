@@ -9,12 +9,13 @@ type ProfileRow = {
   plan_type?: string | null;
   dashboard_variant?: string | null;
   has_completed_onboarding?: boolean | null;
+  allow_secret_giver?: boolean | null;
 };
 
 export async function getProfileForUser(supabase: SupabaseClient, ownerId: string) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, role, plan_type, dashboard_variant, has_completed_onboarding, first_name")
+    .select("id, email, role, plan_type, dashboard_variant, has_completed_onboarding, first_name, allow_secret_giver")
     .eq("owner_id", ownerId)
     .maybeSingle();
 

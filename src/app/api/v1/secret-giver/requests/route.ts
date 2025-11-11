@@ -181,9 +181,19 @@ export async function POST(request: NextRequest) {
     // Find recipient profile
     const { data: recipientProfile } = await admin
       .from('profiles')
-      .select('id, owner_id, allow_anonymous_sg')
+      .select('id, owner_id, allow_anonymous_sg, allow_secret_giver')
       .or(`email.ilike.${recipientIdentifier},phone_number.eq.${recipientIdentifier}`)
       .maybeSingle();
+
+    if (recipientProfile && recipientProfile.allow_secret_giver === false) {
+      return NextResponse.json(
+        {
+          error: 'recipient_opted_out',
+          message: 'Ten użytkownik wyłączył prośby Secret Giver.'
+        },
+        { status: 403 }
+      );
+    }
 
     // Check if recipient allows anonymous requests
     if (body.is_anonymous && recipientProfile && !recipientProfile.allow_anonymous_sg) {
