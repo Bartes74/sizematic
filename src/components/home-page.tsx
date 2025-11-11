@@ -1032,7 +1032,26 @@ export function HomePage({
     };
 
     return (
-      <section id="dashboard-shortcuts" className="mt-6">
+      <section id="dashboard-shortcuts" className="mt-6 space-y-6">
+        <SectionCard className="bg-[var(--surface-interactive)]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">{tSizesSection('title')}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{tSizesSection('helper')}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard/sizes')}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+            >
+              {tSizesSection('cta')}
+            </button>
+          </div>
+          <div className="mt-4">
+            {quickSizeTilesGrid('simple')}
+          </div>
+        </SectionCard>
+
         <SectionCard className="bg-gradient-to-br from-surface-muted/40 via-background to-background">
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-foreground sm:text-xl">
