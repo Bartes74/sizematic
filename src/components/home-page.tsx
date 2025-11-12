@@ -40,7 +40,6 @@ import {
   BODY_MEASUREMENT_DEFINITIONS,
   type BodyMeasurementDefinition,
   createBodyMeasurementUpdate,
-  getBodyMeasurementDefinition,
   getBodyMeasurementValue,
   isBodyMeasurementComplete,
   isDefinitionRequired,
@@ -843,39 +842,6 @@ export function HomePage({
         }
       }
 
-      const applyMeasurement = (productTypeKey: string) => {
-        const typeDefinition = PRODUCT_TYPE_MAP[productTypeKey];
-        if (!typeDefinition || !bodyMeasurements) {
-          return false;
-        }
-        for (const field of typeDefinition.fields) {
-          if (field.type === 'measurement' && field.measurementId) {
-            const definition = getBodyMeasurementDefinition(field.measurementId);
-            if (!definition) {
-              continue;
-            }
-            const measurementValue = getBodyMeasurementValue(definition, bodyMeasurements);
-            if (typeof measurementValue === 'number' && !Number.isNaN(measurementValue)) {
-              const formatter = new Intl.NumberFormat(undefined, {
-                maximumFractionDigits: field.unit === 'mm' ? 0 : 1,
-              });
-              sizeValue = formatter.format(measurementValue) || '--';
-              sizeUnit = field.unit ? field.unit.toUpperCase() : null;
-              productTypeId = productTypeKey;
-              productTypeLabel = typeDefinition.label ?? productTypeLabel;
-              return true;
-            }
-          }
-        }
-        return false;
-      };
-
-      for (const productTypeKey of productTypeOrder) {
-        if (applyMeasurement(productTypeKey)) {
-          return finalizeTile();
-        }
-      }
-
       if (!productTypeId) {
         productTypeId = productTypeOrder[0] ?? null;
         if (productTypeId) {
@@ -903,7 +869,6 @@ export function HomePage({
       }
     });
   }, [
-    bodyMeasurements,
     garmentsByProductType,
     labelsByProductType,
     preferenceMap,
