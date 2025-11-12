@@ -270,6 +270,7 @@
     "refresh": "Odśwież",
     "loadingShared": "Ładowanie danych...",
     "noSharedSizes": "Brak udostępnionych rozmiarów.",
+      "noSizesToShare": "Nie masz jeszcze zapisanych rozmiarów do udostępnienia.",
     "permissionsUpdated": "Ustawienia zaktualizowane.",
     "permissionsError": "Nie udało się zapisać ustawień.",
     "createModal": {

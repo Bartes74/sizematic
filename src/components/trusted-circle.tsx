@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { UpsellModal } from '@/components/upsell-modal';
 import { useLocale } from '@/providers/locale-provider';
 import { useTrustedCircle } from '@/hooks/use-trusted-circle';
-import { PRODUCT_TREE, resolveCategoryLabel, resolveProductTypeLabel } from '@/data/product-tree';
+import { resolveCategoryLabel, resolveProductTypeLabel } from '@/data/product-tree';
 import useSWR from 'swr';
+import type { SizeLabel } from '@/lib/types';
 
 type MemberSummary = {
   profile: {
@@ -107,9 +108,10 @@ type TrustedCircleProps = {
     circles: Array<{ id: string; name: string; allow_wishlist_access: boolean; allow_size_access: boolean; member_count: number }>;
     members: MemberSummary[];
   };
+  sizeLabels?: SizeLabel[];
 };
 
-export function TrustedCircle({ initialData }: TrustedCircleProps) {
+export function TrustedCircle({ initialData, sizeLabels = [] }: TrustedCircleProps) {
   const { t } = useLocale();
   const { circle, isLoading, error, refresh } = useTrustedCircle(initialData);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -691,6 +693,7 @@ export function TrustedCircle({ initialData }: TrustedCircleProps) {
           onRemove={() => handleRemoveMember(activeMember.profile.id)}
           status={permissionStatus}
           error={permissionError}
+          sizeLabels={sizeLabels}
         />
       ) : null}
 
@@ -804,6 +807,7 @@ type MemberDialogProps = {
   onClose: () => void;
   status: string | null;
   error: string | null;
+  sizeLabels: SizeLabel[];
 };
 
 function TrustedCircleMemberDialog({
@@ -817,6 +821,7 @@ function TrustedCircleMemberDialog({
   onClose,
   status,
   error,
+  sizeLabels,
 }: MemberDialogProps) {
   const { t } = useLocale();
   const initialSelection = useMemo<SelectionState>(() => {
@@ -838,15 +843,99 @@ function TrustedCircleMemberDialog({
     setSelection(initialSelection);
   }, [initialSelection]);
 
+  const shareableCategories = useMemo(
+    () =>
+      Array.from(
+        sizeLabels.reduce(
+          (map, item) => {
+            const entry =
+              map.get(item.category) ??
+              {
+                label: formatCategory(item.category),
+                categoryValues: new Set<string>(),
+                productTypes: new Map<string, { label: string; values: Set<string> }>(),
+              };
+
+            if (item.product_type) {
+              const product =
+                entry.productTypes.get(item.product_type) ??
+                {
+                  label: formatProductType(item.category, item.product_type) ?? item.product_type,
+                  values: new Set<string>(),
+                };
+              if (item.label?.trim()) {
+                product.values.add(item.label.trim());
+              }
+              entry.productTypes.set(item.product_type, product);
+            } else if (item.label?.trim()) {
+              entry.categoryValues.add(item.label.trim());
+            }
+
+            map.set(item.category, entry);
+            return map;
+          },
+          new Map<
+            string,
+            {
+              label: string;
+              categoryValues: Set<string>;
+              productTypes: Map<string, { label: string; values: Set<string> }>;
+            }
+          >()
+        ).entries()
+      )
+        .map(([categoryId, entry]) => ({
+          id: categoryId,
+          label: entry.label,
+          categoryValues: Array.from(entry.categoryValues).sort((a, b) =>
+            a.localeCompare(b, undefined, { sensitivity: 'base' })
+          ),
+          productTypes: Array.from(entry.productTypes.entries())
+            .map(([typeId, product]) => ({
+              id: typeId,
+              label: product.label,
+              values: Array.from(product.values).sort((a, b) =>
+                a.localeCompare(b, undefined, { sensitivity: 'base' })
+              ),
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })),
+        }))
+        .filter((entry) => entry.categoryValues.length > 0 || entry.productTypes.length > 0)
+        .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })),
+    [sizeLabels]
+  );
+
   const toggleSelection = (category: string, productType: string | null) => {
-    const key = `${category}:${productType ?? '*'}`;
     setSelection((prev) => {
+      const key = `${category}:${productType ?? '*'}`;
       const next = { ...prev };
+
+      if (productType === null) {
+        if (next[key]) {
+          delete next[key];
+          return next;
+        }
+
+        Object.keys(next).forEach((existingKey) => {
+          if (existingKey.startsWith(`${category}:`) && existingKey !== key) {
+            delete next[existingKey];
+          }
+        });
+
+        next[key] = { category, productType: null };
+        return next;
+      }
+
+      if (next[`${category}:*`]) {
+        return next;
+      }
+
       if (next[key]) {
         delete next[key];
       } else {
         next[key] = { category, productType };
       }
+
       return next;
     });
   };
@@ -899,41 +988,75 @@ function TrustedCircleMemberDialog({
           <div className="space-y-4">
             <h4 className="text-sm font-semibold text-foreground">{t('circle.sharingWithMember')}</h4>
             <div className="max-h-72 space-y-3 overflow-auto pr-2">
-              {PRODUCT_TREE.map((category) => (
-                <div key={category.id}>
-                  <button
-                    type="button"
-                    className={`block w-full rounded-lg border px-3 py-2 text-left text-sm font-medium transition ${
-                      selection[`${category.id}:*`]
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border/60 hover:border-primary/40'
-                    }`}
-                    onClick={() => toggleSelection(category.id, null)}
-                  >
-                    {category.label} {t('circle.wholeCategorySuffix')}
-                  </button>
-                  <div className="mt-2 grid gap-2 pl-3">
-                    {category.productTypes.map((type) => {
-                      const key = `${category.id}:${type.id}`;
-                      const isActive = Boolean(selection[key]);
-                      return (
-                        <button
-                          key={type.id}
-                          type="button"
-                          onClick={() => toggleSelection(category.id, type.id)}
-                          className={`rounded-lg border px-3 py-2 text-left text-xs transition ${
-                            isActive
-                              ? 'border-primary bg-primary/10 text-primary'
-                              : 'border-border/60 hover:border-primary/40'
-                          }`}
-                        >
-                          {type.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+              {shareableCategories.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{t('circle.noSizesToShare')}</p>
+              ) : (
+                shareableCategories.map((category) => {
+                  const categoryKey = `${category.id}:*`;
+                  const isCategorySelected = Boolean(selection[categoryKey]);
+                  const categoryValuesPreview = category.categoryValues.slice(0, 3);
+                  const categoryValuesExtra = category.categoryValues.length - categoryValuesPreview.length;
+
+                  return (
+                    <div key={category.id}>
+                      <button
+                        type="button"
+                        className={`block w-full rounded-lg border px-3 py-2 text-left transition ${
+                          isCategorySelected
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border/60 hover:border-primary/40'
+                        }`}
+                        onClick={() => toggleSelection(category.id, null)}
+                      >
+                        <span className="block text-sm font-medium text-foreground">
+                          {category.label}{' '}
+                          <span className="font-normal text-muted-foreground">{t('circle.wholeCategorySuffix')}</span>
+                        </span>
+                        {category.categoryValues.length > 0 ? (
+                          <span className="mt-1 block text-xs text-muted-foreground">
+                            {categoryValuesPreview.join(', ')}
+                            {categoryValuesExtra > 0 ? ` +${categoryValuesExtra}` : ''}
+                          </span>
+                        ) : null}
+                      </button>
+
+                      {category.productTypes.length > 0 ? (
+                        <div className="mt-2 grid gap-2 pl-3">
+                          {category.productTypes.map((type) => {
+                            const key = `${category.id}:${type.id}`;
+                            const isActive = isCategorySelected || Boolean(selection[key]);
+                            const valuesPreview = type.values.slice(0, 3);
+                            const extraValues = type.values.length - valuesPreview.length;
+
+                            return (
+                              <button
+                                key={type.id}
+                                type="button"
+                                onClick={() => toggleSelection(category.id, type.id)}
+                                className={`rounded-lg border px-3 py-2 text-left transition ${
+                                  isActive
+                                    ? 'border-primary bg-primary/10 text-primary'
+                                    : 'border-border/60 hover:border-primary/40'
+                                } ${isCategorySelected ? 'cursor-not-allowed opacity-80' : ''}`}
+                                disabled={isCategorySelected}
+                                aria-disabled={isCategorySelected}
+                              >
+                                <span className="block text-xs font-semibold text-foreground">{type.label}</span>
+                                {type.values.length > 0 ? (
+                                  <span className="mt-1 block text-[11px] text-muted-foreground">
+                                    {valuesPreview.join(', ')}
+                                    {extraValues > 0 ? ` +${extraValues}` : ''}
+                                  </span>
+                                ) : null}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })
+              )}
             </div>
             <div className="flex items-center gap-3">
               <button

@@ -288,6 +288,7 @@
     "refresh": "Refresh",
     "loadingShared": "Loading data...",
     "noSharedSizes": "No shared sizes.",
+    "noSizesToShare": "You haven't saved any sizes to share yet.",
     "permissionsUpdated": "Settings updated.",
     "permissionsError": "We couldn't save the settings."
   },
