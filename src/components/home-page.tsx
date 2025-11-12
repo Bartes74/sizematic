@@ -1314,7 +1314,11 @@ export function HomePage({
 
   const renderTrustedCircleSection = () => (
     <section id="dashboard-trusted-circle" className="mt-6">
-      <TrustedCircle initialData={trustedCircleInitial ?? undefined} sizeLabels={sizeLabels} />
+      <TrustedCircle
+        initialData={trustedCircleInitial ?? undefined}
+        garments={garments}
+        sizeLabels={sizeLabels}
+      />
     </section>
   );
 

@@ -6,7 +6,7 @@ import { useLocale } from '@/providers/locale-provider';
 import { useTrustedCircle } from '@/hooks/use-trusted-circle';
 import { resolveCategoryLabel, resolveProductTypeLabel } from '@/data/product-tree';
 import useSWR from 'swr';
-import type { SizeLabel } from '@/lib/types';
+import type { Garment, SizeLabel } from '@/lib/types';
 
 type MemberSummary = {
   profile: {
@@ -108,10 +108,11 @@ type TrustedCircleProps = {
     circles: Array<{ id: string; name: string; allow_wishlist_access: boolean; allow_size_access: boolean; member_count: number }>;
     members: MemberSummary[];
   };
+  garments?: Array<Garment & { brands?: { name: string | null } | null }>;
   sizeLabels?: SizeLabel[];
 };
 
-export function TrustedCircle({ initialData, sizeLabels = [] }: TrustedCircleProps) {
+export function TrustedCircle({ initialData, garments = [], sizeLabels = [] }: TrustedCircleProps) {
   const { t } = useLocale();
   const { circle, isLoading, error, refresh } = useTrustedCircle(initialData);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -693,6 +694,7 @@ export function TrustedCircle({ initialData, sizeLabels = [] }: TrustedCirclePro
           onRemove={() => handleRemoveMember(activeMember.profile.id)}
           status={permissionStatus}
           error={permissionError}
+          garments={garments}
           sizeLabels={sizeLabels}
         />
       ) : null}
@@ -807,6 +809,7 @@ type MemberDialogProps = {
   onClose: () => void;
   status: string | null;
   error: string | null;
+  garments: Array<Garment & { brands?: { name: string | null } | null }>;
   sizeLabels: SizeLabel[];
 };
 
@@ -821,6 +824,7 @@ function TrustedCircleMemberDialog({
   onClose,
   status,
   error,
+  garments,
   sizeLabels,
 }: MemberDialogProps) {
   const { t } = useLocale();
@@ -843,67 +847,172 @@ function TrustedCircleMemberDialog({
     setSelection(initialSelection);
   }, [initialSelection]);
 
-  const shareableCategories = useMemo(
-    () =>
-      Array.from(
-        sizeLabels.reduce(
-          (map, item) => {
-            const entry =
-              map.get(item.category) ??
-              {
-                label: formatCategory(item.category),
-                categoryValues: new Set<string>(),
-                productTypes: new Map<string, { label: string; values: Set<string> }>(),
-              };
+  const shareableCategories = useMemo(() => {
+    type ShareableEntry = {
+      label: string;
+      categoryValues: Set<string>;
+      productTypes: Map<string, { label: string; values: Set<string> }>;
+    };
 
-            if (item.product_type) {
-              const product =
-                entry.productTypes.get(item.product_type) ??
-                {
-                  label: formatProductType(item.category, item.product_type) ?? item.product_type,
-                  values: new Set<string>(),
-                };
-              if (item.label?.trim()) {
-                product.values.add(item.label.trim());
-              }
-              entry.productTypes.set(item.product_type, product);
-            } else if (item.label?.trim()) {
-              entry.categoryValues.add(item.label.trim());
-            }
+    const formatValueWithUnit = (value: unknown, unit?: string | null): string | null => {
+      if (value === null || value === undefined || value === '') {
+        return null;
+      }
 
-            map.set(item.category, entry);
-            return map;
-          },
-          new Map<
-            string,
-            {
-              label: string;
-              categoryValues: Set<string>;
-              productTypes: Map<string, { label: string; values: Set<string> }>;
-            }
-          >()
-        ).entries()
-      )
-        .map(([categoryId, entry]) => ({
-          id: categoryId,
-          label: entry.label,
-          categoryValues: Array.from(entry.categoryValues).sort((a, b) =>
-            a.localeCompare(b, undefined, { sensitivity: 'base' })
-          ),
-          productTypes: Array.from(entry.productTypes.entries())
-            .map(([typeId, product]) => ({
-              id: typeId,
-              label: product.label,
-              values: Array.from(product.values).sort((a, b) =>
-                a.localeCompare(b, undefined, { sensitivity: 'base' })
-              ),
-            }))
-            .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })),
-        }))
-        .filter((entry) => entry.categoryValues.length > 0 || entry.productTypes.length > 0)
-        .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })),
-    [sizeLabels]
-  );
+      let formatted = '';
+      if (typeof value === 'number') {
+        formatted = new Intl.NumberFormat(undefined, {
+          maximumFractionDigits: unit && unit.toLowerCase() === 'mm' ? 0 : 1,
+        }).format(value);
+      } else if (typeof value === 'string') {
+        formatted = value.trim();
+      } else {
+        formatted = String(value);
+      }
+
+      if (!formatted) {
+        return null;
+      }
+
+      if (!unit) {
+        return formatted;
+      }
+
+      const normalizedUnit = unit.trim();
+      if (!normalizedUnit) {
+        return formatted;
+      }
+
+      const upperUnit = normalizedUnit.toUpperCase();
+      return `${formatted} ${upperUnit}`;
+    };
+
+    const ensureEntry = (categoryId: string, map: Map<string, ShareableEntry>): ShareableEntry => {
+      const existing = map.get(categoryId);
+      if (existing) {
+        return existing;
+      }
+      const created: ShareableEntry = {
+        label: formatCategory(categoryId),
+        categoryValues: new Set<string>(),
+        productTypes: new Map<string, { label: string; values: Set<string> }>(),
+      };
+      map.set(categoryId, created);
+      return created;
+    };
+
+    const addCategoryValue = (map: Map<string, ShareableEntry>, categoryId: string, value: string | null) => {
+      if (!value) {
+        return;
+      }
+      const entry = ensureEntry(categoryId, map);
+      entry.categoryValues.add(value);
+    };
+
+    const addProductTypeValue = (
+      map: Map<string, ShareableEntry>,
+      categoryId: string,
+      productTypeId: string | null,
+      productLabel: string | null,
+      value: string | null
+    ) => {
+      if (!productTypeId) {
+        addCategoryValue(map, categoryId, value);
+        return;
+      }
+      if (!value) {
+        return;
+      }
+      const entry = ensureEntry(categoryId, map);
+      const existing =
+        entry.productTypes.get(productTypeId) ??
+        {
+          label: productLabel ?? formatProductType(categoryId, productTypeId) ?? productTypeId,
+          values: new Set<string>(),
+        };
+      existing.label = existing.label || productLabel || formatProductType(categoryId, productTypeId) || productTypeId;
+      existing.values.add(value);
+      entry.productTypes.set(productTypeId, existing);
+    };
+
+    const aggregate = new Map<string, ShareableEntry>();
+
+    sizeLabels.forEach((item) => {
+      const trimmed = item.label?.trim() ?? null;
+      if (item.product_type) {
+        addProductTypeValue(
+          aggregate,
+          item.category,
+          item.product_type,
+          formatProductType(item.category, item.product_type),
+          trimmed
+        );
+      } else {
+        addCategoryValue(aggregate, item.category, trimmed);
+      }
+    });
+
+    garments.forEach((garment) => {
+      const categoryId = garment.category;
+      const sizeRecord = (garment.size ?? {}) as Record<string, unknown>;
+      const productTypeId =
+        typeof sizeRecord.product_type_id === 'string' ? (sizeRecord.product_type_id as string) : null;
+      const productTypeLabel =
+        typeof sizeRecord.product_type_label === 'string' ? (sizeRecord.product_type_label as string) : null;
+      const values =
+        typeof sizeRecord.values === 'object' && sizeRecord.values !== null
+          ? (sizeRecord.values as Record<string, unknown>)
+          : {};
+      const units =
+        typeof sizeRecord.units === 'object' && sizeRecord.units !== null
+          ? (sizeRecord.units as Record<string, string | null | undefined>)
+          : {};
+
+      const preferredOrder = ['size_label', 'size', 'size_eu', 'size_us', 'size_uk'];
+      let preview: string | null = null;
+      for (const key of preferredOrder) {
+        if (preview) break;
+        preview = formatValueWithUnit(values[key], units[key]);
+      }
+
+      if (!preview) {
+        for (const key of Object.keys(values)) {
+          preview = formatValueWithUnit(values[key], units[key]);
+          if (preview) {
+            break;
+          }
+        }
+      }
+
+      addProductTypeValue(
+        aggregate,
+        categoryId,
+        productTypeId,
+        productTypeLabel ?? (productTypeId ? formatProductType(categoryId, productTypeId) : null),
+        preview
+      );
+    });
+
+    return Array.from(aggregate.entries())
+      .map(([categoryId, entry]) => ({
+        id: categoryId,
+        label: entry.label,
+        categoryValues: Array.from(entry.categoryValues).sort((a, b) =>
+          a.localeCompare(b, undefined, { sensitivity: 'base' })
+        ),
+        productTypes: Array.from(entry.productTypes.entries())
+          .map(([typeId, product]) => ({
+            id: typeId,
+            label: product.label,
+            values: Array.from(product.values).sort((a, b) =>
+              a.localeCompare(b, undefined, { sensitivity: 'base' })
+            ),
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })),
+      }))
+      .filter((entry) => entry.categoryValues.length > 0 || entry.productTypes.length > 0)
+      .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
+  }, [garments, sizeLabels]);
 
   const toggleSelection = (category: string, productType: string | null) => {
     setSelection((prev) => {
