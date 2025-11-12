@@ -635,6 +635,7 @@ export function HomePage({
   const [isUpsellOpen, setIsUpsellOpen] = useState(Boolean(initialUpsellReason));
   const bodyMeasurements = bodyMeasurementsProp ?? null;
   const initialSection = _initialSection;
+  const activeSimpleSection = isSimpleVariant ? initialSection : null;
 
   useEffect(() => {
     const normalized = normalizeUpsellReason(upsellReason);
@@ -643,9 +644,6 @@ export function HomePage({
   }, [upsellReason]);
 
   useEffect(() => {
-    if (isSimpleVariant) {
-      return;
-    }
     if (!initialSection) {
       return;
     }
@@ -659,7 +657,7 @@ export function HomePage({
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [initialSection, isSimpleVariant]);
+  }, [initialSection]);
 
   const handleCloseUpsell = useCallback(() => {
     setIsUpsellOpen(false);
@@ -1027,7 +1025,25 @@ export function HomePage({
 
       const sectionParam = sectionMap[key];
       if (sectionParam) {
-        router.push(`/dashboard?section=${sectionParam}`);
+        if (typeof window === 'undefined') {
+          router.push(`/dashboard?section=${sectionParam}`);
+          return;
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        if (activeSimpleSection === sectionParam) {
+          params.delete('section');
+        } else {
+          params.set('section', sectionParam);
+        }
+
+        const query = params.toString();
+        router.replace(
+          `${window.location.pathname}${query ? `?${query}` : ''}`,
+          {
+            scroll: false,
+          }
+        );
       }
     };
 
@@ -1065,6 +1081,13 @@ export function HomePage({
           <div className="grid gap-3 sm:grid-cols-3">
             {shortcuts.map((shortcut) => {
               const isLocked = shortcut.locked;
+              const sectionMap: Record<typeof shortcuts[number]['key'], 'events' | 'trusted-circle' | 'wishlist'> = {
+                events: 'events',
+                circles: 'trusted-circle',
+                wishlist: 'wishlist',
+              };
+              const mappedSection = sectionMap[shortcut.key];
+              const isActive = activeSimpleSection === mappedSection;
               return (
                 <button
                   key={shortcut.key}
@@ -1074,8 +1097,11 @@ export function HomePage({
                     'group relative flex flex-col gap-3 rounded-2xl border px-4 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
                     isLocked
                       ? 'border-dashed border-primary/40 bg-surface-muted/50 text-muted-foreground hover:border-primary hover:text-primary'
+                      : isActive
+                      ? 'border-primary/60 bg-primary/10 text-primary hover:border-primary hover:shadow-lg hover:shadow-primary/10'
                       : 'border-border/60 bg-[var(--surface-interactive)] hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10',
                   ].join(' ')}
+                  aria-pressed={isActive}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
@@ -1100,7 +1126,7 @@ export function HomePage({
                       </svg>
                     ) : (
                       <svg
-                        className="h-4 w-4 text-muted-foreground/70 group-hover:text-primary"
+                        className={`h-4 w-4 ${isActive ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-primary'}`}
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -2323,7 +2349,10 @@ export function HomePage({
 
           {isSimpleVariant ? (
             <>
-              {renderSimpleSizesSection()}
+                  {renderSimpleSizesSection()}
+                  {activeSimpleSection === 'events' ? renderEventsSection() : null}
+                  {activeSimpleSection === 'trusted-circle' ? renderTrustedCircleSection() : null}
+                  {activeSimpleSection === 'wishlist' ? renderWishlistSection() : null}
             </>
           ) : (
             <>
