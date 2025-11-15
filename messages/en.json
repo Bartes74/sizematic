@@ -1162,7 +1162,9 @@
       },
       "register": {
         "emailTaken": "This email address is already in use.",
-        "generic": "We couldn't complete the sign up. Please try again."
+        "generic": "We couldn't complete the sign up. Please try again.",
+        "rateLimited": "Too many sign-up attempts. Please wait a moment and try again.",
+        "captcha": "We couldn't verify the security check. Please try again."
       },
       "password": {
         "minLength": "Password must be at least 8 characters long",

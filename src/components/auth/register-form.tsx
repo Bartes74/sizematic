@@ -67,11 +67,18 @@ export function RegisterForm() {
       });
 
       if (error) {
+        if ((error as { status?: number }).status === 429) {
+          setErrorKey('auth.errors.register.rateLimited');
+          return;
+        }
+
         const normalized = error.message?.toLowerCase() ?? '';
         if (normalized.includes('already registered')) {
           setErrorKey('auth.errors.register.emailTaken');
         } else if (normalized.includes('invalid email')) {
           setErrorKey('auth.errors.invalidEmail');
+        } else if (normalized.includes('captcha')) {
+          setErrorKey('auth.errors.register.captcha');
         } else {
           setErrorKey('auth.errors.register.generic');
         }

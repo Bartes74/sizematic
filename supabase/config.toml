@@ -19,12 +19,22 @@ port = 54324
 file_size_limit = "50MB"
 
 [auth]
-site_url = "https://sizematic.vercel.app"
-additional_redirect_urls = ["https://sizematic.vercel.app", "https://sizematic.vercel.app/*"]
+site_url = "https://www.gift.fit"
+additional_redirect_urls = [
+  "https://sizematic.vercel.app",
+  "https://sizematic.vercel.app/*",
+  "https://www.gift.fit",
+  "https://www.gift.fit/*",
+  "https://gift.fit",
+  "https://gift.fit/*"
+]
+minimum_password_length = 8
+password_requirements = "lower_upper_letters_digits_symbols"
 
 [auth.email]
 enable_signup = true
 enable_confirmations = true
+max_frequency = "1s"
 
 [auth.email.template.confirmation]
 subject = "Potwierdź swoje konto w SizeHub"
@@ -33,3 +43,7 @@ content_path = "./supabase/templates/confirmation.html"
 [auth.email.template.recovery]
 subject = "Resetowanie hasła - SizeHub"
 content_path = "./supabase/templates/recovery.html"
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true

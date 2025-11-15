@@ -1159,7 +1159,9 @@
       },
       "register": {
         "emailTaken": "Ten adres email jest już zajęty.",
-        "generic": "Wystąpił błąd podczas rejestracji"
+        "generic": "Wystąpił błąd podczas rejestracji",
+        "rateLimited": "Za często próbujesz się zarejestrować. Odczekaj chwilę i spróbuj ponownie.",
+        "captcha": "Nie udało się zweryfikować zabezpieczenia. Spróbuj ponownie."
       },
       "password": {
         "minLength": "Hasło musi mieć minimum 8 znaków",
