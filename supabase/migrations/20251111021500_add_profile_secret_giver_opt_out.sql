@@ -9,3 +9,7 @@ where allow_secret_giver is null;
 
 comment on column public.profiles.allow_secret_giver is 'When false, the account opts out of receiving Secret Giver requests.';
 
+
+
+
+
