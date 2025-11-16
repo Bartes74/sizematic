@@ -34,6 +34,7 @@ next-env.d.ts
 # IDE
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
@@ -46,3 +47,13 @@ coverage/
 # Misc
 *.pem
 .cache/
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+
+# Tools and scratch files
+tools/
+*.png
+*.jpg
+*.jpeg

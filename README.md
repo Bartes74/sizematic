@@ -2,6 +2,20 @@
 
 GiftFit (roboczo SizeHub) to PWA zbudowana na Next.js 15 i Supabase, która pomaga użytkownikom zarządzać rozmiarami, udostępniać je zaufanym osobom oraz kompletować listę prezentów. Niniejszy dokument podsumowuje architekturę, kluczowe funkcjonalności oraz procesy developerskie projektów `apps/web`, `apps/edge` i `supabase`.
 
+## ⚠️ WAŻNE: Rejestracja na Produkcji
+
+**Jeśli rejestracja użytkowników nie działa na https://gift.fit:**
+
+👉 **[Szybka naprawa (5 minut)](./docs/SZYBKA_NAPRAWA.md)**
+
+📋 **[Szczegółowy przewodnik](./docs/FIX_PRODUCTION_REGISTRATION.md)**
+
+✅ **[Checklist krok po kroku](./docs/CHECKLIST_NAPRAWA_REJESTRACJI.md)**
+
+**TL;DR**: Dodaj redirect URLs w Supabase Dashboard i ustaw `NEXT_PUBLIC_SITE_URL` w Vercel Production.
+
+---
+
 ## Spis treści
 1. [Szybki start](#szybki-start)
 2. [Przegląd funkcjonalny](#przegląd-funkcjonalny)
