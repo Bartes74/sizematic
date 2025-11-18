@@ -22,7 +22,7 @@ type CircleResponse = {
   members: Array<{
     profile: {
       id: string;
-      display_name: string | null;
+      first_name: string | null;
       email: string | null;
       avatar_url: string | null;
     };

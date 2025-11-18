@@ -77,7 +77,7 @@ type HomePageProps = {
     members: Array<{
       profile: {
         id: string;
-        display_name: string | null;
+        first_name: string | null;
         email: string | null;
         avatar_url: string | null;
       };
@@ -1813,15 +1813,13 @@ export function HomePage({
   const trustedMembers = useMemo(() => {
     return (trustedCircleInitial?.members ?? []).map((member) => {
       const profile = member.profile;
-      const rawDisplayName = profile.display_name?.trim() ?? '';
-      const [firstNameRaw, ...rest] = rawDisplayName.split(/\s+/);
-      const computedFirstName = firstNameRaw?.trim() || rawDisplayName || 'Kontakt';
-      const computedLastName = rest.join(' ').trim();
+      const rawFirstName = profile.first_name?.trim() ?? '';
+      const computedFirstName = rawFirstName || profile.email?.split('@')[0] || 'Kontakt';
 
       return {
         id: profile.id,
         firstName: computedFirstName,
-        lastName: computedLastName,
+        lastName: '',
         email: profile.email ?? '',
       } as TrustedMemberContact;
     });

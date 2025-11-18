@@ -18,7 +18,7 @@ export default async function SecretGiverPage() {
   // Get user profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, display_name, role, avatar_url')
+    .select('id, first_name, role, avatar_url')
     .eq('owner_id', user.id)
     .single();
 
@@ -26,7 +26,7 @@ export default async function SecretGiverPage() {
     throw new Error('Profil użytkownika nie istnieje.');
   }
 
-  const userName = profile.display_name || user.email?.split('@')[0] || null;
+  const userName = profile.first_name || user.email?.split('@')[0] || null;
   const userRole = profile.role as UserRole;
   const avatarUrl = profile.avatar_url || null;
 

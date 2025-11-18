@@ -75,7 +75,7 @@ export default async function Home({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, display_name, role, plan_type, dashboard_variant, avatar_url, has_completed_onboarding")
+    .select("id, first_name, role, plan_type, dashboard_variant, avatar_url, has_completed_onboarding")
     .eq("owner_id", user.id)
     .single();
 
@@ -84,7 +84,7 @@ export default async function Home({
     throw new Error("Profil użytkownika nie istnieje dla zalogowanego konta.");
   }
 
-  userName = profile.display_name || userName;
+  userName = profile.first_name || userName;
   userRole = profile.role as UserRole;
   avatarUrl = profile.avatar_url || null;
 

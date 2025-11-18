@@ -70,7 +70,7 @@ export default async function AddGarmentByCategoryPage({
   // Get user profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, display_name, role, avatar_url')
+    .select('id, first_name, role, avatar_url')
     .eq('owner_id', user.id)
     .single();
 
@@ -78,7 +78,7 @@ export default async function AddGarmentByCategoryPage({
     redirect('/');
   }
 
-  userName = profile.display_name ?? userName;
+  userName = profile.first_name ?? userName;
   userRole = profile.role as UserRole;
   avatarUrl = profile.avatar_url ?? null;
 

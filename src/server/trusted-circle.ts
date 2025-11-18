@@ -7,7 +7,7 @@ type CircleMemberPermissions = { category: string; product_type: string | null }
 type TrustedCircleMember = {
   profile: {
     id: string;
-    display_name: string | null;
+    first_name: string | null;
     email: string | null;
     avatar_url: string | null;
   };
@@ -68,7 +68,7 @@ export async function getTrustedCircleSnapshot(ownerId: string): Promise<Trusted
       .order('created_at', { ascending: true }),
     admin
       .from('trusted_circle_memberships')
-      .select('circle_id, owner_profile_id, member_profile:member_profile_id(id, display_name, email, avatar_url), created_at')
+      .select('circle_id, owner_profile_id, member_profile:member_profile_id(id, first_name, email, avatar_url), created_at')
       .eq('owner_profile_id', profile.id),
     admin
       .from('trusted_circle_permissions')

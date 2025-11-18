@@ -44,7 +44,7 @@ export default async function SizesDirectoryPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, display_name, role, avatar_url')
+    .select('id, first_name, role, avatar_url')
     .eq('owner_id', user.id)
     .maybeSingle();
 
@@ -88,7 +88,7 @@ export default async function SizesDirectoryPage() {
 
   sizePreferences = (preferencesData ?? []) as DashboardSizePreference[];
 
-  userName = profile.display_name ?? userName;
+  userName = profile.first_name ?? userName;
   userRole = profile.role as UserRole;
   avatarUrl = profile.avatar_url ?? null;
 

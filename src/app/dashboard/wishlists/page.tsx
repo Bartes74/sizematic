@@ -50,7 +50,7 @@ export default async function DashboardWishlistsPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, display_name, role, plan_type, avatar_url")
+    .select("id, first_name, role, plan_type, avatar_url")
     .eq("owner_id", user.id)
     .maybeSingle();
 
@@ -63,7 +63,7 @@ export default async function DashboardWishlistsPage({
   }
 
   const profileId = profile.id;
-  userName = profile.display_name ?? userName;
+  userName = profile.first_name ?? userName;
   userRole = profile.role as UserRole;
   avatarUrl = profile.avatar_url ?? null;
 

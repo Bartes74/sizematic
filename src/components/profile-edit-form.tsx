@@ -101,7 +101,7 @@ export function ProfileEditForm({ initialData }: ProfileEditFormProps) {
 
       // Update profile
       const updates: Record<string, unknown> = {
-        display_name: displayName,
+        first_name: displayName,
         avatar_url: newAvatarUrl,
       };
 

@@ -16,7 +16,7 @@ export default async function ProfileEditPage() {
   // Get user profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('display_name, avatar_url, email, plan_type, role, allow_secret_giver')
+    .select('first_name, avatar_url, email, plan_type, role, allow_secret_giver')
     .eq('owner_id', user.id)
     .single();
 
@@ -51,7 +51,7 @@ export default async function ProfileEditPage() {
 
         <ProfileEditForm
           initialData={{
-            displayName: profile?.display_name || '',
+            displayName: profile?.first_name || '',
             email: profile?.email || user.email || '',
             avatarUrl: profile?.avatar_url || null,
             allowSecretGiver,
