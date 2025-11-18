@@ -1254,7 +1254,11 @@ function TrustedCircleMemberDialog({
                               let displayValue = String(v);
                               // Translate fit preference values if they exist
                               if (k === 'fit_preference' || k === 'fit_type') {
-                                displayValue = t(`circle.fitPreferences.${v}` as any) || String(v);
+                                const normalizedValue = String(v).toLowerCase().replace(/ /g, '_');
+                                const translationKey = `circle.fitPreferences.${normalizedValue}`;
+                                const translated = t(translationKey as any);
+                                // Only use translation if it doesn't look like a key (doesn't contain the prefix)
+                                displayValue = translated.includes('circle.fitPreferences.') ? String(v) : translated;
                               }
                               return `${fieldLabel}: ${displayValue}`;
                             })
