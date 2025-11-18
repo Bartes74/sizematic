@@ -29,6 +29,38 @@ Kompletny przewodnik po:
 
 ---
 
+## 📧 Email & SMTP Configuration
+
+### [smtp-action-plan.md](./smtp-action-plan.md) ⚡
+**Immediate action plan for fixing SMTP timeout issues**
+
+**Read this if**: Registration confirmation emails fail with HTTP 504 timeout
+
+Step-by-step guide covering:
+- Verifying Supabase Dashboard SMTP configuration
+- Testing SMTP connectivity
+- Re-enabling email confirmations
+- Alternative SMTP providers (SendGrid)
+- Complete verification checklist
+
+### [smtp-fix.md](./smtp-fix.md) 📋
+**Detailed technical investigation of SMTP timeout issue**
+
+Technical deep-dive useful for:
+- Understanding the root cause analysis
+- Learning about email delivery troubleshooting
+- Reviewing SMTP test results
+- Exploring alternative solutions
+
+**Quick Test**:
+```bash
+pnpm test:smtp
+```
+
+This tests direct SMTP connection to diagnose timeout issues.
+
+---
+
 ## 💻 Local Development
 
 ### [SETUP_SUPABASE_AUTH.md](./SETUP_SUPABASE_AUTH.md)
