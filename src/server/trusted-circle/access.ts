@@ -34,18 +34,35 @@ export async function getCircleMembershipAccess(
 ): Promise<{ memberships: CircleMembershipAccess[]; permissions: PermissionRow[] }> {
   const admin = createSupabaseAdminClient();
 
+  // First, get all circles owned by the data owner
+  const { data: circlesData, error: circlesError } = await admin
+    .from('trusted_circles')
+    .select('id')
+    .eq('owner_profile_id', ownerProfileId);
+
+  if (circlesError) {
+    throw new Error(`Failed to load trusted circles: ${circlesError.message}`);
+  }
+
+  const circleIds = (circlesData ?? []).map((c) => c.id);
+
+  if (circleIds.length === 0) {
+    return { memberships: [], permissions: [] };
+  }
+
+  // Now query memberships and permissions for these circles where member matches
   const [{ data: membershipsData, error: membershipsError }, { data: permissionsData, error: permissionsError }] =
     await Promise.all([
       admin
         .from('trusted_circle_memberships')
-        .select('circle_id, circle:circle_id(name, allow_wishlist_access, allow_size_access), created_at')
-        .eq('owner_profile_id', ownerProfileId)
-        .eq('member_profile_id', memberProfileId),
+        .select('circle_id, circle:trusted_circles!circle_id(name, allow_wishlist_access, allow_size_access), created_at')
+        .eq('member_profile_id', memberProfileId)
+        .in('circle_id', circleIds),
       admin
         .from('trusted_circle_permissions')
         .select('circle_id, category, product_type')
-        .eq('owner_profile_id', ownerProfileId)
-        .eq('member_profile_id', memberProfileId),
+        .eq('member_profile_id', memberProfileId)
+        .in('circle_id', circleIds),
     ]);
 
   if (membershipsError) {
@@ -172,5 +189,107 @@ export async function getAccessibleSizeLabels(
   });
 
   return filtered;
+}
+
+export async function getAccessibleGarments(
+  ownerProfileId: string,
+  memberProfileId: string
+): Promise<Array<Record<string, unknown>>> {
+  const admin = createSupabaseAdminClient();
+  const { memberships, permissions } = await getCircleMembershipAccess(ownerProfileId, memberProfileId);
+  const accessibleCircleIds = memberships
+    .filter((membership) => membership.allow_size_access)
+    .map((membership) => membership.circle_id);
+
+  if (accessibleCircleIds.length === 0 || permissions.length === 0) {
+    return [];
+  }
+
+  const circlePermissionMap = new Map<string, PermissionRow[]>();
+  permissions.forEach((permission) => {
+    if (!accessibleCircleIds.includes(permission.circle_id)) {
+      return;
+    }
+    const list = circlePermissionMap.get(permission.circle_id) ?? [];
+    list.push(permission);
+    circlePermissionMap.set(permission.circle_id, list);
+  });
+
+  if (circlePermissionMap.size === 0) {
+    return [];
+  }
+
+  const fullCategories = new Set<string>();
+  const typeMap = new Map<string, Set<string>>();
+
+  circlePermissionMap.forEach((list) => {
+    list.forEach((entry) => {
+      if (!entry.product_type) {
+        fullCategories.add(entry.category);
+      } else {
+        const set = typeMap.get(entry.category) ?? new Set<string>();
+        set.add(entry.product_type);
+        typeMap.set(entry.category, set);
+      }
+    });
+  });
+
+  const categoriesToFetch = new Set<string>([...fullCategories, ...typeMap.keys()]);
+  if (categoriesToFetch.size === 0) {
+    return [];
+  }
+
+  const { data: garments, error: garmentsError } = await admin
+    .from('garments')
+    .select('id, category, type, name, brand_name, size, created_at')
+    .eq('profile_id', ownerProfileId)
+    .in('category', Array.from(categoriesToFetch));
+
+  if (garmentsError) {
+    throw new Error(`Failed to load garments: ${garmentsError.message}`);
+  }
+
+  const filtered = (garments ?? []).filter((garment) => {
+    if (fullCategories.has(garment.category)) {
+      return true;
+    }
+    const sizeObj = garment.size as Record<string, unknown> | null;
+    const productTypeId = sizeObj && typeof sizeObj.product_type_id === 'string' ? sizeObj.product_type_id : null;
+    if (!productTypeId) {
+      return fullCategories.has(garment.category);
+    }
+    const allowedTypes = typeMap.get(garment.category);
+    if (!allowedTypes) {
+      return false;
+    }
+    return allowedTypes.has(productTypeId);
+  });
+
+  return filtered;
+}
+
+export async function getAccessibleBodyMeasurements(
+  ownerProfileId: string,
+  memberProfileId: string
+): Promise<Record<string, unknown> | null> {
+  const admin = createSupabaseAdminClient();
+  const { memberships } = await getCircleMembershipAccess(ownerProfileId, memberProfileId);
+  const hasAccess = memberships.some((membership) => membership.allow_size_access);
+
+  if (!hasAccess) {
+    return null;
+  }
+
+  const { data: bodyMeasurements, error: bodyMeasurementsError } = await admin
+    .from('body_measurements')
+    .select('*')
+    .eq('profile_id', ownerProfileId)
+    .maybeSingle();
+
+  if (bodyMeasurementsError) {
+    throw new Error(`Failed to load body measurements: ${bodyMeasurementsError.message}`);
+  }
+
+  return bodyMeasurements ?? null;
 }
 
