@@ -1246,6 +1246,8 @@ function TrustedCircleMemberDialog({
                         {sharedData.garments.map((garment) => {
                           const categoryLabel = formatCategory(garment.category);
                           const sizeObj = garment.size as Record<string, unknown>;
+                          const productTypeId = typeof sizeObj.product_type_id === 'string' ? sizeObj.product_type_id : null;
+                          const productTypeLabel = formatProductType(garment.category, productTypeId);
                           const values = (sizeObj.values ?? {}) as Record<string, unknown>;
                           const sizeDisplay = Object.entries(values)
                             .filter(([, v]) => v !== null && v !== undefined)
@@ -1269,7 +1271,7 @@ function TrustedCircleMemberDialog({
                                 {garment.name} {garment.brand_name ? `(${garment.brand_name})` : ''}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {categoryLabel} • {garment.type}
+                                {categoryLabel} • {productTypeLabel}
                               </p>
                               <p className="text-xs text-muted-foreground mt-1">
                                 {sizeDisplay}
