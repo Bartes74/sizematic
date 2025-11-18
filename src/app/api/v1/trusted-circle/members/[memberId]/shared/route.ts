@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getAccessibleSizeLabels } from '@/server/trusted-circle/access';
+import { getAccessibleSizeLabels, getAccessibleGarments, getAccessibleBodyMeasurements } from '@/server/trusted-circle/access';
 import { createSupabaseAdminClient } from '@/lib/supabase';
 
 type RouteContext = {
@@ -58,9 +58,17 @@ export async function GET(
       return NextResponse.json({ error: 'member_not_found' }, { status: 404 });
     }
 
-    const sizeLabels = await getAccessibleSizeLabels(memberProfileId, currentProfile.id);
+    const [sizeLabels, garments, bodyMeasurements] = await Promise.all([
+      getAccessibleSizeLabels(memberProfileId, currentProfile.id),
+      getAccessibleGarments(memberProfileId, currentProfile.id),
+      getAccessibleBodyMeasurements(memberProfileId, currentProfile.id),
+    ]);
 
-    return NextResponse.json({ size_labels: sizeLabels });
+    return NextResponse.json({
+      size_labels: sizeLabels,
+      garments: garments,
+      body_measurements: bodyMeasurements,
+    });
   } catch (error) {
     console.error('GET /api/v1/trusted-circle/members/[memberId]/shared failed:', error);
     return NextResponse.json({ error: 'server_error' }, { status: 500 });

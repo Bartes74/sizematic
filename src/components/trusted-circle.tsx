@@ -11,7 +11,7 @@ import type { Garment, SizeLabel } from '@/lib/types';
 type MemberSummary = {
   profile: {
     id: string;
-    display_name: string | null;
+    first_name: string | null;
     email: string | null;
     avatar_url: string | null;
   };
@@ -32,6 +32,16 @@ type SharedData = {
     notes: string | null;
     created_at: string;
   }>;
+  garments: Array<{
+    id: string;
+    category: string;
+    type: string;
+    name: string;
+    brand_name: string | null;
+    size: Record<string, unknown>;
+    created_at: string;
+  }>;
+  body_measurements: Record<string, unknown> | null;
 };
 
 const fetcher = (url: string) => fetch(url, { credentials: 'include' }).then((res) => {
@@ -633,7 +643,7 @@ export function TrustedCircle({ initialData, garments = [], sizeLabels = [] }: T
                         ) : (
                           <ul className="space-y-3">
                             {membersForCircle.map((member) => {
-                              const displayName = member.profile.display_name ?? member.profile.email ?? 'GiftFit user';
+                              const displayName = member.profile.first_name ?? member.profile.email ?? 'GiftFit user';
                               const connectedAt = new Date(member.connected_at).toLocaleDateString();
                               const connectedLabel = `${t('circle.connectedSince')} ${connectedAt}`;
                               return (
@@ -645,7 +655,7 @@ export function TrustedCircle({ initialData, garments = [], sizeLabels = [] }: T
                                   >
                                     <span className="flex items-center gap-3">
                                       <TrustedCircleAvatar
-                                        name={member.profile.display_name}
+                                        name={member.profile.first_name}
                                         email={member.profile.email}
                                         src={member.profile.avatar_url}
                                         size="md"
@@ -1067,14 +1077,14 @@ function TrustedCircleMemberDialog({
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <TrustedCircleAvatar
-              name={member.profile.display_name}
+              name={member.profile.first_name}
               email={member.profile.email}
               src={member.profile.avatar_url}
               size="lg"
             />
             <div>
               <h3 className="text-lg font-semibold text-foreground">
-                {member.profile.display_name ?? member.profile.email}
+                {member.profile.first_name ?? member.profile.email}
               </h3>
               <p className="text-xs text-muted-foreground">
                 {`${t('circle.connectedSince')} ${new Date(member.connected_at).toLocaleDateString()}`}
@@ -1205,26 +1215,78 @@ function TrustedCircleMemberDialog({
                 <p className="text-sm text-muted-foreground">{t('circle.loadingShared')}</p>
               ) : sharedError ? (
                 <p className="text-sm text-destructive">{sharedError.message}</p>
-              ) : sharedData && sharedData.size_labels.length === 0 ? (
+              ) : sharedData && sharedData.size_labels.length === 0 && sharedData.garments.length === 0 && !sharedData.body_measurements ? (
                 <p className="text-sm text-muted-foreground">{t('circle.noSharedSizes')}</p>
               ) : (
-                <ul className="space-y-2 text-xs text-muted-foreground">
-                  {sharedData?.size_labels.map((label) => {
-                    const categoryLabel = formatCategory(label.category);
-                    const productTypeLabel = formatProductType(label.category, label.product_type);
-                    return (
-                      <li key={label.id} className="rounded-lg border border-border/60 bg-background px-3 py-2">
-                        <p className="font-medium text-foreground">
-                          {label.label} {label.brand_name ? `(${label.brand_name})` : ''}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {productTypeLabel ? `${categoryLabel} • ${productTypeLabel}` : categoryLabel}
-                        </p>
-                        {label.notes ? <p className="italic text-muted-foreground">{label.notes}</p> : null}
-                      </li>
-                    );
-                  })}
-                </ul>
+                <div className="space-y-4">
+                  {sharedData?.body_measurements ? (
+                    <div className="rounded-lg border border-border/60 bg-background px-3 py-2">
+                      <p className="text-xs font-semibold text-foreground mb-2">Pomiary ciała</p>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {Object.entries(sharedData.body_measurements)
+                          .filter(([key]) => !['profile_id', 'created_at', 'last_updated', 'notes'].includes(key))
+                          .filter(([, value]) => value !== null && value !== undefined)
+                          .map(([key, value]) => (
+                            <div key={key}>
+                              <span className="text-muted-foreground">{key.replace(/_/g, ' ')}: </span>
+                              <span className="font-medium text-foreground">{String(value)}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {sharedData?.garments && sharedData.garments.length > 0 ? (
+                    <div>
+                      <p className="text-xs font-semibold text-foreground mb-2">Ubrania ({sharedData.garments.length})</p>
+                      <ul className="space-y-2">
+                        {sharedData.garments.map((garment) => {
+                          const categoryLabel = formatCategory(garment.category);
+                          const sizeObj = garment.size as Record<string, unknown>;
+                          const values = (sizeObj.values ?? {}) as Record<string, unknown>;
+                          const sizeDisplay = Object.entries(values)
+                            .filter(([, v]) => v !== null && v !== undefined)
+                            .map(([k, v]) => `${k}: ${v}`)
+                            .join(', ') || JSON.stringify(garment.size);
+                          return (
+                            <li key={garment.id} className="rounded-lg border border-border/60 bg-background px-3 py-2">
+                              <p className="font-medium text-foreground text-xs">
+                                {garment.name} {garment.brand_name ? `(${garment.brand_name})` : ''}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {categoryLabel} • {garment.type}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {sizeDisplay}
+                              </p>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {sharedData?.size_labels && sharedData.size_labels.length > 0 ? (
+                    <div>
+                      <p className="text-xs font-semibold text-foreground mb-2">Zapisane rozmiary ({sharedData.size_labels.length})</p>
+                      <ul className="space-y-2 text-xs text-muted-foreground">
+                        {sharedData.size_labels.map((label) => {
+                          const categoryLabel = formatCategory(label.category);
+                          const productTypeLabel = formatProductType(label.category, label.product_type);
+                          return (
+                            <li key={label.id} className="rounded-lg border border-border/60 bg-background px-3 py-2">
+                              <p className="font-medium text-foreground">
+                                {label.label} {label.brand_name ? `(${label.brand_name})` : ''}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {productTypeLabel ? `${categoryLabel} • ${productTypeLabel}` : categoryLabel}
+                              </p>
+                              {label.notes ? <p className="italic text-muted-foreground">{label.notes}</p> : null}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
               )}
             </div>
           </div>
