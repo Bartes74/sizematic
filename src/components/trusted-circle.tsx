@@ -1226,12 +1226,16 @@ function TrustedCircleMemberDialog({
                         {Object.entries(sharedData.body_measurements)
                           .filter(([key]) => !['profile_id', 'created_at', 'last_updated', 'notes'].includes(key))
                           .filter(([, value]) => value !== null && value !== undefined)
-                          .map(([key, value]) => (
-                            <div key={key}>
-                              <span className="text-muted-foreground">{key.replace(/_/g, ' ')}: </span>
-                              <span className="font-medium text-foreground">{String(value)}</span>
-                            </div>
-                          ))}
+                          .map(([key, value]) => {
+                            const fieldLabel = t(`measurements.fields.${key}` as any) || key.replace(/_/g, ' ');
+                            const unit = key.includes('_mm') ? ' mm' : ' cm';
+                            return (
+                              <div key={key}>
+                                <span className="text-muted-foreground">{fieldLabel}: </span>
+                                <span className="font-medium text-foreground">{String(value)}{unit}</span>
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
                   ) : null}
@@ -1245,7 +1249,15 @@ function TrustedCircleMemberDialog({
                           const values = (sizeObj.values ?? {}) as Record<string, unknown>;
                           const sizeDisplay = Object.entries(values)
                             .filter(([, v]) => v !== null && v !== undefined)
-                            .map(([k, v]) => `${k}: ${v}`)
+                            .map(([k, v]) => {
+                              const fieldLabel = t(`circle.sizeFields.${k}` as any) || k.replace(/_/g, ' ');
+                              let displayValue = String(v);
+                              // Translate fit preference values if they exist
+                              if (k === 'fit_preference' || k === 'fit_type') {
+                                displayValue = t(`circle.fitPreferences.${v}` as any) || String(v);
+                              }
+                              return `${fieldLabel}: ${displayValue}`;
+                            })
                             .join(', ') || JSON.stringify(garment.size);
                           return (
                             <li key={garment.id} className="rounded-lg border border-border/60 bg-background px-3 py-2">
